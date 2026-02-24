@@ -1,93 +1,108 @@
 import {
-  FilesetResolver,
   PoseLandmarker,
+  FilesetResolver,
   DrawingUtils
-} from "https://cdn.skypack.dev/@mediapipe/tasks-vision@0.10.0";
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 
-const videoElement = document.getElementById('webcam');
-const canvasElement = document.getElementById('output_canvas');
-const ctx = canvasElement.getContext('2d');
-const startButton = document.getElementById('startButton');
+const video = document.getElementById("webcam");
+const canvasElement = document.getElementById("output_canvas");
+const canvasCtx = canvasElement.getContext("2d");
+const webcamButton = document.getElementById("webcamButton");
 
-let poseLandmarker;
-let isDetecting = false;
+let poseLandmarker = undefined;
+let lastVideoTime = -1;
 
-// Colores para cada landmark
-const landmarkColors = [
-  "#e6194b","#3cb44b","#ffe119","#4363d8","#f58231","#911eb4","#46f0f0",
-  "#f032e6","#bcf60c","#fabebe","#008080","#e6beff","#9a6324","#fffac8",
-  "#800000","#aaffc3","#808000","#ffd8b1","#000075","#808080","#ffffff",
-  "#000000","#ffe4e1","#8b0000","#00ff00","#0000ff","#ff00ff","#ffff00",
-  "#00ffff","#ff7f00","#7f00ff","#7fff00","#007fff"
-];
+// Definición de colores por extremidad
+const COLORS = {
+  face: "#FFFFFF",        // Blanco
+  leftArm: "#FF3D00",     // Naranja/Rojo
+  rightArm: "#00E676",    // Verde
+  torso: "#FFEE58",       // Amarillo
+  leftLeg: "#2979FF",     // Azul
+  rightLeg: "#D500F9"     // Morado
+};
 
-async function initPose() {
+// Índices de MediaPipe para cada parte
+const POSE_PARTS = {
+  face: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  leftArm: [11, 13, 15, 17, 19, 21],
+  rightArm: [12, 14, 16, 18, 20, 22],
+  torso: [11, 12, 23, 24],
+  leftLeg: [23, 25, 27, 29, 31],
+  rightLeg: [24, 26, 28, 30, 32]
+};
+
+const createPoseLandmarker = async () => {
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
   );
-
   poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
     baseOptions: {
       modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`,
-      delegate: "GPU"  // Usa GPU si está disponible
+      delegate: "GPU"
     },
-    runningMode: "VIDEO",
-    numPoses: 1,
+    runningMode: "VIDEO"
+  });
+};
+createPoseLandmarker();
+
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  webcamButton.addEventListener("click", enableCam);
+}
+
+function enableCam() {
+  if (!poseLandmarker) return;
+  webcamButton.classList.add("removed");
+  const constraints = { video: { width: 1280, height: 720 } };
+  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+    video.srcObject = stream;
+    video.addEventListener("loadeddata", predictWebcam);
   });
 }
 
-// Dibuja los landmarks de colores
-function drawLandmarks(results) {
-  ctx.save();
-  ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+async function predictWebcam() {
+  canvasElement.style.height = video.videoHeight;
+  canvasElement.style.width = video.videoWidth;
 
-  if (!results || !results.landmarks) {
-    ctx.restore();
-    return;
+  let startTimeMs = performance.now();
+  if (lastVideoTime !== video.currentTime) {
+    lastVideoTime = video.currentTime;
+    poseLandmarker.detectForVideo(video, startTimeMs, (result) => {
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      
+      if (result.landmarks) {
+        for (const landmark of result.landmarks) {
+          drawCustomLandmarks(landmark);
+        }
+      }
+    });
   }
-
-  const landmarks = results.landmarks[0] ?? [];
-
-  for (let i = 0; i < landmarks.length; i++) {
-    const lm = landmarks[i];
-    const x = lm.x * canvasElement.width;
-    const y = lm.y * canvasElement.height;
-    const col = landmarkColors[i % landmarkColors.length];
-
-    ctx.fillStyle = col;
-    ctx.beginPath();
-    ctx.arc(x, y, 6, 0, 2 * Math.PI);
-    ctx.fill();
-  }
-
-  ctx.restore();
+  window.requestAnimationFrame(predictWebcam);
 }
 
-// Bucle de detección
-async function detectFrame() {
-  if (!isDetecting) return;
+// Función para pintar con colores personalizados
+function drawCustomLandmarks(landmarks) {
+  const drawingUtils = new DrawingUtils(canvasCtx);
 
-  poseLandmarker.detectForVideo(videoElement, performance.now(), (results) => {
-    drawLandmarks(results);
-    requestAnimationFrame(detectFrame);
+  // Dibujar cada parte con su color
+  for (const [partName, indices] of Object.entries(POSE_PARTS)) {
+    const partLandmarks = indices.map(index => landmarks[index]);
+    
+    // Dibujar los puntos
+    drawingUtils.drawLandmarks(partLandmarks, {
+      color: COLORS[partName],
+      lineWidth: 2,
+      radius: 2
+    });
+
+    // Dibujar conexiones básicas para esa parte
+    // Nota: Para conexiones complejas entre puntos se requiere la lista de conexiones,
+    // aquí simplificamos dibujando los puntos destacados.
+  }
+  
+  // Dibujar los conectores generales en gris para que resalten los colores de los puntos
+  drawingUtils.drawConnectors(landmarks, PoseLandmarker.POSE_CONNECTIONS, {
+    color: "#E0E0E0",
+    lineWidth: 2
   });
 }
-
-// Iniciar cámara + detección
-async function startCamera() {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  videoElement.srcObject = stream;
-
-  videoElement.onloadeddata = () => {
-    isDetecting = true;
-    detectFrame();
-  };
-}
-
-startButton.addEventListener("click", async () => {
-  if (!poseLandmarker) {
-    await initPose();
-  }
-  startCamera();
-});

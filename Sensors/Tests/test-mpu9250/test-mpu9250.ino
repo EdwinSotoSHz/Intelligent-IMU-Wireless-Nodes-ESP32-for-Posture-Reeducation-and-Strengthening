@@ -11,12 +11,21 @@ const char* ssid = "AsusE";
 const char* password = "23011edpi";
 
 WebServer server(80);
-WebSocketsServer webSocket = WebSocketsServer(81);
+WebSocketsServer webSocket(81);
 
-float roll, pitch, yaw;
+float roll = 0, pitch = 0, yaw = 0;
 float gyroX, gyroY, gyroZ;
 float accX, accY, accZ;
+
+float gyroX_offset = 0;
+float gyroY_offset = 0;
+float gyroZ_offset = 0;
+
 unsigned long prevTime;
+
+const float alpha = 0.98;  // filtro complementario
+
+// ================== HTML ==================
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
@@ -24,71 +33,73 @@ const char index_html[] PROGMEM = R"rawliteral(
 <meta charset="UTF-8">
 <title>MPU 3D</title>
 <style>
-  body { margin:0; overflow:hidden; background:#000; }
+body { margin:0; overflow:hidden; background:#111; color:white; font-family:Arial }
+#info {
+ position:absolute;
+ top:10px;
+ left:10px;
+ background:rgba(0,0,0,0.6);
+ padding:10px;
+ border-radius:8px;
+}
 </style>
 </head>
 <body>
 
-<script type="module">
+<div id="info">
+Roll: <span id="r">0</span><br>
+Pitch: <span id="p">0</span><br>
+Yaw: <span id="y">0</span>
+</div>
 
+<script type="module">
 import * as THREE from 'https://unpkg.com/three@0.180.0/build/three.module.js';
 
 const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-
-const renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Luz
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(2,2,5);
 scene.add(light);
 
-// Cubo
-const geometry = new THREE.BoxGeometry(1,1,1);
-const material = new THREE.MeshStandardMaterial({ color:0x00ffcc });
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshStandardMaterial({color:0x00ffaa});
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
 camera.position.z = 3;
 
-// WebSocket
 const socket = new WebSocket('ws://' + location.hostname + ':81/');
 
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
+socket.onmessage = (event)=>{
+ const data = JSON.parse(event.data);
 
-  cube.rotation.x = data.roll * Math.PI / 180;
-  cube.rotation.y = data.pitch * Math.PI / 180;
-  cube.rotation.z = data.yaw * Math.PI / 180;
+ // Ajuste de ejes para coincidir con Three.js
+ cube.rotation.x = data.pitch * Math.PI/180;
+ cube.rotation.y = data.roll * Math.PI/180;
+ cube.rotation.z = data.yaw * Math.PI/180;
+
+ document.getElementById("r").textContent = data.roll.toFixed(2);
+ document.getElementById("p").textContent = data.pitch.toFixed(2);
+ document.getElementById("y").textContent = data.yaw.toFixed(2);
 };
 
 function animate(){
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
+ requestAnimationFrame(animate);
+ renderer.render(scene, camera);
 }
-
 animate();
-
-window.addEventListener('resize', ()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
 </script>
 </body>
 </html>
 )rawliteral";
 
-void setupMPU() {
+// ================== MPU ==================
+
+void setupMPU(){
   Wire.begin(SDA_PIN, SCL_PIN);
   Wire.beginTransmission(MPU_ADDR);
   Wire.write(0x6B);
@@ -96,7 +107,7 @@ void setupMPU() {
   Wire.endTransmission(true);
 }
 
-void readMPU() {
+void readMPU(){
   Wire.beginTransmission(MPU_ADDR);
   Wire.write(0x3B);
   Wire.endTransmission(false);
@@ -106,53 +117,70 @@ void readMPU() {
   accY = (Wire.read()<<8|Wire.read()) / 16384.0;
   accZ = (Wire.read()<<8|Wire.read()) / 16384.0;
   Wire.read(); Wire.read();
-  gyroX = (Wire.read()<<8|Wire.read()) / 131.0;
-  gyroY = (Wire.read()<<8|Wire.read()) / 131.0;
-  gyroZ = (Wire.read()<<8|Wire.read()) / 131.0;
+
+  gyroX = (Wire.read()<<8|Wire.read()) / 131.0 - gyroX_offset;
+  gyroY = (Wire.read()<<8|Wire.read()) / 131.0 - gyroY_offset;
+  gyroZ = (Wire.read()<<8|Wire.read()) / 131.0 - gyroZ_offset;
 }
 
-void calculateAngles() {
-  float accRoll = atan2(accY, accZ) * 180 / PI;
-  float accPitch = atan2(-accX, sqrt(accY*accY + accZ*accZ)) * 180 / PI;
+void calibrateGyro(){
+  Serial.println("Calibrando gyro...");
+  for(int i=0;i<2000;i++){
+    readMPU();
+    gyroX_offset += gyroX;
+    gyroY_offset += gyroY;
+    gyroZ_offset += gyroZ;
+    delay(2);
+  }
+  gyroX_offset /= 2000;
+  gyroY_offset /= 2000;
+  gyroZ_offset /= 2000;
+  Serial.println("Calibración lista");
+}
 
-  unsigned long currentTime = millis();
-  float dt = (currentTime - prevTime) / 1000.0;
+void calculateAngles(){
+  unsigned long currentTime = micros();
+  float dt = (currentTime - prevTime) / 1000000.0;
   prevTime = currentTime;
 
-  roll = 0.96 * (roll + gyroX * dt) + 0.04 * accRoll;
-  pitch = 0.96 * (pitch + gyroY * dt) + 0.04 * accPitch;
-  yaw += gyroZ * dt; // yaw sin magnetómetro deriva
+  float accRoll = atan2(accY, accZ) * 180/PI;
+  float accPitch = atan2(-accX, sqrt(accY*accY + accZ*accZ)) * 180/PI;
+
+  roll  = alpha*(roll  + gyroX*dt) + (1-alpha)*accRoll;
+  pitch = alpha*(pitch + gyroY*dt) + (1-alpha)*accPitch;
+  yaw  += gyroZ*dt;
 }
 
-void handleRoot() {
-  server.send_P(200, "text/html", index_html);
+void handleRoot(){
+  server.send_P(200,"text/html",index_html);
 }
 
-void setup() {
+void setup(){
   Serial.begin(115200);
   setupMPU();
+  delay(1000);
+  calibrateGyro();
 
-  WiFi.begin(ssid, password);
-  while(WiFi.status() != WL_CONNECTED);
+  WiFi.begin(ssid,password);
+  while(WiFi.status()!=WL_CONNECTED);
 
-  server.on("/", handleRoot);
+  server.on("/",handleRoot);
   server.begin();
-
   webSocket.begin();
 
-  prevTime = millis();
+  prevTime = micros();
 }
 
-void loop() {
+void loop(){
   server.handleClient();
   webSocket.loop();
 
   readMPU();
   calculateAngles();
 
-  String json = "{\"roll\":" + String(roll) +
-                ",\"pitch\":" + String(pitch) +
-                ",\"yaw\":" + String(yaw) + "}";
+  String json = "{\"roll\":"+String(roll,2)+
+                ",\"pitch\":"+String(pitch,2)+
+                ",\"yaw\":"+String(yaw,2)+"}";
 
   webSocket.broadcastTXT(json);
 }

@@ -1,26 +1,33 @@
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
+    margin: 2em;
+    color: #3d3d3d;
 }
 
-#webcam, #output_canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
+h1 { color: #007f8b; }
+
+.videoView {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
 }
 
-button {
-  position: absolute;
-  bottom: 15px;
-  left: 15px;
-  padding: 10px 20px;
-  background: #0078ff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
+video, .output_canvas {
+    width: 1280px;
+    height: 720px;
+    border-radius: 10px;
+    /* Efecto espejo */
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
 }
-button:hover {
-  background: #005fcc;
+
+.output_canvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    pointer-events: none;
+}
+
+#webcamButton {
+    margin-bottom: 10px;
 }
