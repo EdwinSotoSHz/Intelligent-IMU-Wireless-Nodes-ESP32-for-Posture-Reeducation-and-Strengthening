@@ -14,9 +14,18 @@
                 <span class="mdc-button__ripple"></span>
                 <span class="mdc-button__label">HABILITAR WEBCAM</span>
             </button>
+            <button id="imageButton" class="mdc-button mdc-button--raised" style="margin-left: 10px;">
+                <span class="mdc-button__ripple"></span>
+                <span class="mdc-button__label">PROCESAR IMAGEN</span>
+            </button>
+            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
             <div style="position: relative;">
                 <video id="webcam" autoplay playsinline></video>
                 <canvas class="output_canvas" id="output_canvas"></canvas>
+            </div>
+            <div id="imageContainer" style="position: relative; display: none; max-width: 1280px;">
+                <img id="staticImage" style="width: 100%; border-radius: 10px; transform: rotateY(180deg);">
+                <canvas class="output_canvas" id="image_output_canvas" style="position: absolute; left: 0px; top: 0px; pointer-events: none; width: 100%; height: 100%;"></canvas>
             </div>
         </div>
     </section>

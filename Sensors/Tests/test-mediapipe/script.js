@@ -8,6 +8,12 @@ const video = document.getElementById("webcam");
 const canvasElement = document.getElementById("output_canvas");
 const canvasCtx = canvasElement.getContext("2d");
 const webcamButton = document.getElementById("webcamButton");
+const imageButton = document.getElementById("imageButton");
+const imageUpload = document.getElementById("imageUpload");
+const imageContainer = document.getElementById("imageContainer");
+const staticImage = document.getElementById("staticImage");
+const imageOutputCanvas = document.getElementById("image_output_canvas");
+const imageCanvasCtx = imageOutputCanvas.getContext("2d");
 
 let poseLandmarker = undefined;
 let lastVideoTime = -1;
@@ -50,8 +56,41 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
   webcamButton.addEventListener("click", enableCam);
 }
 
+imageButton.addEventListener("click", () => {
+  imageUpload.click();
+});
+
+imageUpload.addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      staticImage.src = e.target.result;
+      staticImage.onload = () => {
+        // Ocultar el video y mostrar la imagen
+        video.style.display = "none";
+        canvasElement.style.display = "none";
+        imageContainer.style.display = "block";
+        
+        // Ajustar tamaños
+        imageOutputCanvas.width = staticImage.width;
+        imageOutputCanvas.height = staticImage.height;
+        
+        // Procesar la imagen
+        processImage(staticImage);
+      };
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
 function enableCam() {
   if (!poseLandmarker) return;
+  // Mostrar el video y ocultar la imagen
+  video.style.display = "block";
+  canvasElement.style.display = "block";
+  imageContainer.style.display = "none";
+  
   webcamButton.classList.add("removed");
   const constraints = { video: { width: 1280, height: 720 } };
   navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
@@ -72,7 +111,7 @@ async function predictWebcam() {
       
       if (result.landmarks) {
         for (const landmark of result.landmarks) {
-          drawCustomLandmarks(landmark);
+          drawCustomLandmarks(landmark, canvasCtx);
         }
       }
     });
@@ -80,9 +119,32 @@ async function predictWebcam() {
   window.requestAnimationFrame(predictWebcam);
 }
 
+async function processImage(image) {
+  if (!poseLandmarker) return;
+  
+  // Cambiar temporalmente el modo a IMAGE
+  poseLandmarker.setOptions({ runningMode: "IMAGE" });
+  
+  // Detectar pose en la imagen
+  const result = await poseLandmarker.detect(image);
+  
+  // Limpiar el canvas
+  imageCanvasCtx.clearRect(0, 0, imageOutputCanvas.width, imageOutputCanvas.height);
+  
+  // Dibujar los landmarks
+  if (result.landmarks) {
+    for (const landmark of result.landmarks) {
+      drawCustomLandmarks(landmark, imageCanvasCtx);
+    }
+  }
+  
+  // Volver al modo VIDEO
+  poseLandmarker.setOptions({ runningMode: "VIDEO" });
+}
+
 // Función para pintar con colores personalizados
-function drawCustomLandmarks(landmarks) {
-  const drawingUtils = new DrawingUtils(canvasCtx);
+function drawCustomLandmarks(landmarks, ctx) {
+  const drawingUtils = new DrawingUtils(ctx);
 
   // Dibujar cada parte con su color
   for (const [partName, indices] of Object.entries(POSE_PARTS)) {
@@ -94,10 +156,6 @@ function drawCustomLandmarks(landmarks) {
       lineWidth: 2,
       radius: 2
     });
-
-    // Dibujar conexiones básicas para esa parte
-    // Nota: Para conexiones complejas entre puntos se requiere la lista de conexiones,
-    // aquí simplificamos dibujando los puntos destacados.
   }
   
   // Dibujar los conectores generales en gris para que resalten los colores de los puntos

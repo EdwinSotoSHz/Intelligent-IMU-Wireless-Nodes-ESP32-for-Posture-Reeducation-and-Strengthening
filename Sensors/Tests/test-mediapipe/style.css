@@ -4,7 +4,9 @@ body {
     color: #3d3d3d;
 }
 
-h1 { color: #007f8b; }
+h1 { 
+    color: #007f8b; 
+}
 
 .videoView {
     position: relative;
@@ -12,7 +14,7 @@ h1 { color: #007f8b; }
     max-width: 1280px;
 }
 
-video, .output_canvas {
+video, .output_canvas, #staticImage {
     width: 1280px;
     height: 720px;
     border-radius: 10px;
@@ -28,6 +30,14 @@ video, .output_canvas {
     pointer-events: none;
 }
 
-#webcamButton {
+#staticImage {
+    object-fit: cover;
+}
+
+#webcamButton, #imageButton {
     margin-bottom: 10px;
+}
+
+#imageContainer {
+    margin-top: 10px;
 }
