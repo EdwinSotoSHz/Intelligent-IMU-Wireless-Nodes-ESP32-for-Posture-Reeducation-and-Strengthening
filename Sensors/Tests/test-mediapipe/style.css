@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+#webcam, #output_canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+button {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  padding: 10px 20px;
+  background: #0078ff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+button:hover {
+  background: #005fcc;
+}

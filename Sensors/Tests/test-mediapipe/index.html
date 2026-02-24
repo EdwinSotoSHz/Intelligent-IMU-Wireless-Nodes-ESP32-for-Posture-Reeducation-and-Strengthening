@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pose Detection — MediaPipe + Colores</title>
+  <style>
+    body { margin: 0; }
+    #webcam { transform: scaleX(-1); }
+    #output_canvas { position: absolute; top: 0; left: 0; }
+  </style>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <video id="webcam" autoplay playsinline width="640" height="480"></video>
+  <canvas id="output_canvas" width="640" height="480"></canvas>
+
+  <button id="startButton">Iniciar Detección</button>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
