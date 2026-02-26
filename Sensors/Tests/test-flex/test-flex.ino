@@ -1,18 +1,25 @@
-#define FLEX_PIN 13   // GPIO 13 (D13)
+/*
+| FLEXÓMETRO - CONEXIONES A ESP32                    |
+|                                                    |
+|   [3.3V] <---> [ FLEX ] <-|-> [ 10kΩ ] <---> GND   |
+|                           |                        |
+|                         GPIO25                     |
+
+Explicación:                                       
+- El flexómetro cambia su resistencia al flexionarse
+- Resistencia de 10kΩ para convertirlo en variación de voltaje                           
+- GPIO25 lee el voltaje en el punto medio (ADC)     
+*/
+
+const int flexPin = 25;  // Pin analógico donde está conectado el flexómetro
+int value;               // Variable para almacenar la lectura
 
 void setup() {
-  Serial.begin(115200);
-
-  // Configuración del ADC
-  analogReadResolution(12);        // 12 bits (0 - 4095)
-  analogSetAttenuation(ADC_11db);  // Rango hasta ~3.3V
+  Serial.begin(9600);    // Iniciar comunicación serial
 }
 
 void loop() {
-  int valorADC = analogRead(FLEX_PIN);
-
-  Serial.print("Valor ADC: ");
-  Serial.println(valorADC);
-
-  delay(500);
+  value = analogRead(flexPin);  // Leer valor analógico (0 - 4095 en ESP32)
+  Serial.println(value);        // Mostrar valor en el monitor serial
+  delay(100);                   // Pequeña pausa
 }
