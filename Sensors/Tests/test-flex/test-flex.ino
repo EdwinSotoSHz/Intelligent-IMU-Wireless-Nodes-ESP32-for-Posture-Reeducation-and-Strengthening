@@ -1,9 +1,9 @@
 /*
 | FLEXÓMETRO - CONEXIONES A ESP32                    |
 |                                                    |
-|   [3.3V] <---> [ FLEX ] <-|-> [ 10kΩ ] <---> GND   |
-|                           |                        |
-|                         GPIO25                     |
+|   GND <---> [ 10kΩ ] <-|-> [ FLEX ] <---> [3.3V]   |
+|                        |                           |
+|                      GPIO25                        |
 
 Explicación:                                       
 - El flexómetro cambia su resistencia al flexionarse
@@ -11,7 +11,7 @@ Explicación:
 - GPIO25 lee el voltaje en el punto medio (ADC)     
 */
 
-const int flexPin = 25;  // Pin analógico donde está conectado el flexómetro
+const int flexPin = 4;  // Pin analógico donde está conectado el flexómetro
 int value;               // Variable para almacenar la lectura
 
 void setup() {

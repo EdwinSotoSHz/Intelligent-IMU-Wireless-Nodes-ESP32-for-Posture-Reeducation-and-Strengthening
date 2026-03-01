@@ -4,7 +4,7 @@
 GPIO25  (SIN CAMBIOS)
 ====================================================
 */
-const int flexPin = 25;
+const int flexPin = 3;
 int flexValue;
 
 /*
@@ -30,8 +30,8 @@ SDA 26
 SCL 27
 ====================================================
 */
-#define SDA_MAX 26
-#define SCL_MAX 27
+#define SDA_MAX 8
+#define SCL_MAX 4
 
 MAX30105 particleSensor;
 
@@ -54,8 +54,8 @@ SDA 33
 SCL 32
 ====================================================
 */
-#define SDA_MPU 33
-#define SCL_MPU 32
+#define SDA_MPU 1
+#define SCL_MPU 0
 #define MPU_ADDR 0x68
 
 #define ACCEL_SCALE 16384.0
@@ -193,5 +193,5 @@ void loop() {
 
   Serial.println(payload);
 
-  delay(50);
+  delay(500);
 }

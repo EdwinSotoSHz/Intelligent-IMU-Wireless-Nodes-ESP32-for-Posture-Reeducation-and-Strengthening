@@ -4,7 +4,7 @@
 GPIO4  (SIN CAMBIOS)
 ====================================================
 */
-const int flexPin = 4;
+const int flexPin = 25;
 int flexValue;
 
 /*
@@ -30,8 +30,8 @@ SDA 8
 SCL 9
 ====================================================
 */
-#define SDA_MAX 8
-#define SCL_MAX 9
+#define SDA_MAX 26
+#define SCL_MAX 27
 
 MAX30105 particleSensor;
 
@@ -54,8 +54,8 @@ SDA 2
 SCL 3
 ====================================================
 */
-#define SDA_MPU 2
-#define SCL_MPU 3
+#define SDA_MPU 33
+#define SCL_MPU 32
 #define MPU_ADDR 0x68
 
 #define ACCEL_SCALE 16384.0
