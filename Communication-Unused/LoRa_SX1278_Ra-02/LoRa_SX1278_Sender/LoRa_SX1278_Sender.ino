@@ -27,14 +27,13 @@ byte id_msjLoRa = 0;     // Número de secuencia
 // Buffer para construir el paquete completo
 byte bufferPaquete[64];  // Suficiente para nuestra estructura
 
-// Mejor estructura (Payload)
-struct Payload {
-  int16_t num1;  // 2 bytes (-999 a 999)
-  int16_t num2; // 2 bytes (-999 a 999)
-  float num3; // 4 bytes
-  float num4;  // 4 bytes
-  char text[6]; // 5 caracteres max
-};
+// Nueva estructura del payload
+typedef struct struct_message {
+    float yaw, pitch, roll;
+    int flex;
+    float spo2;
+    int heartRate;
+} struct_message;
 
 void setup() {
   Serial.begin(115200);
@@ -56,7 +55,7 @@ void setup() {
   LoRa.setCodingRate4(6);
   LoRa.setSyncWord(SyncWord);
 
-  Serial.println("Listo (formato: int,int,float,float,text)");
+  Serial.println("Listo (formato: yaw,pitch,roll,flex,spo2,heartRate)");
   Serial.print("Mi direccion: 0x"); Serial.println(dir_local, HEX);
   Serial.print("Envio a: 0x"); Serial.println(dir_destino, HEX);
   Serial.println("---------------------------------");
@@ -67,27 +66,25 @@ void loop() {
     String input = Serial.readStringUntil('\n');
     input.trim();
 
-    // Validacion para test (cambiar por expresion regular)
+    // Validacion para test
     int comma1 = input.indexOf(',');
     int comma2 = input.indexOf(',', comma1 + 1);
     int comma3 = input.indexOf(',', comma2 + 1);
     int comma4 = input.indexOf(',', comma3 + 1);
-    if (comma1 == -1 || comma2 == -1 || comma3 == -1 || comma4 == -1) {
-      Serial.println("Formato invalido (,)");
+    int comma5 = input.indexOf(',', comma4 + 1);
+    if (comma1 == -1 || comma2 == -1 || comma3 == -1 || comma4 == -1 || comma5 == -1) {
+      Serial.println("Formato invalido (necesita 5 comas)");
       return;
     }
 
-    //Usar nueva estructura numeros y char
-    Payload cansatData;
-    cansatData.num1 = input.substring(0, comma1).toInt();
-    cansatData.num2 = input.substring(comma1 + 1, comma2).toInt();
-    cansatData.num3 = input.substring(comma2 + 1, comma3).toFloat();
-    cansatData.num4 = input.substring(comma3 + 1, comma4).toFloat();    
-    String textStr = input.substring(comma4 + 1);
-    textStr.toCharArray(cansatData.text, 6);
-    for (int i = textStr.length(); i < 5; i++) { // Rellenar con espacios si no cumple con 5 caracteres 
-      cansatData.text[i] = ' ';
-    }
+    // Usar nueva estructura
+    struct_message cansatData;
+    cansatData.yaw   = input.substring(0, comma1).toFloat();
+    cansatData.pitch = input.substring(comma1 + 1, comma2).toFloat();
+    cansatData.roll  = input.substring(comma2 + 1, comma3).toFloat();
+    cansatData.flex  = input.substring(comma3 + 1, comma4).toInt();
+    cansatData.spo2  = input.substring(comma4 + 1, comma5).toFloat();
+    cansatData.heartRate = input.substring(comma5 + 1).toInt();
 
     // tiempo transcurrido
     unsigned long t0 = millis();
@@ -101,11 +98,11 @@ void loop() {
     bufferPaquete[idx++] = dir_destino;           // Byte 0: ¿Para quién es?
     bufferPaquete[idx++] = dir_local;              // Byte 1: ¿Quién soy yo?
     bufferPaquete[idx++] = id_msjLoRa;             // Byte 2: Folio del mensaje
-    bufferPaquete[idx++] = sizeof(Payload);        // Byte 3: Tamaño del payload (fijo: 14 bytes)
+    bufferPaquete[idx++] = sizeof(struct_message); // Byte 3: Tamaño del payload
     
     // 2. PAYLOAD (ESTRUCTURA BINARIA)
-    memcpy(&bufferPaquete[idx], &cansatData, sizeof(Payload));
-    idx += sizeof(Payload);
+    memcpy(&bufferPaquete[idx], &cansatData, sizeof(struct_message));
+    idx += sizeof(struct_message);
     
     // 3. ENVIAR POR LORA
     LoRa.beginPacket();
@@ -120,12 +117,13 @@ void loop() {
     Serial.print("\n  Destino: 0x"); Serial.print(dir_destino, HEX);
     Serial.print("\n  Remite: 0x"); Serial.print(dir_local, HEX);
     Serial.print("\n  ID: "); Serial.print(id_msjLoRa - 1);
-    Serial.print("\n  Tamano Payload: "); Serial.print(sizeof(Payload));
-    Serial.print("\n  num1 = "); Serial.print(cansatData.num1);
-    Serial.print("\n  num2 = "); Serial.print(cansatData.num2);
-    Serial.print("\n  num3 = "); Serial.print(cansatData.num3);
-    Serial.print("\n  num4 = "); Serial.print(cansatData.num4);
-    Serial.print("\n  char[5] = "); Serial.print(cansatData.text);
+    Serial.print("\n  Tamano Payload: "); Serial.print(sizeof(struct_message));
+    Serial.print("\n  yaw = "); Serial.print(cansatData.yaw);
+    Serial.print("\n  pitch = "); Serial.print(cansatData.pitch);
+    Serial.print("\n  roll = "); Serial.print(cansatData.roll);
+    Serial.print("\n  flex = "); Serial.print(cansatData.flex);
+    Serial.print("\n  spo2 = "); Serial.print(cansatData.spo2);
+    Serial.print("\n  heartRate = "); Serial.print(cansatData.heartRate);
 
     Serial.println();
     Serial.print("(");
@@ -138,4 +136,4 @@ void loop() {
   delay(15);
 }
 
-// 1,222,3.3,4.4,qwert
+// Ejemplo: 1.5,2.3,3.7,100,98.6,75

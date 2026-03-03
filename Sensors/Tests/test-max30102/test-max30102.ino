@@ -1,91 +1,140 @@
-/*
-| MAX30102     |  ESP32          |
-| VIN          |  3.3V           |
-| GND          |  GND            |
-| SCL          |  GPIO27         |
-| SDA          |  GPIO26         |
-*/
-
 #include <Wire.h>
 #include "MAX30105.h"
+#include "spo2_algorithm.h"
 
 MAX30105 particleSensor;
 
-// Configuración
-#define SDA_PIN 26
-#define SCL_PIN 27
+#define I2C_SDA 8
+#define I2C_SCL 4
+#define IR_THRESHOLD 50000
+#define SMOOTH_SIZE 6
+#define MIN_VALID_SAMPLES 3  // Mínimo de muestras válidas para mostrar "Estable"
 
-// Variables para BPM
-long irValue;
-long irFiltered = 0;
-long previousIr = 0;
+uint32_t irBuffer[100];
+uint32_t redBuffer[100];
+int32_t bufferLength = 100;
 
-unsigned long lastBeat = 0;
-float bpm = 0;
-float bpmAvg = 0;
+int32_t spo2;
+int8_t validSPO2;
+int32_t heartRate;
+int8_t validHeartRate;
 
-const byte RATE_SIZE = 8; 
-byte rates[RATE_SIZE];
-byte rateSpot = 0;
+int32_t hrHistory[SMOOTH_SIZE]   = {0};
+int32_t spo2History[SMOOTH_SIZE] = {0};
+int histIndex = 0;
+int validHRCount  = 0;
+int validSPO2Count = 0;
 
-void setup()
-{
+// Retorna media ignorando ceros, y cuenta cuántos son válidos
+int32_t smoothedValue(int32_t* history, int* validCount) {
+  int32_t sum = 0;
+  *validCount = 0;
+  for (int i = 0; i < SMOOTH_SIZE; i++) {
+    if (history[i] > 0) { sum += history[i]; (*validCount)++; }
+  }
+  return (*validCount) > 0 ? sum / (*validCount) : 0;
+}
+
+bool fingerPresent() {
+  // Promedia las últimas 5 muestras del buffer para mayor robustez
+  uint32_t avg = 0;
+  for (int i = 95; i < 100; i++) avg += irBuffer[i];
+  return (avg / 5) > IR_THRESHOLD;
+}
+
+void collectSamples(byte start, byte end) {
+  for (byte i = start; i < end; i++) {
+    while (particleSensor.available() == false) particleSensor.check();
+    redBuffer[i] = particleSensor.getRed();
+    irBuffer[i]  = particleSensor.getIR();
+    particleSensor.nextSample();
+  }
+}
+
+void resetHistories() {
+  memset(hrHistory,   0, sizeof(hrHistory));
+  memset(spo2History, 0, sizeof(spo2History));
+  histIndex      = 0;
+  validHRCount   = 0;
+  validSPO2Count = 0;
+}
+
+void setup() {
   Serial.begin(115200);
-  Wire.begin(SDA_PIN, SCL_PIN);
+  Wire.begin(I2C_SDA, I2C_SCL);
 
-  if (!particleSensor.begin(Wire, I2C_SPEED_STANDARD))
-  {
-    Serial.println("MAX30102 no encontrado");
+  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) {
+    Serial.println(F("MAX30102 no detectado. Revisa pines 8 y 4."));
     while (1);
   }
 
-  Serial.println("MAX30102 listo");
-
-  particleSensor.setup();
-  particleSensor.setPulseAmplitudeRed(0x1F);
-  particleSensor.setPulseAmplitudeIR(0x3F); // Más potencia IR para mejor señal
+  particleSensor.setup(50, 4, 2, 100, 411, 4096);
+  Serial.println(F("Listo. Coloca el dedo con presión constante."));
 }
 
-void loop()
-{
-  irValue = particleSensor.getIR();
-
-  // Detectar si hay dedo
-  if (irValue < 50000)
-  {
-    Serial.println("Coloca el dedo");
-    delay(500);
-    return;
+void loop() {
+  // --- Esperar dedo ---
+  Serial.println(F("Esperando dedo..."));
+  while (true) {
+    while (particleSensor.available() == false) particleSensor.check();
+    irBuffer[99] = particleSensor.getIR();
+    particleSensor.nextSample();
+    if (irBuffer[99] > IR_THRESHOLD) break;
+    delay(100);
   }
 
-  // Filtro simple (promedio móvil)
-  irFiltered = (previousIr * 0.9) + (irValue * 0.1);
-  previousIr = irFiltered;
+  resetHistories();
 
-  // Detección básica de pico
-  if (irFiltered > 60000 && millis() - lastBeat > 300)
-  {
-    unsigned long delta = millis() - lastBeat;
-    lastBeat = millis();
+  // --- Buffer inicial de 4s ---
+  collectSamples(0, 100);
+  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer,
+                                          &spo2, &validSPO2, &heartRate, &validHeartRate);
 
-    bpm = 60.0 / (delta / 1000.0);
-
-    if (bpm > 40 && bpm < 200)
-    {
-      rates[rateSpot++] = (byte)bpm;
-      rateSpot %= RATE_SIZE;
-
-      bpmAvg = 0;
-      for (byte i = 0; i < RATE_SIZE; i++)
-        bpmAvg += rates[i];
-      bpmAvg /= RATE_SIZE;
-
-      Serial.print("BPM: ");
-      Serial.print(bpm);
-      Serial.print(" | Promedio: ");
-      Serial.println(bpmAvg);
+  while (true) {
+    // Desplazar buffer
+    for (byte i = 25; i < 100; i++) {
+      redBuffer[i - 25] = redBuffer[i];
+      irBuffer[i - 25]  = irBuffer[i];
     }
-  }
 
-  delay(10);
+    collectSamples(75, 100);
+
+    // Sin dedo → reiniciar
+    if (!fingerPresent()) {
+      Serial.println(F("Dedo retirado. Reiniciando..."));
+      break;
+    }
+
+    maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer,
+                                            &spo2, &validSPO2, &heartRate, &validHeartRate);
+
+    // --- Actualizar historial ---
+    // HR: aceptar si válido Y dentro de rango fisiológico
+    bool hrOk   = validHeartRate && heartRate >= 45 && heartRate <= 149;
+    // SpO2: aceptar si válido Y rango fisiológico
+    bool spo2Ok = validSPO2 && spo2 >= 85 && spo2 <= 100;
+
+    if (hrOk)   hrHistory[histIndex]   = heartRate;
+    // Si no es válido, dejar el slot en 0 (decae la ventana gradualmente)
+    else        hrHistory[histIndex]   = 0;
+
+    if (spo2Ok) spo2History[histIndex] = spo2;
+    else        spo2History[histIndex] = 0;
+
+    histIndex = (histIndex + 1) % SMOOTH_SIZE;
+
+    // --- Calcular suavizados ---
+    int32_t displayHR   = smoothedValue(hrHistory,   &validHRCount);
+    int32_t displaySPO2 = smoothedValue(spo2History, &validSPO2Count);
+
+    // "Estable" si hay suficientes muestras válidas en la ventana
+    bool stable = (validHRCount >= MIN_VALID_SAMPLES) && (validSPO2Count >= MIN_VALID_SAMPLES);
+
+    Serial.print(F("HR: "));
+    Serial.print(displayHR   > 0 ? String(displayHR)   + " bpm" : "--");
+    Serial.print(F(" | SpO2: "));
+    Serial.print(displaySPO2 > 0 ? String(displaySPO2) + "%"    : "--");
+    Serial.print(F(" | Estado: "));
+    Serial.println(stable ? "Estable" : "Calculando...");
+  }
 }
