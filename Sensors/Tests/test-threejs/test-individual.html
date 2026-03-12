@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MPU 3D - Manual Control con Ejes</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 100;
+        }
+        .slider-container {
+            margin: 10px 0;
+        }
+        .slider-container label {
+            display: inline-block;
+            width: 50px;
+        }
+        .slider-container input {
+            width: 200px;
+            margin: 0 10px;
+        }
+        .slider-container span {
+            display: inline-block;
+            width: 40px;
+            text-align: right;
+        }
+        .legend {
+            margin-top: 10px;
+            font-size: 0.8em;
+            border-top: 1px solid #444;
+            padding-top: 10px;
+        }
+        .x { color: #ff4444; }
+        .y { color: #44ff44; }
+        .z { color: #4444ff; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>Control Manual</h3>
+        <div class="slider-container">
+            <label>Roll:</label>
+            <input type="range" id="roll" min="-180" max="180" value="0" step="1">
+            <span id="roll-value">0°</span>
+        </div>
+        <div class="slider-container">
+            <label>Pitch:</label>
+            <input type="range" id="pitch" min="-180" max="180" value="0" step="1">
+            <span id="pitch-value">0°</span>
+        </div>
+        <div class="slider-container">
+            <label>Yaw:</label>
+            <input type="range" id="yaw" min="-180" max="180" value="0" step="1">
+            <span id="yaw-value">0°</span>
+        </div>
+        <div class="legend">
+            Ejes: <span class="x">X (Rojo)</span> | <span class="y">Y (Verde)</span> | <span class="z">Z (Azul)</span>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.150.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // Escena
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111111);
+
+        // CÁMARA EN EL EJE Z
+        // ===================
+        // camera.position.set(x, y, z)
+        // x: izquierda(-) / derecha(+)
+        // y: abajo(-) / arriba(+) 
+        // z: atrás(-) / adelante(+)
+        
+        // Configuración actual: EJE Z, más abajo y más cerca
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1, 4); // EJE Z: x=0, y=1 (más abajo), z=4 (más cerca)
+        camera.lookAt(0, 0, 0);
+
+        // Renderizador
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Luces
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 10, 7.5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        // Grid (suelo)
+        const gridHelper = new THREE.GridHelper(10, 20, 0x444444, 0x222222);
+        scene.add(gridHelper);
+
+        // EJES DE REFERENCIA
+        const axesHelper = new THREE.AxesHelper(5);
+        scene.add(axesHelper);
+
+        // Cubo (Modelo de referencia)
+        const geometry = new THREE.BoxGeometry(3, 0.5, 1);
+        const material = new THREE.MeshStandardMaterial({ 
+            color: 0x00ffcc, 
+            transparent: true, 
+            opacity: 0.8
+        });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Sliders y UI
+        const rollSlider = document.getElementById('roll');
+        const pitchSlider = document.getElementById('pitch');
+        const yawSlider = document.getElementById('yaw');
+        const rollSpan = document.getElementById('roll-value');
+        const pitchSpan = document.getElementById('pitch-value');
+        const yawSpan = document.getElementById('yaw-value');
+
+        function updateRotation() {
+            const roll = parseFloat(rollSlider.value) * Math.PI / 180;
+            const pitch = parseFloat(pitchSlider.value) * Math.PI / 180;
+            const yaw = parseFloat(yawSlider.value) * Math.PI / 180;
+
+            // Aplicar rotación al cubo
+            cube.rotation.x = pitch;
+            cube.rotation.y = -yaw;
+            cube.rotation.z = -roll;
+
+            // Actualizar textos
+            rollSpan.textContent = rollSlider.value + '°';
+            pitchSpan.textContent = pitchSlider.value + '°';
+            yawSpan.textContent = yawSlider.value + '°';
+        }
+
+        rollSlider.addEventListener('input', updateRotation);
+        pitchSlider.addEventListener('input', updateRotation);
+        yawSlider.addEventListener('input', updateRotation);
+        
+        updateRotation();
+
+        // Animación
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

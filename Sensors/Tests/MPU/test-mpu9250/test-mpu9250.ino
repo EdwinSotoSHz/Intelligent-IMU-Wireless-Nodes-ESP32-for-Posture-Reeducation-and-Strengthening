@@ -7,8 +7,8 @@
 */
 #include <Wire.h>
 
-#define SDA_PIN 33
-#define SCL_PIN 32
+#define SDA_PIN 1
+#define SCL_PIN 0
 #define MPU_ADDR 0x68
 
 #define ACCEL_SCALE 16384.0

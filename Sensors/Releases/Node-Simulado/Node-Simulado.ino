@@ -6,7 +6,7 @@
 #include "Sensor_MAX30102.h"
 
 // Dirección MAC del receptor
-uint8_t broadcastAddress[] = {0xC8, 0xF0, 0x9E, 0x31, 0x34, 0x70};
+uint8_t broadcastAddress[] = {0x8C, 0x4F, 0x00, 0xAD, 0x68, 0x6C};
 
 // Estructura completa con todos los sensores
 typedef struct struct_message {

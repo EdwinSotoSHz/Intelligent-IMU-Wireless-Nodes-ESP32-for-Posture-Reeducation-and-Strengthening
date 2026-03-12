@@ -11,7 +11,7 @@ Explicación:
 - GPIO25 lee el voltaje en el punto medio (ADC)     
 */
 
-const int flexPin = 4;  // Pin analógico donde está conectado el flexómetro
+const int flexPin = 3;  // Pin analógico donde está conectado el flexómetro
 int value;               // Variable para almacenar la lectura
 
 void setup() {

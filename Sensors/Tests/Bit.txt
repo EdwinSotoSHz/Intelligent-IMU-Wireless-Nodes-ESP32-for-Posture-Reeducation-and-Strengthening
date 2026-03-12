@@ -1,5 +1,0 @@
-[24-02-2026 - 05:27pm] [Bitacora de Edwin] MPU y Mediapipe test completado 
-[25-02-2026 - 05:27pm] [Bitacora de Edwin] Test con esp32 completados (3 sensores)
-[26-02-2026 - 05:27pm] [Bitacora de Edwin] Alimentación de 5V obtenida 
-[27-02-2026 - 09:33am] [Bitacora de Edwin] Todos los test individuales funcionan con la esp32 c3 mini pero el general esta algo raro con el MPU
-	Se decidio hacer el prototipo actual, ensablable, pero la sigiente pulsera tendrá solo MPU y EMG

@@ -1,12 +1,14 @@
+// ESP32 38 PINS (Modificarlos a los de la liligo)
+
 #include <LoRa.h>
 
 // pines RECEPTOR
-const int loraRST = 15;
-const int loraDI0 = 2;
-const int loraNSS = 5;
-const int loraMOSI = 18;
-const int loraMISO = 22;
-const int loraSCK = 23;
+const int loraRST = 23;
+const int loraDI0 = 4;
+const int loraNSS = 15;
+const int loraMOSI = 32;
+const int loraMISO = 35;
+const int loraSCK = 33;
 
 int SyncWord = 0x22;
 
@@ -58,45 +60,32 @@ void setup() {
 void loop() {
   int packetSize = LoRa.parsePacket();
   
-  // Mínimo: cabecera (4 bytes) + algo de payload
   if (packetSize >= 4) {
 
-    // Buffer para recibir todo el paquete
     byte bufferPaquete[packetSize];
     LoRa.readBytes(bufferPaquete, packetSize);
     
-    // ==========================================
-    // PROCESAR FRAME (DESENCAPSULAR)
-    // ==========================================
     int idx = 0;
     
-    // 1. LEER CABECERA
     dir_envio  = bufferPaquete[idx++]; 
     dir_remite = bufferPaquete[idx++]; 
     paqRcb_ID  = bufferPaquete[idx++]; 
-    byte len   = bufferPaquete[idx++];  // Tamaño del payload
+    byte len   = bufferPaquete[idx++];
     
-    // 2. VERIFICACIONES DE INTEGRIDAD
-    // ¿El tamaño coincide?
     if (packetSize - 4 != len) {
       Serial.println("Error: Tamaño de paquete no coincide");
       return;
     }
     
-    // ¿Es para mí o es broadcast (0xFF)?
     if (dir_envio != dir_local && dir_envio != 0xFF) {
-      // Mensaje no es para mí - lo ignoramos silenciosamente
       return;
     }
     
-    // 3. SOLO SI ES PARA MÍ, PROCESO EL PAYLOAD
     if (len == sizeof(struct_message)) {
       
-      // Extraer la estructura del payload
       struct_message cansatData;
       memcpy(&cansatData, &bufferPaquete[idx], len);
       
-      // Imprimir
       Serial.print("Recibido Frame VALIDO:");
       Serial.print("\n  De: 0x"); Serial.print(dir_remite, HEX);
       Serial.print("\n  Para: 0x"); Serial.print(dir_envio, HEX);

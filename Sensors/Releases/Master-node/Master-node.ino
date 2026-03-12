@@ -1,3 +1,5 @@
+// ESP32 34 PINS (Conservar estos pines)
+
 #include <WiFi.h>
 #include <esp_now.h>
 #include <LoRa.h>
@@ -7,12 +9,12 @@
 // CONFIGURACIÓN LORA (Pines del SX1278)
 // Basado en tu archivo Sender.ino
 // ==========================================
-const int loraRST = 23;
-const int loraDI0 = 4;
-const int loraNSS = 15;
-const int loraMOSI = 32;
-const int loraMISO = 35;
-const int loraSCK = 33;
+const int loraRST = 15;
+const int loraDI0 = 2;
+const int loraNSS = 5;
+const int loraMOSI = 18;
+const int loraMISO = 22;
+const int loraSCK = 23;
 int SyncWord = 0x22; // Palabra de sincronización para filtrar ruido
 
 // PROTOCOLO DE FRAMES LORA (IDÉNTICO AL SENDER)
@@ -128,8 +130,5 @@ void setup() {
 // LOOP
 // ==========================================
 void loop() {
-    // No es necesario hacer nada aquí.
-    // Todo ocurre en la función de callback OnDataRecv
-    // cuando llega un paquete ESP-NOW.
-    delay(10); // Pequeña pausa para no saturar el CPU
+    delay(10);
 }
