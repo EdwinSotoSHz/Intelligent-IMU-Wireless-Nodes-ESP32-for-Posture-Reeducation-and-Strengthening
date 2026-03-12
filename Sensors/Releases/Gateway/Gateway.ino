@@ -25,10 +25,9 @@ byte paqRcb_Estado = 0; // Semáforo: 1=Aceptado, 2=Corrupto, 3=No es para mí
 
 // Nueva estructura del payload
 typedef struct struct_message {
-    float yaw, pitch, roll;
-    int flex;
-    float spo2;
-    int heartRate;
+    float roll_f, pitch_f, yaw_f;
+    int ecg;
+    float roll_a, pitch_a, yaw_a;
 } struct_message;
 
 void setup() {
@@ -90,12 +89,13 @@ void loop() {
       Serial.print("\n  De: 0x"); Serial.print(dir_remite, HEX);
       Serial.print("\n  Para: 0x"); Serial.print(dir_envio, HEX);
       Serial.print("\n  ID: "); Serial.print(paqRcb_ID);
-      Serial.print("\n  yaw = "); Serial.print(cansatData.yaw);
-      Serial.print("\n  pitch = "); Serial.print(cansatData.pitch);
-      Serial.print("\n  roll = "); Serial.print(cansatData.roll);
-      Serial.print("\n  flex = "); Serial.print(cansatData.flex);
-      Serial.print("\n  spo2 = "); Serial.print(cansatData.spo2);
-      Serial.print("\n  heartRate = "); Serial.print(cansatData.heartRate);
+      Serial.print("\n  roll_f = "); Serial.print(cansatData.roll_f);
+      Serial.print("\n  pitch_f = "); Serial.print(cansatData.pitch_f);
+      Serial.print("\n  yaw_f = "); Serial.print(cansatData.yaw_f);
+      Serial.print("\n  ecg = "); Serial.print(cansatData.ecg);
+      Serial.print("\n  roll_a = "); Serial.print(cansatData.roll_a);
+      Serial.print("\n  pitch_a = "); Serial.print(cansatData.pitch_a);
+      Serial.print("\n  yaw_a = "); Serial.print(cansatData.yaw_a);
       
       Serial.println();
       Serial.print("RSSI ="); Serial.print(LoRa.packetRssi());

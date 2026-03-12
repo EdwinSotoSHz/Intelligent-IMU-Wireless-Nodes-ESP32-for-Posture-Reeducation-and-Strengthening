@@ -2,21 +2,16 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>MPU 3D - Dual Control</title>
+    <title>MPU 3D - Offset Inicial 90°</title>
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            display: flex;
-        }
+        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
         #ui-container {
             position: absolute;
             top: 20px;
             left: 20px;
             display: flex;
             gap: 20px;
-            pointer-events: none; /* Permite clickear la escena si es necesario */
+            pointer-events: none;
         }
         .control-panel {
             background: rgba(0, 0, 0, 0.8);
@@ -30,21 +25,15 @@
         .slider-container label { display: inline-block; width: 50px; }
         .slider-container input { width: 150px; margin: 0 10px; }
         .slider-container span { display: inline-block; width: 40px; text-align: right; }
-        
-        .legend {
-            margin-top: 10px;
-            font-size: 0.8em;
-            border-top: 1px solid #444;
-            padding-top: 10px;
-        }
-        .x { color: #ff4444; } .y { color: #44ff44; } .z { color: #4444ff; }
-        h4 { margin: 0 0 10px 0; color: #00ffcc; }
+        h4 { margin: 0 0 10px 0; }
+        .c1 { color: #00ffcc; } 
+        .c2 { color: #ffcc00; } 
     </style>
 </head>
 <body>
     <div id="ui-container">
         <div class="control-panel">
-            <h4>Cubo Izquierdo (1)</h4>
+            <h4 class="c1">Cubo Padre (Azul)</h4>
             <div class="slider-container">
                 <label>Roll:</label>
                 <input type="range" id="roll1" min="-180" max="180" value="0">
@@ -63,7 +52,7 @@
         </div>
 
         <div class="control-panel">
-            <h4>Cubo Derecho (2)</h4>
+            <h4 class="c2">Cubo Hijo (Amarillo)</h4>
             <div class="slider-container">
                 <label>Roll:</label>
                 <input type="range" id="roll2" min="-180" max="180" value="0">
@@ -78,9 +67,6 @@
                 <label>Yaw:</label>
                 <input type="range" id="yaw2" min="-180" max="180" value="0">
                 <span id="yaw2-val">0°</span>
-            </div>
-            <div class="legend">
-                Ejes: <span class="x">X</span> | <span class="y">Y</span> | <span class="z">Z</span>
             </div>
         </div>
     </div>
@@ -100,50 +86,45 @@
         scene.background = new THREE.Color(0x111111);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(4, 4, 8); 
-        camera.lookAt(4, 0, 0);
+        // Mantenemos tu cámara exactamente igual
+        camera.position.set(2, 1, 5);
+        camera.lookAt(2, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0x404040));
+        scene.add(new THREE.AmbientLight(0x606060));
         const light = new THREE.DirectionalLight(0xffffff, 1);
         light.position.set(5, 10, 7.5);
         scene.add(light);
 
-        scene.add(new THREE.GridHelper(20, 40, 0x444444, 0x222222));
-        scene.add(new THREE.AxesHelper(5));
+        scene.add(new THREE.GridHelper(20, 40, 0x333333, 0x222222));
+        scene.add(new THREE.AxesHelper(2));
 
-        // --- CONFIGURACIÓN DE LOS CUBOS ---
-        const width = 3, height = 0.5, depth = 1;
+        const width = 2, height = 0.5, depth = 1;
 
-        function createPivotedCube(color, posX) {
-            const geo = new THREE.BoxGeometry(width, height, depth);
-            // Movemos la geometría para que el pivote esté en la cara izquierda
-            geo.translate(width / 2, 0, 0);
-            
-            const mat = new THREE.MeshStandardMaterial({ color, transparent: true, opacity: 0.8 });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.x = posX;
-            scene.add(mesh);
+        // --- CUBOS ---
+        const geo1 = new THREE.BoxGeometry(width, height, depth);
+        geo1.translate(width / 2, 0, 0);
+        const mat1 = new THREE.MeshStandardMaterial({ color: 0x00ffcc, transparent: true, opacity: 0.9 });
+        const cube1 = new THREE.Mesh(geo1, mat1);
+        scene.add(cube1);
 
-            // Marcador de pivote
-            const marker = new THREE.Mesh(
-                new THREE.SphereGeometry(0.1),
-                new THREE.MeshBasicMaterial({ color: 0xff0000 })
-            );
-            marker.position.x = posX;
-            scene.add(marker);
+        const geo2 = new THREE.BoxGeometry(width, height, depth);
+        geo2.translate(width / 2, 0, 0);
+        const mat2 = new THREE.MeshStandardMaterial({ color: 0xffcc00, transparent: true, opacity: 0.9 });
+        const cube2 = new THREE.Mesh(geo2, mat2);
+        cube2.position.x = width; 
+        cube1.add(cube2);
 
-            return mesh;
-        }
+        // Marcadores
+        scene.add(new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshBasicMaterial({ color: 0xff0000 })));
+        const marker2 = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        cube2.add(marker2);
 
-        const cube1 = createPivotedCube(0x00ffcc, 0);   // Cubo en el origen
-        const cube2 = createPivotedCube(0xffcc00, 3.5); // Cubo a la derecha (separado 3.5 unidades)
-
-        // --- LÓGICA DE CONTROL ---
-        function setupControls(id, cube) {
+        // --- CONTROLES CON OFFSET ---
+        function setupControls(id, cube, isParent) {
             const rS = document.getElementById('roll' + id);
             const pS = document.getElementById('pitch' + id);
             const yS = document.getElementById('yaw' + id);
@@ -152,23 +133,35 @@
             const yV = document.getElementById('yaw' + id + '-val');
 
             const update = () => {
-                const r = parseFloat(rS.value) * Math.PI / 180;
-                const p = parseFloat(pS.value) * Math.PI / 180;
-                const y = parseFloat(yS.value) * Math.PI / 180;
+                const rawRoll = parseFloat(rS.value);
+                const rawPitch = parseFloat(pS.value);
+                const rawYaw = parseFloat(yS.value);
 
-                cube.rotation.set(p, -y, -r);
+                // Convertimos a radianes
+                let r = rawRoll * Math.PI / 180;
+                let p = rawPitch * Math.PI / 180;
+                let y = rawYaw * Math.PI / 180;
 
-                rV.textContent = rS.value + '°';
-                pV.textContent = pS.value + '°';
-                yV.textContent = yS.value + '°';
+                // APLICAMOS EL OFFSET AL PADRE
+                // Si es el padre (id=1), le sumamos 90 grados al roll original
+                if (isParent) {
+                    const offset = 90 * Math.PI / 180;
+                    cube.rotation.set(p, -y, -(r + offset));
+                } else {
+                    cube.rotation.set(p, -y, -r);
+                }
+
+                rV.textContent = rawRoll + '°';
+                pV.textContent = rawPitch + '°';
+                yV.textContent = rawYaw + '°';
             };
 
             [rS, pS, yS].forEach(s => s.addEventListener('input', update));
             update();
         }
 
-        setupControls('1', cube1);
-        setupControls('2', cube2);
+        setupControls('1', cube1, true);  // El azul es el padre
+        setupControls('2', cube2, false); // El amarillo es el hijo
 
         function animate() {
             requestAnimationFrame(animate);

@@ -1,0 +1,43 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 2em;
+    color: #3d3d3d;
+}
+
+h1 { 
+    color: #007f8b; 
+}
+
+.videoView {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+}
+
+video, .output_canvas, #staticImage {
+    width: 1280px;
+    height: 720px;
+    border-radius: 10px;
+    /* Efecto espejo */
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+}
+
+.output_canvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    pointer-events: none;
+}
+
+#staticImage {
+    object-fit: cover;
+}
+
+#webcamButton, #imageButton {
+    margin-bottom: 10px;
+}
+
+#imageContainer {
+    margin-top: 10px;
+}

@@ -6,8 +6,7 @@
 #include <SPI.h>
 
 // ==========================================
-// CONFIGURACIÓN LORA (Pines del SX1278)
-// Basado en tu archivo Sender.ino
+// CONFIGURACIÓN LORA (Pines del SX1278) - SIN CAMBIOS
 // ==========================================
 const int loraRST = 15;
 const int loraDI0 = 2;
@@ -15,71 +14,186 @@ const int loraNSS = 5;
 const int loraMOSI = 18;
 const int loraMISO = 22;
 const int loraSCK = 23;
-int SyncWord = 0x22; // Palabra de sincronización para filtrar ruido
+int SyncWord = 0x22;
 
-// PROTOCOLO DE FRAMES LORA (IDÉNTICO AL SENDER)
-byte dir_local   = 0xA1; // Mi dirección (Remitente)
-byte dir_destino = 0xB2; // Dirección del receptor final (Ej. Estación base)
-byte id_msjLoRa = 0;      // Número de secuencia del mensaje LoRa
-byte bufferPaquete[64];   // Buffer para armar el frame LoRa completo
-
-// ==========================================
-// ESTRUCTURA DE DATOS (COMPARTIDA CON EL EMISOR ESP-NOW)
-// ==========================================
-typedef struct struct_message {
-    float yaw, pitch, roll;
-    int flex;
-    float spo2;
-    int heartRate;
-} struct_message;
-
-// Crear una variable para almacenar los datos entrantes
-struct_message incomingData;
+// PROTOCOLO DE FRAMES LORA - SIN CAMBIOS
+byte dir_local   = 0xA1;
+byte dir_destino = 0xB2;
+byte id_msjLoRa = 0;
+byte bufferPaquete[64];
 
 // ==========================================
-// CALLBACK ESP-NOW (CUANDO LLEGAN DATOS)
+// ESTRUCTURA COMPLETA PARA LORA (PAYLOAD FUSIONADO)
+// ==========================================
+typedef struct struct_message_completo {
+    float roll_f, pitch_f, yaw_f;
+    int ecg;
+    float roll_a, pitch_a, yaw_a;
+} struct_message_completo;
+
+struct_message_completo datosFusionados;
+
+// ==========================================
+// ESTRUCTURAS PARA CADA NODO (RECEPCIÓN ESP-NOW)
+// ==========================================
+typedef struct struct_message_arm {
+    float roll_a;
+    float pitch_a;
+    float yaw_a;
+    int node_id;
+} struct_message_arm;
+
+typedef struct struct_message_forearm {
+    float roll_f;
+    float pitch_f;
+    float yaw_f;
+    int ecg;
+    int node_id;
+} struct_message_forearm;
+
+// Variables para almacenar los últimos datos de cada nodo
+struct_message_arm ultimosDatosBrazo;
+struct_message_forearm ultimosDatosAntebrazo;
+
+// Flags para saber si hemos recibido datos de cada nodo ALGUNA VEZ
+bool brazoInicializado = false;
+bool antebrazoInicializado = false;
+
+// Timestamps para saber cuándo recibimos cada dato
+unsigned long tiempoUltimoBrazo = 0;
+unsigned long tiempoUltimoAntebrazo = 0;
+const unsigned long TIMEOUT_MS = 1000; // 1 segundo de timeout
+
+// ==========================================
+// CALLBACK ESP-NOW
 // ==========================================
 void OnDataRecv(const esp_now_recv_info_t *recv_info, const uint8_t *incomingDataBytes, int len) {
-    // 1. Verificar que el tamaño de los datos recibidos sea el esperado
-    if (len != sizeof(incomingData)) {
-      Serial.printf("Error: Tamaño de datos recibido (%d) no coincide con el esperado (%d)\n", len, sizeof(incomingData));
-      return;
+    
+    if (len == sizeof(struct_message_arm)) {
+        struct_message_arm datosBrazo;
+        memcpy(&datosBrazo, incomingDataBytes, sizeof(datosBrazo));
+        
+        if (datosBrazo.node_id == 1) {
+            ultimosDatosBrazo = datosBrazo;
+            tiempoUltimoBrazo = millis();
+            
+            if (!brazoInicializado) {
+                brazoInicializado = true;
+                Serial.println("BRAZO detectado por primera vez");
+            }
+            
+            Serial.print("\n[ESP-NOW] BRAZO: ");
+            Serial.print("roll_a="); Serial.print(datosBrazo.roll_a, 1);
+            Serial.print(", pitch_a="); Serial.print(datosBrazo.pitch_a, 1);
+            Serial.print(", yaw_a="); Serial.println(datosBrazo.yaw_a, 1);
+            
+            enviarLoRaConDatosDisponibles();
+        }
     }
+    else if (len == sizeof(struct_message_forearm)) {
+        struct_message_forearm datosAntebrazo;
+        memcpy(&datosAntebrazo, incomingDataBytes, sizeof(datosAntebrazo));
+        
+        if (datosAntebrazo.node_id == 2) {
+            ultimosDatosAntebrazo = datosAntebrazo;
+            tiempoUltimoAntebrazo = millis();
+            
+            if (!antebrazoInicializado) {
+                antebrazoInicializado = true;
+                Serial.println("ANTEBRAZO detectado por primera vez");
+            }
+            
+            Serial.print("\n[ESP-NOW] ANTEBRAZO: ");
+            Serial.print("roll_f="); Serial.print(datosAntebrazo.roll_f, 1);
+            Serial.print(", pitch_f="); Serial.print(datosAntebrazo.pitch_f, 1);
+            Serial.print(", yaw_f="); Serial.print(datosAntebrazo.yaw_f, 1);
+            Serial.print(", ecg="); Serial.println(datosAntebrazo.ecg);
+            
+            enviarLoRaConDatosDisponibles();
+        }
+    }
+    else {
+        Serial.print("\n[ESP-NOW] Error: Tamaño desconocido: ");
+        Serial.println(len);
+        return;
+    }
+}
 
-    // 2. Copiar los datos recibidos a nuestra estructura
-    memcpy(&incomingData, incomingDataBytes, sizeof(incomingData));
+// ==========================================
+// FUNCIÓN PARA ENVIAR LORA CON LOS DATOS DISPONIBLES
+// ==========================================
+void enviarLoRaConDatosDisponibles() {
+    unsigned long ahora = millis();
     
-    Serial.println("\n[ESP-NOW] Datos Recibidos. Reenviando por LoRa...");
-
-    // 3. Construir el Frame LoRa (EXACTAMENTE IGUAL QUE EN Sender.ino)
+    bool brazoActivo = brazoInicializado && (ahora - tiempoUltimoBrazo) < TIMEOUT_MS;
+    bool antebrazoActivo = antebrazoInicializado && (ahora - tiempoUltimoAntebrazo) < TIMEOUT_MS;
+    
+    if (!brazoActivo && !antebrazoActivo) {
+        return;
+    }
+    
+    const float FLOAT_NO_DATA = 0.0;
+    const int INT_NO_DATA = 0;
+    
+    if (antebrazoActivo) {
+        datosFusionados.roll_f = ultimosDatosAntebrazo.roll_f;
+        datosFusionados.pitch_f = ultimosDatosAntebrazo.pitch_f;
+        datosFusionados.yaw_f = ultimosDatosAntebrazo.yaw_f;
+        datosFusionados.ecg = ultimosDatosAntebrazo.ecg;
+    } else {
+        datosFusionados.roll_f = FLOAT_NO_DATA;
+        datosFusionados.pitch_f = FLOAT_NO_DATA;
+        datosFusionados.yaw_f = FLOAT_NO_DATA;
+        datosFusionados.ecg = INT_NO_DATA;
+    }
+    
+    if (brazoActivo) {
+        datosFusionados.roll_a = ultimosDatosBrazo.roll_a;
+        datosFusionados.pitch_a = ultimosDatosBrazo.pitch_a;
+        datosFusionados.yaw_a = ultimosDatosBrazo.yaw_a;
+    } else {
+        datosFusionados.roll_a = FLOAT_NO_DATA;
+        datosFusionados.pitch_a = FLOAT_NO_DATA;
+        datosFusionados.yaw_a = FLOAT_NO_DATA;
+    }
+    
     int idx = 0;
-    bufferPaquete[idx++] = dir_destino;           // Byte 0: Destino final
-    bufferPaquete[idx++] = dir_local;             // Byte 1: Quien reenvía (este nodo)
-    bufferPaquete[idx++] = id_msjLoRa;            // Byte 2: ID del mensaje LoRa
-    bufferPaquete[idx++] = sizeof(struct_message); // Byte 3: Tamaño del payload
+    bufferPaquete[idx++] = dir_destino;
+    bufferPaquete[idx++] = dir_local;
+    bufferPaquete[idx++] = id_msjLoRa;
+    bufferPaquete[idx++] = sizeof(struct_message_completo);
     
-    // 4. Copiar el payload (los datos de la estructura) al buffer
-    memcpy(&bufferPaquete[idx], &incomingData, sizeof(struct_message));
-    idx += sizeof(struct_message);
+    memcpy(&bufferPaquete[idx], &datosFusionados, sizeof(struct_message_completo));
+    idx += sizeof(struct_message_completo);
     
-    // 5. Transmitir el paquete completo por LoRa
     LoRa.beginPacket();
-    LoRa.write(bufferPaquete, idx);  // Enviar todo el frame
+    LoRa.write(bufferPaquete, idx);
     LoRa.endPacket();
-
-    // 6. Incrementar el ID para el próximo mensaje
-    id_msjLoRa++;
-
-    // 7. Mostrar información de depuración
-    Serial.printf("LoRa Sent -> ID: %d | Dest: 0x%X\n", id_msjLoRa - 1, dir_destino);
-    Serial.print("Datos: ");
-    Serial.print(incomingData.yaw); Serial.print(", ");
-    Serial.print(incomingData.pitch); Serial.print(", ");
-    Serial.print(incomingData.roll); Serial.print(", ");
-    Serial.print(incomingData.flex); Serial.print(", ");
-    Serial.print(incomingData.spo2); Serial.print(", ");
-    Serial.println(incomingData.heartRate);
+    
+    Serial.println("\n[LoRa] Datos fusionados enviados:");
+    
+    if (antebrazoActivo) {
+        Serial.print("  ANTEBRAZO: roll_f="); Serial.print(datosFusionados.roll_f, 1);
+        Serial.print(", pitch_f="); Serial.print(datosFusionados.pitch_f, 1);
+        Serial.print(", yaw_f="); Serial.print(datosFusionados.yaw_f, 1);
+        Serial.print(", ecg="); Serial.println(datosFusionados.ecg);
+    } else {
+        Serial.println("  ANTEBRAZO: NO DISPONIBLE");
+    }
+    
+    if (brazoActivo) {
+        Serial.print("  BRAZO: roll_a="); Serial.print(datosFusionados.roll_a, 1);
+        Serial.print(", pitch_a="); Serial.print(datosFusionados.pitch_a, 1);
+        Serial.print(", yaw_a="); Serial.println(datosFusionados.yaw_a, 1);
+    } else {
+        Serial.println("  BRAZO: NO DISPONIBLE");
+    }
+    
+    Serial.print("  ID LoRa: "); Serial.print(id_msjLoRa);
+    Serial.print(" | Destino: 0x"); Serial.println(dir_destino, HEX);
     Serial.println("---------------------------------");
+    
+    id_msjLoRa++;
 }
 
 // ==========================================
@@ -87,29 +201,25 @@ void OnDataRecv(const esp_now_recv_info_t *recv_info, const uint8_t *incomingDat
 // ==========================================
 void setup() {
     Serial.begin(115200);
-    while (!Serial); // Esperar a que el puerto serie se conecte (útil para algunos ESP32)
+    while (!Serial);
 
-    Serial.println("Iniciando Nodo Puente (ESP-NOW -> LoRa)...");
+    Serial.println("Iniciando Nodo Puente (ESP-NOW -> LoRa)");
+    Serial.println("Modo: 1 o 2 nodos");
 
-    // --- 1. Inicializar LoRa (basado en Sender.ino) ---
     SPI.begin(loraSCK, loraMISO, loraMOSI, loraNSS);
     LoRa.setPins(loraNSS, loraRST, loraDI0);
     
-    if (!LoRa.begin(433E6)) { // Frecuencia: 433 MHz
+    if (!LoRa.begin(433E6)) {
         Serial.println("Fallo al iniciar LoRa!");
         while (1);
     }
-    // Configurar parámetros para que coincidan con el receptor final
     LoRa.setSpreadingFactor(9);
     LoRa.setSignalBandwidth(125E3);
     LoRa.setCodingRate4(6);
     LoRa.setSyncWord(SyncWord);
     
-    Serial.println("LoRa Inicializado correctamente en 433MHz.");
-    Serial.print("Mi direccion LoRa: 0x"); Serial.println(dir_local, HEX);
-    Serial.print("Reenviando a: 0x"); Serial.println(dir_destino, HEX);
-
-    // --- 2. Inicializar ESP-NOW ---
+    Serial.println("LoRa Inicializado");
+    
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     
@@ -118,11 +228,12 @@ void setup() {
         return;
     }
     
-    // Registrar el callback para cuando se reciban datos por ESP-NOW
     esp_now_register_recv_cb(OnDataRecv);
     
-    Serial.println("ESP-NOW inicializado y escuchando...");
-    Serial.println("Esperando datos de emisores...");
+    brazoInicializado = false;
+    antebrazoInicializado = false;
+    
+    Serial.println("ESP-NOW inicializado - Esperando datos...");
     Serial.println("=================================");
 }
 
@@ -130,5 +241,30 @@ void setup() {
 // LOOP
 // ==========================================
 void loop() {
+    static unsigned long ultimaVerificacion = 0;
+    unsigned long ahora = millis();
+    
+    if (ahora - ultimaVerificacion > 1000) {
+        ultimaVerificacion = ahora;
+        
+        bool brazoActivo = brazoInicializado && (ahora - tiempoUltimoBrazo) < TIMEOUT_MS;
+        bool antebrazoActivo = antebrazoInicializado && (ahora - tiempoUltimoAntebrazo) < TIMEOUT_MS;
+        
+        static bool brazoEstabaActivo = false;
+        static bool antebrazoEstabaActivo = false;
+        
+        if (brazoActivo != brazoEstabaActivo) {
+            brazoEstabaActivo = brazoActivo;
+            Serial.print("[ESTADO] BRAZO: ");
+            Serial.println(brazoActivo ? "CONECTADO" : "DESCONECTADO");
+        }
+        
+        if (antebrazoActivo != antebrazoEstabaActivo) {
+            antebrazoEstabaActivo = antebrazoActivo;
+            Serial.print("[ESTADO] ANTEBRAZO: ");
+            Serial.println(antebrazoActivo ? "CONECTADO" : "DESCONECTADO");
+        }
+    }
+    
     delay(10);
 }

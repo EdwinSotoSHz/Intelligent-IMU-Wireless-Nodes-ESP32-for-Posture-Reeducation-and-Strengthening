@@ -1,0 +1,53 @@
+[
+  {
+    "id": "tab_mpu_ws",
+    "type": "tab",
+    "label": "MPU ThreeJS",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "inject_sim",
+    "type": "inject",
+    "z": "tab_mpu_ws",
+    "name": "Simular orientación",
+    "props": [],
+    "repeat": "0.1",
+    "once": true,
+    "onceDelay": "0.5",
+    "topic": "",
+    "x": 180,
+    "y": 120,
+    "wires": [["func_generate"]]
+  },
+  {
+    "id": "func_generate",
+    "type": "function",
+    "z": "tab_mpu_ws",
+    "name": "Generar yaw pitch roll",
+    "func": "let t = Date.now()/1000;\n\nlet yaw = Math.sin(t) * 90;\nlet pitch = Math.cos(t*0.7) * 45;\nlet roll = Math.sin(t*0.5) * 60;\n\nmsg.payload = JSON.stringify({\n    yaw: yaw,\n    pitch: pitch,\n    roll: roll\n});\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "x": 420,
+    "y": 120,
+    "wires": [["ws_out"]]
+  },
+  {
+    "id": "ws_out",
+    "type": "websocket out",
+    "z": "tab_mpu_ws",
+    "name": "MPU WS OUT",
+    "server": "ws_server",
+    "client": "",
+    "x": 650,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ws_server",
+    "type": "websocket-listener",
+    "path": "/mpu",
+    "wholemsg": "false"
+  }
+]

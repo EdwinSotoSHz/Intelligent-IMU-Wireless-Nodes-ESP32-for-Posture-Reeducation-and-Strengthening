@@ -15,18 +15,31 @@
 #define GYRO_SCALE 131.0
 
 // ==== TUS BIAS MEDIDOS (Ajustados) ====
-#define GYRO_BIAS_X  -554.73
-#define GYRO_BIAS_Y   483.33
-#define GYRO_BIAS_Z     5.64
+#define GYRO_BIAS_X  -586.58
+#define GYRO_BIAS_Y   503.27
+#define GYRO_BIAS_Z    67.01
 
-#define ACC_BIAS_X  (644.0)   // Usa los valores crudos que mediste antes
-#define ACC_BIAS_Y  (-760.0)
-#define ACC_BIAS_Z  (18048.0 - 16384.0) 
+#define ACC_BIAS_X  (1477.39)
+#define ACC_BIAS_Y  (379.93)
+#define ACC_BIAS_Z  (1670.55)
 // ===========================
 
 int16_t axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw;
 float roll = 0, pitch = 0, yaw = 0;
+
+float rollOffset = 0;
+float pitchOffset = 0;
+float yawOffset = 0;
+
+bool calibrated = false;
+
 unsigned long prevTime;
+unsigned long calibrationStart;
+
+float rollSum = 0;
+float pitchSum = 0;
+float yawSum = 0;
+int calibrationSamples = 0;
 
 void readMPU() {
     Wire.beginTransmission(MPU_ADDR);
@@ -58,12 +71,15 @@ void setup() {
     
     roll = atan2(ay, az) * 180 / PI;
     pitch = atan2(-ax, sqrt(ay*ay + az*az)) * 180 / PI;
+
     prevTime = micros();
+    calibrationStart = millis();
     
     Serial.println("Roll, Pitch, Yaw:");
 }
 
 void loop() {
+
     unsigned long now = micros();
     float dt = (now - prevTime) / 1000000.0;
     prevTime = now;
@@ -83,20 +99,46 @@ void loop() {
     float accRoll = atan2(ay, az) * 180 / PI;
     float accPitch = atan2(-ax, sqrt(ay*ay + az*az)) * 180 / PI;
 
-    // Filtro Complementario (Funde la estabilidad del Acc con la rapidez del Gyro)
+    // Filtro Complementario
     roll = 0.96 * (roll + gx * dt) + 0.04 * accRoll;
     pitch = 0.96 * (pitch + gy * dt) + 0.04 * accPitch;
-    yaw += gz * dt; // El Yaw solo se puede medir con Gyro o Magnetómetro
+    yaw += gz * dt;
+
+    // ===== CALIBRACIÓN INICIAL DE 3 SEGUNDOS =====
+    if (!calibrated) {
+
+        rollSum += roll;
+        pitchSum += pitch;
+        yawSum += yaw;
+        calibrationSamples++;
+
+        if (millis() - calibrationStart > 3000) {
+
+            rollOffset = rollSum / calibrationSamples;
+            pitchOffset = pitchSum / calibrationSamples;
+            yawOffset = yawSum / calibrationSamples;
+
+            calibrated = true;
+
+            Serial.println("Calibracion completa");
+        }
+
+        return;
+    }
+
+    float rollRelative = roll - rollOffset;
+    float pitchRelative = pitch - pitchOffset;
+    float yawRelative = yaw - yawOffset;
 
     // Mostrar en consola cada 100ms aproximadamente
     static unsigned long lastPrint = 0;
     if (millis() - lastPrint > 100) {
         Serial.print("Roll: ");
-        Serial.print(roll);
+        Serial.print(rollRelative);
         Serial.print("°\tPitch: ");
-        Serial.print(pitch);
+        Serial.print(pitchRelative);
         Serial.print("°\tYaw: ");
-        Serial.print(yaw);
+        Serial.print(yawRelative);
         Serial.println("°");
         lastPrint = millis();
     }

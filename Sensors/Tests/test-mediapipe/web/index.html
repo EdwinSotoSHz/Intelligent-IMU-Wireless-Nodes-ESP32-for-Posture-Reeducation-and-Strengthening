@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>MediaPipe Pose - Colores por Extremidad</title>
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Detección de Pose con Colores</h1>
+    <section id="demos">
+        <div id="liveView" class="videoView">
+            <button id="webcamButton" class="mdc-button mdc-button--raised">
+                <span class="mdc-button__ripple"></span>
+                <span class="mdc-button__label">HABILITAR WEBCAM</span>
+            </button>
+            <button id="imageButton" class="mdc-button mdc-button--raised" style="margin-left: 10px;">
+                <span class="mdc-button__ripple"></span>
+                <span class="mdc-button__label">PROCESAR IMAGEN</span>
+            </button>
+            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+            <div style="position: relative;">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas class="output_canvas" id="output_canvas"></canvas>
+            </div>
+            <div id="imageContainer" style="position: relative; display: none; max-width: 1280px;">
+                <img id="staticImage" style="width: 100%; border-radius: 10px; transform: rotateY(180deg);">
+                <canvas class="output_canvas" id="image_output_canvas" style="position: absolute; left: 0px; top: 0px; pointer-events: none; width: 100%; height: 100%;"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

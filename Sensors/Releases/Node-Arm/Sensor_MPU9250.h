@@ -1,5 +1,5 @@
-#ifndef MPU9250_LIB_H
-#define MPU9250_LIB_H
+#ifndef SENSOR_MPU9250_H
+#define SENSOR_MPU9250_H
 
 #include <Arduino.h>
 
