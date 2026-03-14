@@ -5,29 +5,6 @@ const int PIN_ECG = 2;
 const int PIN_LOP = 3;
 const int PIN_LON = 5;
 
-int adc_center = 0;
-
-float envelope = 0;
-float alpha = 0.1;
-
-// ===============================
-// CALIBRACIÓN
-// ===============================
-void calibrate() {
-
-  long sum = 0;
-
-  for (int i = 0; i < 500; i++) {
-    sum += analogRead(PIN_ECG);
-    delay(2);
-  }
-
-  adc_center = sum / 500;
-
-  Serial.print("Centro ADC: ");
-  Serial.println(adc_center);
-}
-
 // ===============================
 // SETUP
 // ===============================
@@ -38,41 +15,32 @@ void setup() {
   pinMode(PIN_ECG, INPUT);
   pinMode(PIN_LOP, INPUT);
   pinMode(PIN_LON, INPUT);
-
-  delay(2000);
-
-  calibrate();
 }
 
 // ===============================
-// LOOP
+// LOOP PRINCIPAL
 // ===============================
 void loop() {
 
+  // Leer señal ECG
+  int ecg = analogRead(PIN_ECG);
+
+  // Verificar si los electrodos están desconectados
   if (digitalRead(PIN_LOP) == HIGH || digitalRead(PIN_LON) == HIGH) {
 
-    Serial.println("0,0,100");
-    delay(10);
-    return;
+    // Señal en 0 si están desconectados
+    Serial.println("0,0,4095");
+
+  } else {
+
+    // Salida para Serial Plotter
+    // ECG , LIMITE_MIN , LIMITE_MAX
+    Serial.print(ecg);
+    Serial.print(",");
+    Serial.print(0);      // límite inferior
+    Serial.print(",");
+    Serial.println(4095); // límite superior
   }
 
-  int raw = analogRead(PIN_ECG);
-
-  int centered = raw - adc_center;
-
-  int rectified = abs(centered);
-
-  envelope = alpha * rectified + (1 - alpha) * envelope;
-
-  int muscle = map(envelope, 0, 400, 0, 100);
-
-  muscle = constrain(muscle, 0, 100);
-
-  Serial.print(muscle);
-  Serial.print(",");
-  Serial.print(0);
-  Serial.print(",");
-  Serial.println(100);
-
-  delay(2);
+  delay(10);
 }

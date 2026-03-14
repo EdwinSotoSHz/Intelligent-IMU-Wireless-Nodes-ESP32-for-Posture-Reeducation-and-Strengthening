@@ -1,4 +1,4 @@
-// ESP32 34 PINS (Conservar estos pines)
+// ESP32 30 PINS (Conservar estos pines)
 
 #include <WiFi.h>
 #include <esp_now.h>
