@@ -26,9 +26,9 @@ byte bufferPaquete[64];
 // ESTRUCTURA COMPLETA PARA LORA (PAYLOAD FUSIONADO)
 // ==========================================
 typedef struct struct_message_completo {
-    float roll_f, pitch_f, yaw_f;
-    int ecg;
-    float roll_a, pitch_a, yaw_a;
+    float roll_f, pitch_f, yaw_f;  // Datos del antebrazo (Forearm)
+    int ecg;                        // ECG (viene del brazo)
+    float roll_a, pitch_a, yaw_a;   // Datos del brazo (Arm)
 } struct_message_completo;
 
 struct_message_completo datosFusionados;
@@ -40,6 +40,7 @@ typedef struct struct_message_arm {
     float roll_a;
     float pitch_a;
     float yaw_a;
+    int ecg;
     int node_id;
 } struct_message_arm;
 
@@ -47,13 +48,12 @@ typedef struct struct_message_forearm {
     float roll_f;
     float pitch_f;
     float yaw_f;
-    int ecg;
     int node_id;
 } struct_message_forearm;
 
 // Variables para almacenar los últimos datos de cada nodo
-struct_message_arm ultimosDatosBrazo;
-struct_message_forearm ultimosDatosAntebrazo;
+struct_message_arm ultimosDatosBrazo;        // Nodo 1: roll_a, pitch_a, yaw_a, ecg
+struct_message_forearm ultimosDatosAntebrazo; // Nodo 2: roll_f, pitch_f, yaw_f
 
 // Flags para saber si hemos recibido datos de cada nodo ALGUNA VEZ
 bool brazoInicializado = false;
@@ -85,7 +85,8 @@ void OnDataRecv(const esp_now_recv_info_t *recv_info, const uint8_t *incomingDat
             Serial.print("\n[ESP-NOW] BRAZO: ");
             Serial.print("roll_a="); Serial.print(datosBrazo.roll_a, 1);
             Serial.print(", pitch_a="); Serial.print(datosBrazo.pitch_a, 1);
-            Serial.print(", yaw_a="); Serial.println(datosBrazo.yaw_a, 1);
+            Serial.print(", yaw_a="); Serial.print(datosBrazo.yaw_a, 1);
+            Serial.print(", ecg="); Serial.println(datosBrazo.ecg);
             
             enviarLoRaConDatosDisponibles();
         }
@@ -106,8 +107,7 @@ void OnDataRecv(const esp_now_recv_info_t *recv_info, const uint8_t *incomingDat
             Serial.print("\n[ESP-NOW] ANTEBRAZO: ");
             Serial.print("roll_f="); Serial.print(datosAntebrazo.roll_f, 1);
             Serial.print(", pitch_f="); Serial.print(datosAntebrazo.pitch_f, 1);
-            Serial.print(", yaw_f="); Serial.print(datosAntebrazo.yaw_f, 1);
-            Serial.print(", ecg="); Serial.println(datosAntebrazo.ecg);
+            Serial.print(", yaw_f="); Serial.println(datosAntebrazo.yaw_f, 1);
             
             enviarLoRaConDatosDisponibles();
         }
@@ -135,26 +135,28 @@ void enviarLoRaConDatosDisponibles() {
     const float FLOAT_NO_DATA = 0.0;
     const int INT_NO_DATA = 0;
     
+    // Llenar datos del antebrazo (Forearm) - vienen del nodo 2
     if (antebrazoActivo) {
         datosFusionados.roll_f = ultimosDatosAntebrazo.roll_f;
         datosFusionados.pitch_f = ultimosDatosAntebrazo.pitch_f;
         datosFusionados.yaw_f = ultimosDatosAntebrazo.yaw_f;
-        datosFusionados.ecg = ultimosDatosAntebrazo.ecg;
     } else {
         datosFusionados.roll_f = FLOAT_NO_DATA;
         datosFusionados.pitch_f = FLOAT_NO_DATA;
         datosFusionados.yaw_f = FLOAT_NO_DATA;
-        datosFusionados.ecg = INT_NO_DATA;
     }
     
+    // Llenar datos del brazo (Arm) - vienen del nodo 1
     if (brazoActivo) {
         datosFusionados.roll_a = ultimosDatosBrazo.roll_a;
         datosFusionados.pitch_a = ultimosDatosBrazo.pitch_a;
         datosFusionados.yaw_a = ultimosDatosBrazo.yaw_a;
+        datosFusionados.ecg = ultimosDatosBrazo.ecg;  // El ECG viene en el nodo del brazo
     } else {
         datosFusionados.roll_a = FLOAT_NO_DATA;
         datosFusionados.pitch_a = FLOAT_NO_DATA;
         datosFusionados.yaw_a = FLOAT_NO_DATA;
+        datosFusionados.ecg = INT_NO_DATA;
     }
     
     int idx = 0;
@@ -175,8 +177,7 @@ void enviarLoRaConDatosDisponibles() {
     if (antebrazoActivo) {
         Serial.print("  ANTEBRAZO: roll_f="); Serial.print(datosFusionados.roll_f, 1);
         Serial.print(", pitch_f="); Serial.print(datosFusionados.pitch_f, 1);
-        Serial.print(", yaw_f="); Serial.print(datosFusionados.yaw_f, 1);
-        Serial.print(", ecg="); Serial.println(datosFusionados.ecg);
+        Serial.print(", yaw_f="); Serial.println(datosFusionados.yaw_f, 1);
     } else {
         Serial.println("  ANTEBRAZO: NO DISPONIBLE");
     }
@@ -184,7 +185,8 @@ void enviarLoRaConDatosDisponibles() {
     if (brazoActivo) {
         Serial.print("  BRAZO: roll_a="); Serial.print(datosFusionados.roll_a, 1);
         Serial.print(", pitch_a="); Serial.print(datosFusionados.pitch_a, 1);
-        Serial.print(", yaw_a="); Serial.println(datosFusionados.yaw_a, 1);
+        Serial.print(", yaw_a="); Serial.print(datosFusionados.yaw_a, 1);
+        Serial.print(", ecg="); Serial.println(datosFusionados.ecg);
     } else {
         Serial.println("  BRAZO: NO DISPONIBLE");
     }
