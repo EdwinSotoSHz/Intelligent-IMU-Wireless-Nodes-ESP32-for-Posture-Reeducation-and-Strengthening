@@ -11,7 +11,7 @@
         "group": "5fdc4547e0275bf2",
         "name": "RollF",
         "label": "RollF",
-        "order": 2,
+        "order": 6,
         "width": "",
         "height": "",
         "passthru": true,
@@ -28,8 +28,8 @@
         "colorTrack": "",
         "colorThumb": "",
         "showTextField": false,
-        "x": 150,
-        "y": 60,
+        "x": 170,
+        "y": 280,
         "wires": [
             [
                 "imu_builder"
@@ -43,7 +43,7 @@
         "group": "5fdc4547e0275bf2",
         "name": "PitchF",
         "label": "PitchF",
-        "order": 3,
+        "order": 7,
         "width": "",
         "height": "",
         "passthru": true,
@@ -60,8 +60,8 @@
         "colorTrack": "",
         "colorThumb": "",
         "showTextField": false,
-        "x": 150,
-        "y": 120,
+        "x": 170,
+        "y": 340,
         "wires": [
             [
                 "imu_builder"
@@ -75,7 +75,7 @@
         "group": "5fdc4547e0275bf2",
         "name": "YawF",
         "label": "YawF",
-        "order": 4,
+        "order": 8,
         "width": "",
         "height": "",
         "passthru": true,
@@ -92,8 +92,8 @@
         "colorTrack": "",
         "colorThumb": "",
         "showTextField": false,
-        "x": 150,
-        "y": 180,
+        "x": 170,
+        "y": 400,
         "wires": [
             [
                 "imu_builder"
@@ -107,7 +107,7 @@
         "group": "5fdc4547e0275bf2",
         "name": "RollA",
         "label": "RollA",
-        "order": 6,
+        "order": 2,
         "width": "",
         "height": "",
         "passthru": true,
@@ -124,8 +124,8 @@
         "colorTrack": "",
         "colorThumb": "",
         "showTextField": false,
-        "x": 150,
-        "y": 260,
+        "x": 170,
+        "y": 140,
         "wires": [
             [
                 "imu_builder"
@@ -139,7 +139,7 @@
         "group": "5fdc4547e0275bf2",
         "name": "PitchA",
         "label": "PitchA",
-        "order": 7,
+        "order": 3,
         "width": "",
         "height": "",
         "passthru": true,
@@ -156,8 +156,8 @@
         "colorTrack": "",
         "colorThumb": "",
         "showTextField": false,
-        "x": 150,
-        "y": 320,
+        "x": 170,
+        "y": 200,
         "wires": [
             [
                 "imu_builder"
@@ -171,7 +171,7 @@
         "group": "5fdc4547e0275bf2",
         "name": "YawA",
         "label": "YawA",
-        "order": 8,
+        "order": 4,
         "width": "",
         "height": "",
         "passthru": true,
@@ -188,8 +188,8 @@
         "colorTrack": "",
         "colorThumb": "",
         "showTextField": false,
-        "x": 150,
-        "y": 380,
+        "x": 170,
+        "y": 80,
         "wires": [
             [
                 "imu_builder"
@@ -203,6 +203,11 @@
         "name": "Build IMU Object",
         "func": "let imu = flow.get(\"imu\") || {\nrollF:0,pitchF:0,yawF:0,\nrollA:0,pitchA:0,yawA:0\n};\n\nimu[msg.topic] = msg.payload;\n\nflow.set(\"imu\",imu);\n\nmsg.payload = JSON.stringify(imu);\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
         "x": 420,
         "y": 220,
         "wires": [
@@ -233,13 +238,13 @@
         "order": 2,
         "width": 6,
         "height": 6,
-        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Sensors/Tests/test-threejs/test-arm.html\" \nstyle=\"border:none\" \nheight=\"80%\" \nwidth=\"60%\">\n</iframe>",
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Tests/test-threejs/test-arm.html\" \nstyle=\"border:none\" \nheight=\"80%\" \nwidth=\"60%\">\n</iframe>",
         "storeOutMessages": true,
         "passthru": true,
         "resendOnRefresh": true,
         "templateScope": "local",
         "className": "",
-        "x": 680,
+        "x": 660,
         "y": 360,
         "wires": [
             []
@@ -355,7 +360,7 @@
         }
     },
     {
-        "id": "b1220448f6cf1a8b",
+        "id": "3a9008628f1b9a8e",
         "type": "global-config",
         "env": [],
         "modules": {

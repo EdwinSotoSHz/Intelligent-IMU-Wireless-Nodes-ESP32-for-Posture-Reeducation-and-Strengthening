@@ -151,15 +151,13 @@ const socket=new WebSocket("ws://localhost:1880/imu");
 socket.onmessage=(event)=>{
 
 const data=JSON.parse(event.data);
-
-rollF=data.rollF;
-pitchF=data.pitchF;
-yawF=data.yawF;
-
 rollA=data.rollA;
 pitchA=data.pitchA;
 yawA=data.yawA;
 
+rollF=data.rollF;
+pitchF=data.pitchF;
+yawF=data.yawF;
 };
 
 
@@ -172,14 +170,14 @@ function animate(){
 requestAnimationFrame(animate);
 
 // Padre
-cube1.rotation.x=pitchF*Math.PI/180;
-cube1.rotation.y=yawF*Math.PI/180;
-cube1.rotation.z=rollF*Math.PI/180;
+cube1.rotation.x=pitchA*Math.PI/180;
+cube1.rotation.y=yawA*Math.PI/180;
+cube1.rotation.z=rollA*Math.PI/180;
 
 // Hijo
-cube2.rotation.x=pitchA*Math.PI/180;
-cube2.rotation.y=yawA*Math.PI/180;
-cube2.rotation.z=rollA*Math.PI/180;
+cube2.rotation.x=pitchF*Math.PI/180;
+cube2.rotation.y=yawF*Math.PI/180;
+cube2.rotation.z=rollF*Math.PI/180;
 
 renderer.render(scene,camera);
 

@@ -2,24 +2,26 @@
 #include <esp_now.h>
 
 #include "Sensor_MPU9250.h"
+#include "Sensor_AD8232.h"
 
 // Dirección MAC del Master Node
 uint8_t broadcastAddress[] = {0x8C, 0x4F, 0x00, 0xAD, 0x68, 0x6C};
 
-// Estructura específica para el brazo (solo datos absolutos)
-typedef struct struct_message_arm {
-    float roll_a;
-    float pitch_a;
-    float yaw_a;
+// Estructura específica para el antebrazo (datos filtrados + ECG)
+typedef struct struct_message_forearm {
+    float roll_f;
+    float pitch_f;
+    float yaw_f;
+    int ecg;
     int node_id;  // Identificador para que el Master sepa qué nodo es
-} struct_message_arm;
+} struct_message_forearm;
 
-struct_message_arm myData;
+struct_message_forearm myData;
 
-// Sensor MPU9250
+// Sensores
 MyMPU9250 mpu;
+MyAD8232 ecgSensor;
 
-// Firma correcta para el emisor
 void OnDataSent(const wifi_tx_info_t *tx_info, esp_now_send_status_t status) {
     Serial.print("Estado del envío: ");
     Serial.println(status == ESP_NOW_SEND_SUCCESS ? "ÉXITO" : "FALLO");
@@ -46,37 +48,39 @@ void setup() {
         return;
     }
 
-    // Configurar ID del nodo (1 = Brazo)
-    myData.node_id = 1;
-    
-    // Inicializar sensor MPU
+    // Configurar ID del nodo (2 = Antebrazo)
+    myData.node_id = 2;
+
+    // Inicializar sensores
     mpu.begin();
+    ecgSensor.begin();
     
-    Serial.println("Nodo BRAZO iniciado - Enviando datos absolutos (roll_a, pitch_a, yaw_a)");
+    Serial.println("Nodo ANTEBRAZO iniciado - Enviando datos filtrados (roll_f, pitch_f, yaw_f) y ECG");
     Serial.println("=================================");
 }
 
 void loop() {
-    // Obtener datos del MPU9250
+    // Obtener datos de los sensores
     Orientation mpuData = mpu.getData();
     
-    // Llenar la estructura solo con datos absolutos
-    myData.roll_a = mpuData.roll;
-    myData.pitch_a = mpuData.pitch;
-    myData.yaw_a = mpuData.yaw;
+    // Llenar la estructura del antebrazo
+    myData.roll_f = mpuData.roll;
+    myData.pitch_f = mpuData.pitch;
+    myData.yaw_f = mpuData.yaw;
+    myData.ecg = ecgSensor.getECG();
 
     // Enviar por ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
     if (result == ESP_OK) {
-        Serial.print("[BRAZO] Enviado - ID:"); Serial.print(myData.node_id);
-        Serial.print(" | Roll_a: "); Serial.print(myData.roll_a, 1);
-        Serial.print("° | Pitch_a: "); Serial.print(myData.pitch_a, 1);
-        Serial.print("° | Yaw_a: "); Serial.print(myData.yaw_a, 1);
-        Serial.println("°");
+        Serial.print("[ANTEBRAZO] Enviado - ID:"); Serial.print(myData.node_id);
+        Serial.print(" | Roll_f: "); Serial.print(myData.roll_f, 1);
+        Serial.print("° | Pitch_f: "); Serial.print(myData.pitch_f, 1);
+        Serial.print("° | Yaw_f: "); Serial.print(myData.yaw_f, 1);
+        Serial.print("° | ECG: "); Serial.println(myData.ecg);
     } else {
-        Serial.println("[BRAZO] Error enviando datos");
+        Serial.println("[ANTEBRAZO] Error enviando datos");
     }
 
-    delay(550); // Frecuencia alta para datos de orientación
+    delay(550); // 
 }
