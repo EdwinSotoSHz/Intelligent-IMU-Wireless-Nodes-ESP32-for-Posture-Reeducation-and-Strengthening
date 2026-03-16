@@ -1,53 +1,131 @@
 [
-  {
-    "id": "tab_mpu_ws",
-    "type": "tab",
-    "label": "MPU ThreeJS",
-    "disabled": false,
-    "info": ""
-  },
-  {
-    "id": "inject_sim",
-    "type": "inject",
-    "z": "tab_mpu_ws",
-    "name": "Simular orientación",
-    "props": [],
-    "repeat": "0.1",
-    "once": true,
-    "onceDelay": "0.5",
-    "topic": "",
-    "x": 180,
-    "y": 120,
-    "wires": [["func_generate"]]
-  },
-  {
-    "id": "func_generate",
-    "type": "function",
-    "z": "tab_mpu_ws",
-    "name": "Generar yaw pitch roll",
-    "func": "let t = Date.now()/1000;\n\nlet yaw = Math.sin(t) * 90;\nlet pitch = Math.cos(t*0.7) * 45;\nlet roll = Math.sin(t*0.5) * 60;\n\nmsg.payload = JSON.stringify({\n    yaw: yaw,\n    pitch: pitch,\n    roll: roll\n});\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "x": 420,
-    "y": 120,
-    "wires": [["ws_out"]]
-  },
-  {
-    "id": "ws_out",
-    "type": "websocket out",
-    "z": "tab_mpu_ws",
-    "name": "MPU WS OUT",
-    "server": "ws_server",
-    "client": "",
-    "x": 650,
-    "y": 120,
-    "wires": []
-  },
-  {
-    "id": "ws_server",
-    "type": "websocket-listener",
-    "path": "/mpu",
-    "wholemsg": "false"
-  }
+    {
+        "id": "ad3521cc4559d5ad",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": true,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "12e1190221fa615c",
+        "type": "ui-template",
+        "z": "ad3521cc4559d5ad",
+        "group": "60329f93626b4829",
+        "page": "",
+        "ui": "",
+        "name": "Mediapipe",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Sensors/Tests/test-mediapipe/local/index.html\" \nallow=\"camera; microphone\" \nwidth=\"100%\" height=\"600\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 610,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "60329f93626b4829",
+        "type": "ui-group",
+        "name": "Mediapipe_test",
+        "page": "39a0b4e801bed4d0",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "39a0b4e801bed4d0",
+        "type": "ui-page",
+        "name": "2026_ITICS",
+        "ui": "07364cccbec2747d",
+        "path": "/page2",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "8c05b69b7d864577",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": "false"
+    },
+    {
+        "id": "07364cccbec2747d",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "8c05b69b7d864577",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "fea247552326257a",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+    }
 ]

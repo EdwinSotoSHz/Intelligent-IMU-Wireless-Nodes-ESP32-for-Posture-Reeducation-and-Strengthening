@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>MPU 3D - Offset Inicial 90°</title>
+    <title>MPU 3D - Ejes Corregidos</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
         #ui-container {
@@ -22,12 +22,30 @@
             min-width: 250px;
         }
         .slider-container { margin: 10px 0; }
-        .slider-container label { display: inline-block; width: 50px; }
+        .slider-container label { display: inline-block; width: 60px; }
         .slider-container input { width: 150px; margin: 0 10px; }
         .slider-container span { display: inline-block; width: 40px; text-align: right; }
         h4 { margin: 0 0 10px 0; }
         .c1 { color: #00ffcc; } 
-        .c2 { color: #ffcc00; } 
+        .c2 { color: #ffcc00; }
+        .axis-label {
+         position: absolute;
+         top: 20px;
+         right: 20px;
+         background: rgba(0, 0, 0, 0.8);
+         color: white;
+         padding: 10px;
+         border-radius: 10px;
+         font-size: 22px;  /* Cambiado de 12px a 16px */
+         pointer-events: none;
+      }
+        .axis-color { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; }
+        .blue-bg { background-color: #ff3333; }
+        .green-bg { background-color: #00cc00; }
+        .red-bg { background-color: #0066ff; }
+        .roll-color { color: #ff3333; font-weight: bold; }
+        .pitch-color { color: #00cc00; font-weight: bold; }
+        .yaw-color { color: #0066ff; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -35,17 +53,17 @@
         <div class="control-panel">
             <h4 class="c1">Cubo Padre (Azul)</h4>
             <div class="slider-container">
-                <label>Roll:</label>
+                <label class="roll-color">RollF:</label>
                 <input type="range" id="roll1" min="-180" max="180" value="0">
                 <span id="roll1-val">0°</span>
             </div>
             <div class="slider-container">
-                <label>Pitch:</label>
+                <label class="pitch-color">PitchF:</label>
                 <input type="range" id="pitch1" min="-180" max="180" value="0">
                 <span id="pitch1-val">0°</span>
             </div>
             <div class="slider-container">
-                <label>Yaw:</label>
+                <label class="yaw-color">YawF:</label>
                 <input type="range" id="yaw1" min="-180" max="180" value="0">
                 <span id="yaw1-val">0°</span>
             </div>
@@ -54,21 +72,27 @@
         <div class="control-panel">
             <h4 class="c2">Cubo Hijo (Amarillo)</h4>
             <div class="slider-container">
-                <label>Roll:</label>
+                <label class="roll-color">RollA:</label>
                 <input type="range" id="roll2" min="-180" max="180" value="0">
                 <span id="roll2-val">0°</span>
             </div>
             <div class="slider-container">
-                <label>Pitch:</label>
+                <label class="pitch-color">PitchA:</label>
                 <input type="range" id="pitch2" min="-180" max="180" value="0">
                 <span id="pitch2-val">0°</span>
             </div>
             <div class="slider-container">
-                <label>Yaw:</label>
+                <label class="yaw-color">YawA:</label>
                 <input type="range" id="yaw2" min="-180" max="180" value="0">
                 <span id="yaw2-val">0°</span>
             </div>
         </div>
+    </div>
+
+    <div class="axis-label">
+        <div><span class="axis-color blue-bg"></span> <span class="roll-color">Roll (Eje X)</span></div>
+        <div><span class="axis-color green-bg"></span> <span class="pitch-color">Pitch (Eje Y)</span></div>
+        <div><span class="axis-color red-bg"></span> <span class="yaw-color">Yaw (Eje Z)</span></div>
     </div>
 
     <script type="importmap">
@@ -86,7 +110,6 @@
         scene.background = new THREE.Color(0x111111);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        // Mantenemos tu cámara exactamente igual
         camera.position.set(2, 1, 5);
         camera.lookAt(2, 0, 0);
 
@@ -100,7 +123,7 @@
         scene.add(light);
 
         scene.add(new THREE.GridHelper(20, 40, 0x333333, 0x222222));
-        scene.add(new THREE.AxesHelper(2));
+        scene.add(new THREE.AxesHelper(2).setColors(0x00ff00, 0x0000ff, 0xff0000));
 
         const width = 2, height = 0.5, depth = 1;
 
@@ -123,8 +146,8 @@
         const marker2 = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshBasicMaterial({ color: 0xffffff }));
         cube2.add(marker2);
 
-        // --- CONTROLES CON OFFSET ---
-        function setupControls(id, cube, isParent) {
+        // --- CONTROLES CON EJES CORREGIDOS ---
+        function setupControls(id, cube) {
             const rS = document.getElementById('roll' + id);
             const pS = document.getElementById('pitch' + id);
             const yS = document.getElementById('yaw' + id);
@@ -142,14 +165,10 @@
                 let p = rawPitch * Math.PI / 180;
                 let y = rawYaw * Math.PI / 180;
 
-                // APLICAMOS EL OFFSET AL PADRE
-                // Si es el padre (id=1), le sumamos 90 grados al roll original
-                if (isParent) {
-                    const offset = 90 * Math.PI / 180;
-                    cube.rotation.set(p, -y, -(r + offset));
-                } else {
-                    cube.rotation.set(p, -y, -r);
-                }
+                // Aplicamos rotación en el orden correcto (Z, Y, X) para seguir convención aeronáutica
+                cube.rotation.x = p;  // Pitch (rotación alrededor de X)
+                cube.rotation.y = y;  // Yaw (rotación alrededor de Y)
+                cube.rotation.z = r;  // Roll (rotación alrededor de Z)
 
                 rV.textContent = rawRoll + '°';
                 pV.textContent = rawPitch + '°';
@@ -160,8 +179,8 @@
             update();
         }
 
-        setupControls('1', cube1, true);  // El azul es el padre
-        setupControls('2', cube2, false); // El amarillo es el hijo
+        setupControls('1', cube1);
+        setupControls('2', cube2);
 
         function animate() {
             requestAnimationFrame(animate);

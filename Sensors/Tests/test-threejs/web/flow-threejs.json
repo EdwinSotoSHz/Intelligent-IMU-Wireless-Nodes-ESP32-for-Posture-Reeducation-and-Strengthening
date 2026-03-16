@@ -1,0 +1,270 @@
+[
+    {
+        "id": "flow1",
+        "type": "tab",
+        "label": "IMU 3D",
+        "disabled": false
+    },
+    {
+        "id": "roll",
+        "type": "ui-slider",
+        "z": "flow1",
+        "group": "5fdc4547e0275bf2",
+        "name": "Roll",
+        "label": "Roll",
+        "order": 6,
+        "width": "",
+        "height": "",
+        "passthru": true,
+        "topic": "roll",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": "-180",
+        "max": "180",
+        "step": "1",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 220,
+        "y": 140,
+        "wires": [
+            [
+                "imu_func"
+            ]
+        ]
+    },
+    {
+        "id": "pitch",
+        "type": "ui-slider",
+        "z": "flow1",
+        "group": "5fdc4547e0275bf2",
+        "name": "Pitch",
+        "label": "Pitch",
+        "order": 4,
+        "width": "",
+        "height": "",
+        "passthru": true,
+        "topic": "pitch",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": "-180",
+        "max": "180",
+        "step": "1",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 220,
+        "y": 200,
+        "wires": [
+            [
+                "imu_func"
+            ]
+        ]
+    },
+    {
+        "id": "yaw",
+        "type": "ui-slider",
+        "z": "flow1",
+        "group": "5fdc4547e0275bf2",
+        "name": "Yaw",
+        "label": "Yaw",
+        "order": 2,
+        "width": "",
+        "height": "",
+        "passthru": true,
+        "topic": "yaw",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": "-180",
+        "max": "180",
+        "step": "1",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 220,
+        "y": 260,
+        "wires": [
+            [
+                "imu_func"
+            ]
+        ]
+    },
+    {
+        "id": "imu_func",
+        "type": "function",
+        "z": "flow1",
+        "name": "build imu object",
+        "func": "let data = flow.get(\"imu\") || {roll:0,pitch:0,yaw:0};\n\nif(msg.topic === \"roll\") data.roll = msg.payload;\nif(msg.topic === \"pitch\") data.pitch = msg.payload;\nif(msg.topic === \"yaw\") data.yaw = msg.payload;\n\nflow.set(\"imu\",data);\n\nmsg.payload = JSON.stringify(data);\nreturn msg;",
+        "outputs": 1,
+        "x": 470,
+        "y": 200,
+        "wires": [
+            [
+                "ws_out"
+            ]
+        ]
+    },
+    {
+        "id": "ws_out",
+        "type": "websocket out",
+        "z": "flow1",
+        "name": "imu out",
+        "server": "imu_ws",
+        "x": 690,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "6b1666ee84836748",
+        "type": "ui-template",
+        "z": "flow1",
+        "group": "60329f93626b4829",
+        "page": "",
+        "ui": "",
+        "name": "Threejs",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Sensors/Tests/test-threejs/web/test-arm.html\" \nallow=\"camera; microphone\" \nwidth=\"100%\" height=\"600\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 680,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5fdc4547e0275bf2",
+        "type": "ui-group",
+        "name": "Controles",
+        "page": "39a0b4e801bed4d0",
+        "width": 6,
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "imu_ws",
+        "type": "websocket-listener",
+        "path": "/imu",
+        "wholemsg": "false"
+    },
+    {
+        "id": "60329f93626b4829",
+        "type": "ui-group",
+        "name": "Mediapipe_test",
+        "page": "39a0b4e801bed4d0",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "39a0b4e801bed4d0",
+        "type": "ui-page",
+        "name": "2026_ITICS",
+        "ui": "07364cccbec2747d",
+        "path": "/page2",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "8c05b69b7d864577",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": "false"
+    },
+    {
+        "id": "07364cccbec2747d",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "8c05b69b7d864577",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "b21319e538c1ac28",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+    }
+]
