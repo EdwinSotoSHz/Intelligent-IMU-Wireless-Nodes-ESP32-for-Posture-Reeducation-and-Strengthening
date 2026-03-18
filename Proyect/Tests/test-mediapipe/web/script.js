@@ -1,6 +1,7 @@
 import {
   PoseLandmarker,
   HandLandmarker,
+  FaceLandmarker,
   FilesetResolver,
   DrawingUtils
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
@@ -12,16 +13,18 @@ const webcamButton = document.getElementById("webcamButton");
 
 let poseLandmarker = undefined;
 let handLandmarker = undefined;
+let faceLandmarker = undefined;
 let lastVideoTime = -1;
 
 // --- CONFIGURACIÓN DE AJUSTES VISUALES ---
-const Y_OFFSET = 0.03;      // Sube hombros y codos
-const X_OFFSET = -0.018;      // Separa cadera
-const X_OFFSET_P = -0.012;      // rodillas y pies hacia los lados
+const Y_OFFSET = 0.03;
+const X_OFFSET = -0.018;
+const X_OFFSET_P = -0.012;
 
 const COLORS = {
   leftArm: "#FF3D00", rightArm: "#00E676", torso: "#FFEE58",
-  leftLeg: "#2979FF", rightLeg: "#D500F9", hands: "#00BCD4"
+  leftLeg: "#2979FF", rightLeg: "#D500F9", hands: "#00BCD4",
+  face: "#FFFFFF"
 };
 
 const POSE_PARTS = {
@@ -42,7 +45,7 @@ const setupModels = async () => {
     runningMode: "VIDEO",
     numPoses: 1,
     minPoseDetectionConfidence: 0.7,
-    minTrackingConfidence: 0.7
+    minTrackingConfidence: 0.8
   });
 
   handLandmarker = await HandLandmarker.createFromOptions(vision, {
@@ -52,15 +55,54 @@ const setupModels = async () => {
     },
     runningMode: "VIDEO",
     numHands: 2,
-    minHandDetectionConfidence: 0.7,
-    minHandPresenceConfidence: 0.7,
+    minHandDetectionConfidence: 0.8,
+    minHandPresenceConfidence: 0.8,
     minTrackingConfidence: 0.8
   });
+
+  // solo contorno
+  faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+      delegate: "GPU"
+    },
+    runningMode: "VIDEO",
+    minFaceDetectionConfidence: 0.4,
+    minTrackingConfidence: 0.8,
+    numFaces: 1
+  });
 };
+
 setupModels();
 
+async function enableCam() {
+  if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
+
+  webcamButton.style.display = "none";
+
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  const videoDevices = devices.filter(d => d.kind === "videoinput");
+
+  const selectedCamera = videoDevices[1]; // cmara 
+
+  const constraints = {
+    video: {
+      deviceId: selectedCamera.deviceId,
+      width: 1280,
+      height: 720
+    }
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then((stream) => {
+      video.srcObject = stream;
+      video.addEventListener("loadeddata", predictWebcam);
+    });
+}
+/*
 function enableCam() {
-  if (!poseLandmarker || !handLandmarker) return;
+  if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
+
   webcamButton.style.display = "none";
   navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } })
     .then((stream) => {
@@ -68,6 +110,7 @@ function enableCam() {
       video.addEventListener("loadeddata", predictWebcam);
     });
 }
+*/
 
 async function predictWebcam() {
   if (canvasElement.width !== video.videoWidth) {
@@ -76,52 +119,41 @@ async function predictWebcam() {
   }
 
   let startTimeMs = performance.now();
+
   if (lastVideoTime !== video.currentTime) {
     lastVideoTime = video.currentTime;
-    const [poseResult, handResult] = await Promise.all([
+
+    const [poseResult, handResult, faceResult] = await Promise.all([
       poseLandmarker.detectForVideo(video, startTimeMs),
-      handLandmarker.detectForVideo(video, startTimeMs)
+      handLandmarker.detectForVideo(video, startTimeMs),
+      faceLandmarker.detectForVideo(video, startTimeMs) // 🔥 NUEVO
     ]);
+
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    drawEverything(poseResult, handResult, canvasCtx);
+    drawEverything(poseResult, handResult, faceResult, canvasCtx);
   }
+
   window.requestAnimationFrame(predictWebcam);
 }
 
-function drawEverything(poseResult, handResult, ctx) {
+function drawEverything(poseResult, handResult, faceResult, ctx) {
   const drawingUtils = new DrawingUtils(ctx);
   const allowedIndices = [].concat(...Object.values(POSE_PARTS));
 
+  // ================= POSE =================
   if (poseResult.landmarks) {
     for (const rawLandmarks of poseResult.landmarks) {
-      
+
       const adjustedLandmarks = rawLandmarks.map((lm, idx) => {
         let newPos = { ...lm };
 
-        // 1. Subir Hombros y Codos
-        if ([11, 12].includes(idx)) {
-          newPos.y -= Y_OFFSET;
-        }
+        if ([11, 12].includes(idx)) newPos.y -= Y_OFFSET;
 
-        // 2. Separar Tren Inferior (Cadera, Rodillas, Tobillos)
-        // Lado Izquierdo (23, 25, 27) se mueve a la izquierda (-X)
-        if ([23].includes(idx)) {
-          newPos.x -= X_OFFSET;
-        }
-        // Lado Derecho (24, 26, 28) se mueve a la derecha (+X)
-        if ([24].includes(idx)) {
-          newPos.x += X_OFFSET;
-        }
+        if ([23].includes(idx)) newPos.x -= X_OFFSET;
+        if ([24].includes(idx)) newPos.x += X_OFFSET;
 
-        // 2. Separar Tren Inferior (Cadera, Rodillas, Tobillos)
-        // Lado Izquierdo (23, 25, 27) se mueve a la izquierda (-X)
-        if ([25, 27].includes(idx)) {
-          newPos.x -= X_OFFSET_P;
-        }
-        // Lado Derecho (24, 26, 28) se mueve a la derecha (+X)
-        if ([26, 28].includes(idx)) {
-          newPos.x += X_OFFSET_P;
-        }
+        if ([25, 27].includes(idx)) newPos.x -= X_OFFSET_P;
+        if ([26, 28].includes(idx)) newPos.x += X_OFFSET_P;
 
         return newPos;
       });
@@ -146,6 +178,7 @@ function drawEverything(poseResult, handResult, ctx) {
     }
   }
 
+  // ================= HANDS =================
   if (handResult.landmarks) {
     for (const landmarks of handResult.landmarks) {
       drawingUtils.drawConnectors(landmarks, HandLandmarker.HAND_CONNECTIONS, {
@@ -157,6 +190,20 @@ function drawEverything(poseResult, handResult, ctx) {
         lineWidth: 1,
         radius: (data) => [4, 8, 12, 16, 20].includes(data.index) ? 4 : 2
       });
+    }
+  }
+
+  // ================= FACE (SOLO CONTORNO) =================
+  if (faceResult && faceResult.faceLandmarks) {
+    for (const landmarks of faceResult.faceLandmarks) {
+      drawingUtils.drawConnectors(
+        landmarks,
+        FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
+        {
+          color: COLORS.face,
+          lineWidth: 2
+        }
+      );
     }
   }
 }
