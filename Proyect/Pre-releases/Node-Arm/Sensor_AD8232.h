@@ -5,49 +5,45 @@
 
 class MyAD8232 {
 private:
+    // Pines para AD8232
+    const int PIN_ECG = 2;   // Salida analógica
+    const int PIN_LOP = 3;   // Leads OFF detect - (detecta desconexión)
+    const int PIN_LON = 5;   // Leads OFF detect + 
+    
     int lastECGValue;
     int minECG;
     int maxECG;
     
 public:
     MyAD8232() : lastECGValue(0), minECG(0), maxECG(4095) {}
-
+    
     void begin() {
-        Serial.println("AD8232 (Simulado) listo - Sensor de ECG");
-        randomSeed(analogRead(0)); // Inicializar generador aleatorio
+        Serial.println("Iniciando AD8232 real...");
+        
+        pinMode(PIN_ECG, INPUT);
+        pinMode(PIN_LOP, INPUT);
+        pinMode(PIN_LON, INPUT);
+        
+        Serial.println("AD8232 listo - Sensor de ECG real");
     }
-
+    
     int getECG() {
-        // Simular una lectura de ECG con variación realista
-        // El ECG tiene un patrón característico: complejo QRS con variaciones
-        int variation = random(-50, 51); // Variación aleatoria
-        int baseValue = 2048; // Valor medio de 0-4095
+        // Leer señal ECG
+        int ecg = analogRead(PIN_ECG);
         
-        // Simular latidos cada cierto tiempo (aproximadamente 60-100 BPM)
-        static unsigned long lastBeatTime = 0;
-        unsigned long currentTime = millis();
-        
-        // Simular un pico QRS cada 600-1000ms (60-100 BPM)
-        if (currentTime - lastBeatTime > random(600, 1001)) {
-            lastBeatTime = currentTime;
-            // Pico QRS (entre 3000 y 4000)
-            lastECGValue = random(3000, 4001);
+        // Verificar desconexión de electrodos
+        if (digitalRead(PIN_LOP) == HIGH || digitalRead(PIN_LON) == HIGH) {
+            lastECGValue = 0;  // Señal 0 si están desconectados
         } else {
-            // Entre latidos, valor base con pequeñas variaciones
-            // Onda T pequeña después del latido
-            if (currentTime - lastBeatTime > 200 && currentTime - lastBeatTime < 400) {
-                // Onda T (valor ligeramente elevado)
-                lastECGValue = baseValue + random(100, 300) + variation/2;
-            } else {
-                // Línea base con pequeñas variaciones
-                lastECGValue = baseValue + variation;
-            }
+            lastECGValue = ecg;
         }
         
-        // Asegurar que el valor esté dentro del rango 0-4095
-        lastECGValue = constrain(lastECGValue, minECG, maxECG);
-        
         return lastECGValue;
+    }
+    
+    // Método adicional para verificar si los electrodos están conectados
+    bool isLeadsOff() {
+        return (digitalRead(PIN_LOP) == HIGH || digitalRead(PIN_LON) == HIGH);
     }
 };
 
