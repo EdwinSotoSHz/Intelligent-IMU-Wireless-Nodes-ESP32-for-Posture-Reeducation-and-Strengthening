@@ -75,6 +75,8 @@ const setupModels = async () => {
 
 setupModels();
 
+let currentCameraIndex = 2; // CAM
+
 async function enableCam() {
   if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
 
@@ -83,34 +85,43 @@ async function enableCam() {
   const devices = await navigator.mediaDevices.enumerateDevices();
   const videoDevices = devices.filter(d => d.kind === "videoinput");
 
-  const selectedCamera = videoDevices[1]; // cmara 
+  console.log("Cámaras disponibles:");
+  videoDevices.forEach((cam, i) => {
+    console.log(`${i} → ${cam.label}`);
+  });
+
+  const selectedCamera = videoDevices[currentCameraIndex];
+
+  if (!selectedCamera) {
+    console.error("Índice inválido");
+    return;
+  }
+
+  // 🔴 IMPORTANTE: detener cámara anterior
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(track => track.stop());
+  }
 
   const constraints = {
     video: {
-      deviceId: selectedCamera.deviceId,
+      deviceId: { exact: selectedCamera.deviceId }, // 🔥 clave
       width: 1280,
       height: 720
     }
   };
 
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then((stream) => {
-      video.srcObject = stream;
-      video.addEventListener("loadeddata", predictWebcam);
-    });
-}
-/*
-function enableCam() {
-  if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = stream;
 
-  webcamButton.style.display = "none";
-  navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } })
-    .then((stream) => {
-      video.srcObject = stream;
-      video.addEventListener("loadeddata", predictWebcam);
-    });
+    video.addEventListener("loadeddata", predictWebcam);
+
+    console.log("Usando cámara:", selectedCamera.label);
+
+  } catch (err) {
+    console.error("Error al usar cámara:", err);
+  }
 }
-*/
 
 async function predictWebcam() {
   if (canvasElement.width !== video.videoWidth) {

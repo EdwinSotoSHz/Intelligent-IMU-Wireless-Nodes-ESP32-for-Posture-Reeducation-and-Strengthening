@@ -1,0 +1,996 @@
+[
+    {
+        "id": "e93020d1f28ab3b8",
+        "type": "tab",
+        "label": "Dashboard-Integrador",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "68b8b1bbf62c581a",
+        "type": "ui-dropdown",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Seleccionar Ejercicio",
+        "label": "Ejercicio",
+        "order": 1,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "Ejercicio 1",
+                "value": "1",
+                "type": "str"
+            },
+            {
+                "label": "Ejercicio 2",
+                "value": "2",
+                "type": "str"
+            },
+            {
+                "label": "Ejercicio 3",
+                "value": "3",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 360,
+        "y": 360,
+        "wires": [
+            [
+                "a2fb4787c3dcf362"
+            ]
+        ]
+    },
+    {
+        "id": "a2fb4787c3dcf362",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "Generar Segmentos 6 Gauges",
+        "func": "let ejercicio = msg.payload;\nlet updates = {};\n\nif (ejercicio === \"1\") {\n    // Ejercicio 1: Configuración para todos los gauges\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"2\") {\n    // Ejercicio 2\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": -80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": -80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"3\") {\n    // Ejercicio 3\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n}\n\n// Enviar actualizaciones a cada gauge\nreturn [\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.rollA.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.pitchA.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.yawA.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.rollF.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.pitchF.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.yawF.segments } }\n];",
+        "outputs": 6,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 360,
+        "wires": [
+            [
+                "0d2e3565f0f161d6"
+            ],
+            [
+                "634a8df5efa0f958"
+            ],
+            [
+                "65d9d74765f50261"
+            ],
+            [
+                "d9091491a2b78f34"
+            ],
+            [
+                "357752c049e0202a"
+            ],
+            [
+                "2dadc672794c4120"
+            ]
+        ]
+    },
+    {
+        "id": "0d2e3565f0f161d6",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Roll A",
+        "group": "da56fd7b11334bd4",
+        "order": 2,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Roll A",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1010,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "634a8df5efa0f958",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Pitch A",
+        "group": "da56fd7b11334bd4",
+        "order": 3,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Pitch A",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1010,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "65d9d74765f50261",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Yaw A",
+        "group": "da56fd7b11334bd4",
+        "order": 4,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": 4,
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Yaw A",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1010,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d9091491a2b78f34",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Roll F",
+        "group": "da56fd7b11334bd4",
+        "order": 6,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Roll F",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1010,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "357752c049e0202a",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Pitch F",
+        "group": "da56fd7b11334bd4",
+        "order": 7,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Pitch F",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1010,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2dadc672794c4120",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Yaw F",
+        "group": "da56fd7b11334bd4",
+        "order": 8,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Yaw F",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1010,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "48a61e4306795e76",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Roll A",
+        "label": "Roll A",
+        "order": 3,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "rollA",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "5",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 630,
+        "y": 560,
+        "wires": [
+            [
+                "0d2e3565f0f161d6",
+                "018df4b73f31d817"
+            ]
+        ]
+    },
+    {
+        "id": "6e3b17e4011a7d58",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Pitch A",
+        "label": "Pitch A",
+        "order": 4,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "pitchA",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "5",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 630,
+        "y": 600,
+        "wires": [
+            [
+                "634a8df5efa0f958",
+                "018df4b73f31d817"
+            ]
+        ]
+    },
+    {
+        "id": "f43e4247dadf0ef3",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Yaw A",
+        "label": "Yaw A",
+        "order": 5,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "yawA",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "5",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 630,
+        "y": 640,
+        "wires": [
+            [
+                "65d9d74765f50261",
+                "018df4b73f31d817"
+            ]
+        ]
+    },
+    {
+        "id": "f472a1c37419f6ad",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Roll F",
+        "label": "Roll F",
+        "order": 7,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "rollF",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "5",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 630,
+        "y": 680,
+        "wires": [
+            [
+                "d9091491a2b78f34",
+                "018df4b73f31d817"
+            ]
+        ]
+    },
+    {
+        "id": "ffb98ee322c78915",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Pitch F",
+        "label": "Pitch F",
+        "order": 8,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "pitchF",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "5",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 630,
+        "y": 720,
+        "wires": [
+            [
+                "357752c049e0202a",
+                "018df4b73f31d817"
+            ]
+        ]
+    },
+    {
+        "id": "7e95c8eac25028c3",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Yaw F",
+        "label": "Yaw F",
+        "order": 9,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "yawF",
+        "topicType": "str",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "5",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 630,
+        "y": 760,
+        "wires": [
+            [
+                "2dadc672794c4120",
+                "018df4b73f31d817"
+            ]
+        ]
+    },
+    {
+        "id": "60564a9e3bc7b651",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Simulador Señal",
+        "label": "Señal ECG",
+        "tooltip": "",
+        "order": 6,
+        "width": 6,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "emg_signal",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": 4095,
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 380,
+        "y": 920,
+        "wires": [
+            [
+                "d76247441ec84cb9",
+                "beb758a44254f859"
+            ]
+        ]
+    },
+    {
+        "id": "d76247441ec84cb9",
+        "type": "ui-chart",
+        "z": "e93020d1f28ab3b8",
+        "group": "a83be8181762b3bb",
+        "name": "Gráfica Temporal",
+        "label": "Señal en Tiempo Real",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "",
+        "yAxisPropertyType": "property",
+        "ymin": "0",
+        "ymax": "4095",
+        "bins": "",
+        "stackSeries": false,
+        "pointRadius": "",
+        "showLegend": true,
+        "removeOlder": "1",
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#ff0000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 4,
+        "height": 6,
+        "className": "",
+        "interpolation": "linear",
+        "x": 650,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "beb758a44254f859",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Nivel de Contraccion",
+        "group": "a83be8181762b3bb",
+        "order": 2,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": 6,
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Valor Exacto",
+        "alwaysShowTitle": false,
+        "units": "",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ff0000",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1500",
+                "color": "#cccccc",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1700",
+                "color": "#00ff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "2000",
+                "color": "#ffff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "2400",
+                "color": "#ff9900",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3000",
+                "color": "#ff4400",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3500",
+                "color": "#7b0000",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": 4095,
+        "sizeThickness": "16",
+        "sizeGap": "4",
+        "sizeKeyThickness": "8",
+        "className": "",
+        "x": 660,
+        "y": 960,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "018df4b73f31d817",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "Build IMU Object",
+        "func": "let imu = flow.get(\"imu\") || {\nrollF:0,pitchF:0,yawF:0,\nrollA:0,pitchA:0,yawA:0\n};\n\nimu[msg.topic] = msg.payload;\n\nflow.set(\"imu\",imu);\n\nmsg.payload = JSON.stringify(imu);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 680,
+        "wires": [
+            [
+                "b241c1339ff67905"
+            ]
+        ]
+    },
+    {
+        "id": "b241c1339ff67905",
+        "type": "websocket out",
+        "z": "e93020d1f28ab3b8",
+        "name": "imu websocket",
+        "server": "imu_ws",
+        "client": "",
+        "x": 1220,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "a3fadf73bd2fdc6d",
+        "type": "ui-template",
+        "z": "e93020d1f28ab3b8",
+        "group": "7f3784a583730b56",
+        "page": "",
+        "ui": "",
+        "name": "ThreeJS Viewer",
+        "order": 1,
+        "width": "6",
+        "height": 9,
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Tests/test-threejs/test-arm.html\" \nstyle=\"border:none\" \nheight=\"100%\" \nwidth=\"100%\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1220,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0ba6c33a7b6173c5",
+        "type": "ui-template",
+        "z": "e93020d1f28ab3b8",
+        "group": "54069716d3556b1a",
+        "page": "",
+        "ui": "",
+        "name": "Mediapipe",
+        "order": 1,
+        "width": 5,
+        "height": 6,
+        "head": "",
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Tests/test-mediapipe/web/index.html\" \nallow=\"camera; microphone\" \nwidth=\"100%\" height=\"100%\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1230,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1bed651fc4464024",
+        "type": "ui-text",
+        "z": "e93020d1f28ab3b8",
+        "group": "da56fd7b11334bd4",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Title A",
+        "label": "Sensores Brazo",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "Arial,Arial,Helvetica,sans-serif",
+        "fontSize": "20",
+        "color": "#000000",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1210,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "0e10bf89e7f8f786",
+        "type": "ui-text",
+        "z": "e93020d1f28ab3b8",
+        "group": "da56fd7b11334bd4",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "Title F",
+        "label": "Sensores Antebrazo",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "Arial,Arial,Helvetica,sans-serif",
+        "fontSize": "20",
+        "color": "#000000",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1210,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "aa91750513b604da",
+        "type": "ui-group",
+        "name": "Controles",
+        "page": "4e53e9ffb55e26c2",
+        "width": 12,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "da56fd7b11334bd4",
+        "type": "ui-group",
+        "name": "Sensores MPU",
+        "page": "4e53e9ffb55e26c2",
+        "width": 6,
+        "height": "5",
+        "order": 2,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "a83be8181762b3bb",
+        "type": "ui-group",
+        "name": "Tension Muscular",
+        "page": "4e53e9ffb55e26c2",
+        "width": 6,
+        "height": 1,
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "imu_ws",
+        "type": "websocket-listener",
+        "path": "/imu",
+        "wholemsg": "false"
+    },
+    {
+        "id": "7f3784a583730b56",
+        "type": "ui-group",
+        "name": "ThreeJs",
+        "page": "4e53e9ffb55e26c2",
+        "width": "6",
+        "height": "10",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "54069716d3556b1a",
+        "type": "ui-group",
+        "name": "Mediapipe",
+        "page": "4e53e9ffb55e26c2",
+        "width": 6,
+        "height": 1,
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "4e53e9ffb55e26c2",
+        "type": "ui-page",
+        "name": "Dashboard_Integrador",
+        "ui": "07364cccbec2747d",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "8c05b69b7d864577",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "12"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "07364cccbec2747d",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "8c05b69b7d864577",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "4602f928397746de",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+    }
+]

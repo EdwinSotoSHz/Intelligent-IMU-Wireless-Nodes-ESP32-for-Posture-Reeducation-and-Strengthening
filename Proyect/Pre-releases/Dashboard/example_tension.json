@@ -1,0 +1,292 @@
+[
+    {
+        "id": "7d319219fa7eefb1",
+        "type": "tab",
+        "label": "Monitoreo Muscular",
+        "disabled": true,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5acaa9837365b8af",
+        "type": "ui-slider",
+        "z": "7d319219fa7eefb1",
+        "group": "5fdc4547e0275bf2",
+        "name": "Simulador Señal",
+        "label": "Entrada A0",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "emg_signal",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": 4095,
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 200,
+        "y": 200,
+        "wires": [
+            [
+                "8513811a6d24884a",
+                "37c63d130aaca9c0"
+            ]
+        ]
+    },
+    {
+        "id": "8513811a6d24884a",
+        "type": "ui-chart",
+        "z": "7d319219fa7eefb1",
+        "group": "d5e84aa91cddff11",
+        "name": "Gráfica Temporal",
+        "label": "Señal en Tiempo Real",
+        "order": 11,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "",
+        "yAxisPropertyType": "property",
+        "ymin": "0",
+        "ymax": "4095",
+        "bins": "",
+        "stackSeries": false,
+        "pointRadius": "",
+        "showLegend": true,
+        "removeOlder": "1",
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#ff0000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": "6",
+        "className": "",
+        "interpolation": "linear",
+        "x": 450,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "37c63d130aaca9c0",
+        "type": "ui-gauge",
+        "z": "7d319219fa7eefb1",
+        "name": "Nivel de Contraccion",
+        "group": "d5e84aa91cddff11",
+        "order": 3,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 6,
+        "height": 4,
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "",
+        "alwaysShowTitle": false,
+        "units": "",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ff0000",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1500",
+                "color": "#cccccc",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1700",
+                "color": "#00ff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "2000",
+                "color": "#ffff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "2400",
+                "color": "#ff9900",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3000",
+                "color": "#ff4400",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3500",
+                "color": "#7b0000",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": 4095,
+        "sizeThickness": "16",
+        "sizeGap": "4",
+        "sizeKeyThickness": "8",
+        "className": "",
+        "x": 450,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5fdc4547e0275bf2",
+        "type": "ui-group",
+        "name": "Controles",
+        "page": "39a0b4e801bed4d0",
+        "width": 6,
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "d5e84aa91cddff11",
+        "type": "ui-group",
+        "name": "Entradas Analogicas",
+        "page": "39a0b4e801bed4d0",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "39a0b4e801bed4d0",
+        "type": "ui-page",
+        "name": "2026_ITICS",
+        "ui": "07364cccbec2747d",
+        "path": "/page2",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "8c05b69b7d864577",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 2,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "07364cccbec2747d",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "8c05b69b7d864577",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "9105e1748aa7b57b",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+    }
+]

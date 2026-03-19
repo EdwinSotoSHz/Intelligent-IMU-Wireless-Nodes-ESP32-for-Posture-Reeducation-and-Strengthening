@@ -1,23 +1,30 @@
 body {
     font-family: 'Roboto', sans-serif;
-    margin: 2em;
+    margin: 0; /* Cambiado de 2em a 0 */
+    padding: 0; /* Añadido para eliminar padding */
     color: #3d3d3d;
+    width: 640px; /* Ancho fijo */
+    height: 360px; /* Alto fijo */
+    overflow: hidden; /* Evita scroll */
 }
 
 h1 { 
     color: #007f8b; 
+    margin: 0; /* Eliminar márgenes */
+    font-size: 20px; /* Ajustar tamaño si es necesario */
 }
 
 .videoView {
     position: relative;
-    width: 100%;
-    max-width: 1280px;
+    width: 640px; /* Ancho fijo */
+    height: 360px; /* Alto fijo */
+    max-width: 640px; /* Asegurar que no crezca */
 }
 
 video, .output_canvas, #staticImage {
-    width: 1280px;
-    height: 720px;
-    border-radius: 10px;
+    width: 640px;
+    height: 360px;
+    border-radius: 0; /* Opcional: eliminar bordes redondeados */
     /* Efecto espejo */
     transform: rotateY(180deg);
     -webkit-transform: rotateY(180deg);
@@ -35,9 +42,23 @@ video, .output_canvas, #staticImage {
 }
 
 #webcamButton, #imageButton {
-    margin-bottom: 10px;
+    margin: 0; /* Eliminar márgenes */
+    width: 100%; /* Ocupar todo el ancho */
+    height: 30px; /* Altura fija para el botón */
+    font-size: 12px; /* Texto más pequeño */
 }
 
 #imageContainer {
-    margin-top: 10px;
+    margin: 0; /* Eliminar márgenes */
+}
+
+#demos {
+    width: 640px;
+    height: 360px;
+    position: relative;
+}
+
+#liveView {
+    width: 640px;
+    height: 360px;
 }
