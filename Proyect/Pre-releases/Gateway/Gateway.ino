@@ -1,4 +1,4 @@
-// mosquitto_sub -h broker.hivemq.com -p 1883 -t itics/6b/masternode
+// mosquitto_sub -h oc051111.ala.us-east-1.emqxsl.com -p 8883 -t test01 -u "edpi" -P "edpi" --cafile "C:\Users\edwin\OneDrive\Documentos\para-repo\Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening\Proyect\Pre-releases\mocks\mqtt\emqxsl-ca.crt"
 // Falta configuración de Bluethoo
 // ESP32 38 PINS LILYGO - GATEWAY LoRa a MQTT sobre RED CELULAR
 // Integración: Recibe datos por LoRa y los reenvía por MQTT vía LTE/NB-IoT
@@ -49,10 +49,37 @@ const char apn[]      = "internet.itelcel.com";
 const char gprsUser[] = ""; 
 const char gprsPass[] = "";
 
-// --- MQTT ---
-const char* broker = "broker.hivemq.com";
-const char* topicPublish = "itics/6b/masternode";
-const int   port = 1883;
+// --- MQTT CON TLS/SSL ---
+const char* broker = "oc051111.ala.us-east-1.emqxsl.com";
+const char* topicPublish = "test01";
+const int   port = 8883;
+const char* mqtt_user = "edpi";
+const char* mqtt_password = "edpi";
+
+// --- CERTIFICADO CA ---
+const char* ca_cert = \
+"-----BEGIN CERTIFICATE-----\n" \
+"MIIDjjCCAnagAwIBAgIQAzrx5qcRqaC7KGSxHQn65TANBgkqhkiG9w0BAQsFADBh\n" \
+"MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\n" \
+"d3cuZGlnaWNlcnQuY29tMSAwHgYDVQQDExdEaWdpQ2VydCBHbG9iYWwgUm9vdCBH\n" \
+"MjAeFw0xMzA4MDExMjAwMDBaFw0zODAxMTUxMjAwMDBaMGExCzAJBgNVBAYTAlVT\n" \
+"MRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5j\n" \
+"b20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IEcyMIIBIjANBgkqhkiG\n" \
+"9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuzfNNNx7a8myaJCtSnX/RrohCgiN9RlUyfuI\n" \
+"2/Ou8jqJkTx65qsGGmvPrC3oXgkkRLpimn7Wo6h+4FR1IAWsULecYxpsMNzaHxmx\n" \
+"1x7e/dfgy5SDN67sH0NO3Xss0r0upS/kqbitOtSZpLYl6ZtrAGCSYP9PIUkY92eQ\n" \
+"q2EGnI/yuum06ZIya7XzV+hdG82MHauVBJVJ8zUtluNJbd134/tJS7SsVQepj5Wz\n" \
+"tCO7TG1F8PapspUwtP1MVYwnSlcUfIKdzXOS0xZKBgyMUNGPHgm+F6HmIcr9g+UQ\n" \
+"vIOlCsRnKPZzFBQ9RnbDhxSJITRNrw9FDKZJobq7nMWxM4MphQIDAQABo0IwQDAP\n" \
+"BgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBhjAdBgNVHQ4EFgQUTiJUIBiV\n" \
+"5uNu5g/6+rkS7QYXjzkwDQYJKoZIhvcNAQELBQADggEBAGBnKJRvDkhj6zHd6mcY\n" \
+"1Yl9PMWLSn/pvtsrF9+wX3N3KjITOYFnQoQj8kVnNeyIv/iPsGEMNKSuIEyExtv4\n" \
+"NeF22d+mQrvHRAiGfzZ0JFrabA0UWTW98kndth/Jsw1HKj2ZL7tcu7XUIOGZX1NG\n" \
+"Fdtom/DzMNU+MeKNhJ7jitralj41E6Vf8PlwUHBHQRFXGU7Aj64GxJUTFy8bJZ91\n" \
+"8rGOmaFvE7FBcf6IKshPECBV1/MUReXgRPTqh5Uykw7+U0b6LJ3/iyK5S9kJRaTe\n" \
+"pLiaWN0bfVKfjllDiIGknibVb63dDcY3fe0Dkhvld1927jyNxF1WW6LZZm6zNTfl\n" \
+"MrY=\n" \
+"-----END CERTIFICATE-----\n";
 
 // --- PINES MÓDEM ---
 #define UART_BAUD   115200
@@ -64,8 +91,8 @@ const int   port = 1883;
 HardwareSerial ModemSerial(1);
 
 TinyGsm modem(ModemSerial);
-TinyGsmClient client(modem);
-PubSubClient  mqtt(client);
+TinyGsmClientSecure client(modem);
+PubSubClient mqtt(client);
 
 // Variables para control de envío MQTT
 unsigned long ultimaReconexionMQTT = 0;
@@ -105,10 +132,12 @@ bool inicializarModem() {
     return false;
   }
 
-  Serial.print("IP: ");
+  Serial.print("\nIP: ");
   Serial.println(modem.getLocalIP());
   
+  // Configurar cliente MQTT con TLS/SSL
   mqtt.setServer(broker, port);
+  mqtt.setCallback(NULL); // No se reciben mensajes, solo se publica
   
   return true;
 }
@@ -120,10 +149,12 @@ void reconectarMQTT() {
   
   ultimaReconexionMQTT = millis();
   
-  Serial.print("Intentando acceso al Broker MQTT...");
+  Serial.print("Intentando acceso al Broker MQTT (TLS/SSL)...");
   String clienteID = "Gateway6B" + String(random(1000, 9999));
   
-  if (mqtt.connect(clienteID.c_str())) {
+  // Configurar opciones SSL para SIM7070
+  // Nota: SIM7070 soporta MQTT sobre TLS/SSL nativamente
+  if (mqtt.connect(clienteID.c_str(), mqtt_user, mqtt_password)) {
     Serial.println(" CONECTADO.");
   } else {
     Serial.print(" FAILED (Code: ");
@@ -149,7 +180,7 @@ bool enviarMQTT(struct_message &datos) {
   payload += "\"yaw_a\":" + String(datos.yaw_a, 2);
   payload += "}";
 
-  Serial.println(">>> Reenviando por MQTT:");
+  Serial.println(">>> Reenviando por MQTT (TLS/SSL):");
   Serial.println(payload);
 
   if (mqtt.publish(topicPublish, payload.c_str())) {

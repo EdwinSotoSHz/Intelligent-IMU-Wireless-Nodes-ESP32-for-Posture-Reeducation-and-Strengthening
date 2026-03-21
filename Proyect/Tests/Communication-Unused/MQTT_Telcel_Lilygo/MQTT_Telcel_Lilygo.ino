@@ -1,3 +1,4 @@
+// mosquitto_sub -h broker.hivemq.com -p 1883 -t itics/6b/masternode
 /**
  * PROYECTO: Telemetría IoT vía Red Celular (LTE-M / NB-IoT)
  * INSTITUCIÓN: Universidad Autónoma del Estado de Hidalgo (UAEH)

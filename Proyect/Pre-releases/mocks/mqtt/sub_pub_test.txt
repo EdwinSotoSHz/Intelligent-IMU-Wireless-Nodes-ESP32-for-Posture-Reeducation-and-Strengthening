@@ -1,0 +1,5 @@
+mosquitto_sub -h oc051111.ala.us-east-1.emqxsl.com -p 8883 -t test01 -u "edpi" -P "edpi" --cafile "C:\Users\edwin\OneDrive\Documentos\para-repo\Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening\Proyect\Pre-releases\mocks\mqtt\emqxsl-ca.crt"
+
+mosquitto_pub -h oc051111.ala.us-east-1.emqxsl.com -p 8883 -t test01 -m "Hola EMQX" -u "edpi" -P "edpi" --cafile "C:\Users\edwin\OneDrive\Documentos\para-repo\Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening\Proyect\Pre-releases\mocks\mqtt\emqxsl-ca.crt"
+
+mosquitto_pub -h oc051111.ala.us-east-1.emqxsl.com -p 8883 -t test01 -f "C:\Users\edwin\OneDrive\Documentos\para-repo\Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening\Proyect\Pre-releases\mocks\mqtt\msg-template.json" -u "edpi" -P "edpi" --cafile "C:\Users\edwin\OneDrive\Documentos\para-repo\Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening\Proyect\Pre-releases\mocks\mqtt\emqxsl-ca.crt"

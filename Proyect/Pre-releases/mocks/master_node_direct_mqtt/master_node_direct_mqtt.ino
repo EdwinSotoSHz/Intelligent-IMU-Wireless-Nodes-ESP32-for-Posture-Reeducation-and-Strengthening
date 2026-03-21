@@ -1,26 +1,24 @@
-// ESP32 Nodo Maestro - ESP-NOW a MQTT
 #include <WiFi.h>
 #include <esp_now.h>
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
-#include <ArduinoJson.h>
 
 // ==========================================
-// CONFIGURACIÓN WiFi
+// CONFIGURACIÓN WIFI
 // ==========================================
 const char* ssid = "AsusE";
 const char* wifi_password = "23011edpi";
 
 // ==========================================
-// CONFIGURACIÓN MQTT
+// CONFIGURACIÓN MQTT CON TLS/SSL
 // ==========================================
-const char* mqtt_server = "oc051111.ala.us-east-1.emqxsl.com";
-const int mqtt_port = 8883;
+const char* broker = "oc051111.ala.us-east-1.emqxsl.com";
+const char* topicPublish = "test01";
+const int port = 8883;
 const char* mqtt_user = "edpi";
 const char* mqtt_password = "edpi";
-const char* mqtt_topic = "test01";
 
-// Certificado CA - FORMATO CORREGIDO
+// CERTIFICADO CA
 const char* ca_cert = \
 "-----BEGIN CERTIFICATE-----\n" \
 "MIIDjjCCAnagAwIBAgIQAzrx5qcRqaC7KGSxHQn65TANBgkqhkiG9w0BAQsFADBh\n" \
@@ -46,7 +44,7 @@ const char* ca_cert = \
 "-----END CERTIFICATE-----\n";
 
 // ==========================================
-// ESTRUCTURAS PARA CADA NODO (RECEPCIÓN ESP-NOW)
+// ESTRUCTURAS PARA CADA NODO
 // ==========================================
 typedef struct struct_message_arm {
     float roll_a;
@@ -63,72 +61,109 @@ typedef struct struct_message_forearm {
     int node_id;
 } struct_message_forearm;
 
-// Variables para almacenar los últimos datos de cada nodo
+// Buffer para almacenar datos temporalmente
 struct_message_arm ultimosDatosBrazo;
 struct_message_forearm ultimosDatosAntebrazo;
 
-// Flags para saber si hemos recibido datos de cada nodo
 bool brazoInicializado = false;
 bool antebrazoInicializado = false;
+bool datosPendientes = false;  // Flag para indicar que hay datos nuevos para enviar
 
-// Timestamps para saber cuándo recibimos cada dato
 unsigned long tiempoUltimoBrazo = 0;
 unsigned long tiempoUltimoAntebrazo = 0;
-const unsigned long TIMEOUT_MS = 1000; // 1 segundo de timeout
+const unsigned long TIMEOUT_MS = 5000;  // Aumentado a 5 segundos
 
 // ==========================================
 // VARIABLES MQTT
 // ==========================================
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
-unsigned long lastMsgTime = 0;
-const long mqtt_interval = 100; // Enviar cada 100ms cuando hay datos nuevos
-StaticJsonDocument<256> jsonDoc;
+unsigned long lastMQTTSendTime = 0;
+const long mqttInterval = 2000;
 
 // ==========================================
-// FUNCIÓN PARA ENVIAR DATOS POR MQTT
+// VARIABLES PARA ALTERNAR MODOS
 // ==========================================
-void enviarMQTT() {
-    unsigned long ahora = millis();
+enum SystemMode {
+    MODE_ESPNOW_RECEIVE,  // Modo recepción ESP-NOW
+    MODE_WIFI_SEND        // Modo envío MQTT
+};
+
+SystemMode currentMode = MODE_ESPNOW_RECEIVE;
+unsigned long modeStartTime = 0;
+const unsigned long ESPNOW_RECEIVE_DURATION = 1000;  // 3 segundos escuchando ESP-NOW
+const unsigned long WIFI_SEND_DURATION = 1000;       // 3 segundos para WiFi/MQTT
+
+// ==========================================
+// FUNCIONES WIFI Y MQTT
+// ==========================================
+void conectarWiFi() {
+    Serial.print("Conectando WiFi...");
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, wifi_password);
     
-    bool brazoActivo = brazoInicializado && (ahora - tiempoUltimoBrazo) < TIMEOUT_MS;
-    bool antebrazoActivo = antebrazoInicializado && (ahora - tiempoUltimoAntebrazo) < TIMEOUT_MS;
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+        delay(500);
+        Serial.print(".");
+        attempts++;
+    }
     
-    // Solo enviar si al menos un nodo está activo
-    if (!brazoActivo && !antebrazoActivo) {
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("\nWiFi conectado");
+        Serial.print("IP: ");
+        Serial.println(WiFi.localIP());
+        Serial.print("Canal: ");
+        Serial.println(WiFi.channel());
+    } else {
+        Serial.println("\nError conectando WiFi");
+    }
+}
+
+void conectarMQTT() {
+    espClient.setCACert(ca_cert);
+    client.setServer(broker, port);
+    
+    int attempts = 0;
+    while (!client.connected() && attempts < 5) {
+        Serial.print("Conectando MQTT...");
+        if (client.connect("ESP32_Master_Node", mqtt_user, mqtt_password)) {
+            Serial.println("Conectado");
+        } else {
+            Serial.print("Error, rc=");
+            Serial.print(client.state());
+            Serial.println(" Reintentando...");
+            delay(2000);
+            attempts++;
+        }
+    }
+}
+
+void desconectarWiFi() {
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    Serial.println("WiFi desconectado");
+}
+
+void iniciarModoESPNOW() {
+    // Apagar WiFi para liberar el módulo
+    WiFi.mode(WIFI_OFF);
+    delay(100);
+    
+    // Inicializar ESP-NOW
+    WiFi.mode(WIFI_STA);
+    if (esp_now_init() != ESP_OK) {
+        Serial.println("Error inicializando ESP-NOW");
         return;
     }
+    esp_now_register_recv_cb(OnDataRecv);
     
-    // Limpiar el documento JSON
-    jsonDoc.clear();
-    
-    // Agregar datos del antebrazo si están disponibles
-    if (antebrazoActivo) {
-        jsonDoc["roll_f"] = ultimosDatosAntebrazo.roll_f;
-        jsonDoc["pitch_f"] = ultimosDatosAntebrazo.pitch_f;
-        jsonDoc["yaw_f"] = ultimosDatosAntebrazo.yaw_f;
-    }
-    
-    // Agregar datos del brazo si están disponibles
-    if (brazoActivo) {
-        jsonDoc["roll_a"] = ultimosDatosBrazo.roll_a;
-        jsonDoc["pitch_a"] = ultimosDatosBrazo.pitch_a;
-        jsonDoc["yaw_a"] = ultimosDatosBrazo.yaw_a;
-        jsonDoc["ecg"] = ultimosDatosBrazo.ecg;
-    }
-    
-    // Convertir a string JSON
-    char jsonString[256];
-    serializeJson(jsonDoc, jsonString);
-    
-    // Publicar en MQTT
-    if (client.publish(mqtt_topic, jsonString)) {
-        Serial.print("[MQTT] Enviado: ");
-        Serial.println(jsonString);
-    } else {
-        Serial.print("[MQTT] Error al publicar - Estado MQTT: ");
-        Serial.println(client.state());
-    }
+    Serial.println("Modo ESP-NOW: Escuchando datos...");
+}
+
+void detenerModoESPNOW() {
+    esp_now_deinit();
+    Serial.println("ESP-NOW detenido");
 }
 
 // ==========================================
@@ -143,19 +178,18 @@ void OnDataRecv(const esp_now_recv_info_t *recv_info, const uint8_t *incomingDat
         if (datosBrazo.node_id == 1) {
             ultimosDatosBrazo = datosBrazo;
             tiempoUltimoBrazo = millis();
+            datosPendientes = true;
             
             if (!brazoInicializado) {
                 brazoInicializado = true;
-                Serial.println("\n[ESP-NOW] BRAZO detectado por primera vez");
+                Serial.println("\n[ESP-NOW] BRAZO detectado");
             }
             
             Serial.print("\n[ESP-NOW] BRAZO: ");
-            Serial.print("roll_a="); Serial.print(datosBrazo.roll_a, 1);
-            Serial.print(", pitch_a="); Serial.print(datosBrazo.pitch_a, 1);
-            Serial.print(", yaw_a="); Serial.print(datosBrazo.yaw_a, 1);
+            Serial.print("roll="); Serial.print(datosBrazo.roll_a, 1);
+            Serial.print(", pitch="); Serial.print(datosBrazo.pitch_a, 1);
+            Serial.print(", yaw="); Serial.print(datosBrazo.yaw_a, 1);
             Serial.print(", ecg="); Serial.println(datosBrazo.ecg);
-            
-            enviarMQTT();
         }
     }
     else if (len == sizeof(struct_message_forearm)) {
@@ -165,134 +199,81 @@ void OnDataRecv(const esp_now_recv_info_t *recv_info, const uint8_t *incomingDat
         if (datosAntebrazo.node_id == 2) {
             ultimosDatosAntebrazo = datosAntebrazo;
             tiempoUltimoAntebrazo = millis();
+            datosPendientes = true;
             
             if (!antebrazoInicializado) {
                 antebrazoInicializado = true;
-                Serial.println("\n[ESP-NOW] ANTEBRAZO detectado por primera vez");
+                Serial.println("\n[ESP-NOW] ANTEBRAZO detectado");
             }
             
             Serial.print("\n[ESP-NOW] ANTEBRAZO: ");
-            Serial.print("roll_f="); Serial.print(datosAntebrazo.roll_f, 1);
-            Serial.print(", pitch_f="); Serial.print(datosAntebrazo.pitch_f, 1);
-            Serial.print(", yaw_f="); Serial.println(datosAntebrazo.yaw_f, 1);
-            
-            enviarMQTT();
+            Serial.print("roll="); Serial.print(datosAntebrazo.roll_f, 1);
+            Serial.print(", pitch="); Serial.print(datosAntebrazo.pitch_f, 1);
+            Serial.print(", yaw="); Serial.println(datosAntebrazo.yaw_f, 1);
         }
-    }
-    else {
-        Serial.print("\n[ESP-NOW] Error: Tamaño desconocido: ");
-        Serial.println(len);
     }
 }
 
 // ==========================================
-// CONFIGURACIÓN WIFI
+// FUNCIÓN PARA ENVIAR DATOS POR MQTT
 // ==========================================
-void setup_wifi() {
-    Serial.print("Conectando a ");
-    Serial.println(ssid);
-    WiFi.begin(ssid, wifi_password);
-
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.println("\nWiFi conectado");
-    Serial.print("IP: ");
-    Serial.println(WiFi.localIP());
-    Serial.print("RSSI: ");
-    Serial.println(WiFi.RSSI());
-}
-
-// ==========================================
-// RECONEXIÓN MQTT
-// ==========================================
-void reconnect() {
-    int intentos = 0;
-    while (!client.connected() && intentos < 5) {
-        intentos++;
-        Serial.print("Conectando MQTT (intento ");
-        Serial.print(intentos);
-        Serial.print("/5)...");
-        
-        String clientId = "ESP32Master-" + String(random(0xffff), HEX);
-        
-        // Configurar timeout más largo
-        espClient.setTimeout(30000);
-        
-        if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
-            Serial.println("Conectado!");
-            Serial.print("Cliente ID: ");
-            Serial.println(clientId);
-        } else {
-            Serial.print("Error, rc=");
-            Serial.print(client.state());
-            Serial.print(" - ");
-            
-            // Mostrar significado del error
-            switch(client.state()) {
-                case -4:
-                    Serial.println("Timeout de conexión");
-                    break;
-                case -3:
-                    Serial.println("Conexión perdida");
-                    break;
-                case -2:
-                    Serial.println("Error de red");
-                    break;
-                case -1:
-                    Serial.println("Conexión fallida - ¿Certificado incorrecto?");
-                    break;
-                case 1:
-                    Serial.println("Versión de protocolo incorrecta");
-                    break;
-                case 2:
-                    Serial.println("ID de cliente rechazado");
-                    break;
-                case 3:
-                    Serial.println("Servidor no disponible");
-                    break;
-                case 4:
-                    Serial.println("Usuario/contraseña incorrectos");
-                    break;
-                case 5:
-                    Serial.println("No autorizado");
-                    break;
-                default:
-                    Serial.println("Error desconocido");
-            }
-            
-            Serial.println("Reintentando en 3s...");
-            delay(3000);
-        }
+void enviarDatosMQTT() {
+    // Siempre enviar los últimos datos recibidos, aunque estén viejos
+    if (!brazoInicializado && !antebrazoInicializado) {
+        Serial.println("[MQTT] No hay datos para enviar (ningún nodo inicializado)");
+        return;
     }
     
+    char msg[256];
+    
+    // Enviar datos del brazo si está inicializado, con sus valores (incluso si están viejos)
+    if (brazoInicializado && antebrazoInicializado) {
+        // Ambos nodos tienen datos
+        snprintf(msg, sizeof(msg),
+            "{\"roll_a\":%.2f,\"pitch_a\":%.2f,\"yaw_a\":%.2f,\"ecg\":%d,\"roll_f\":%.2f,\"pitch_f\":%.2f,\"yaw_f\":%.2f}",
+            ultimosDatosBrazo.roll_a, ultimosDatosBrazo.pitch_a, ultimosDatosBrazo.yaw_a, ultimosDatosBrazo.ecg,
+            ultimosDatosAntebrazo.roll_f, ultimosDatosAntebrazo.pitch_f, ultimosDatosAntebrazo.yaw_f);
+    }
+    else if (brazoInicializado) {
+        // Solo brazo
+        snprintf(msg, sizeof(msg),
+            "{\"roll_a\":%.2f,\"pitch_a\":%.2f,\"yaw_a\":%.2f,\"ecg\":%d,\"roll_f\":0,\"pitch_f\":0,\"yaw_f\":0}",
+            ultimosDatosBrazo.roll_a, ultimosDatosBrazo.pitch_a, ultimosDatosBrazo.yaw_a, ultimosDatosBrazo.ecg);
+    }
+    else if (antebrazoInicializado) {
+        // Solo antebrazo
+        snprintf(msg, sizeof(msg),
+            "{\"roll_a\":0,\"pitch_a\":0,\"yaw_a\":0,\"ecg\":0,\"roll_f\":%.2f,\"pitch_f\":%.2f,\"yaw_f\":%.2f}",
+            ultimosDatosAntebrazo.roll_f, ultimosDatosAntebrazo.pitch_f, ultimosDatosAntebrazo.yaw_f);
+    }
+    
+    // Verificar conexión MQTT
     if (!client.connected()) {
-        Serial.println("No se pudo conectar MQTT después de 5 intentos");
+        conectarMQTT();
     }
-}
-
-// ==========================================
-// VERIFICAR CONEXIÓN MQTT
-// ==========================================
-void verificarConexionMQTT() {
-    static unsigned long ultimaVerificacionMQTT = 0;
-    unsigned long ahora = millis();
     
-    // Verificar cada 10 segundos
-    if (ahora - ultimaVerificacionMQTT > 10000) {
-        ultimaVerificacionMQTT = ahora;
+    if (client.connected() && client.publish(topicPublish, msg)) {
+        Serial.print("[MQTT] Enviado: ");
+        Serial.println(msg);
         
+        // Mostrar tiempo desde última recepción
+        unsigned long ahora = millis();
+        if (brazoInicializado) {
+            Serial.print("  Último brazo: ");
+            Serial.print(ahora - tiempoUltimoBrazo);
+            Serial.println(" ms atrás");
+        }
+        if (antebrazoInicializado) {
+            Serial.print("  Último antebrazo: ");
+            Serial.print(ahora - tiempoUltimoAntebrazo);
+            Serial.println(" ms atrás");
+        }
+        
+        datosPendientes = false;
+    } else {
+        Serial.println("[MQTT] Error al publicar - Cliente no conectado o error de publicación");
         if (!client.connected()) {
-            Serial.println("MQTT desconectado, reconectando...");
-            reconnect();
-        } else {
-            // Verificar que la conexión siga viva con un ping
-            if (!client.loop()) {
-                Serial.println("MQTT loop falló, reconectando...");
-                reconnect();
-            }
+            Serial.println("  Estado MQTT: Desconectado");
         }
     }
 }
@@ -304,81 +285,62 @@ void setup() {
     Serial.begin(115200);
     while (!Serial);
     
-    Serial.println("\n=================================");
-    Serial.println("Iniciando Nodo Maestro ESP-NOW -> MQTT");
-    Serial.println("=================================");
-
-    // Configurar WiFi
-    setup_wifi();
-
-    // Configurar MQTT
-    espClient.setCACert(ca_cert);
-    espClient.setTimeout(30000); // Timeout más largo
-    client.setServer(mqtt_server, mqtt_port);
-    client.setKeepAlive(60); // Keep alive de 60 segundos
+    Serial.println("\n=== Nodo Puente ESP-NOW <-> MQTT ===");
+    Serial.println("Modo: Alternancia entre recepción y envío");
+    Serial.println("Enviará los últimos datos recibidos aunque estén viejos");
     
-    // Intentar conexión MQTT inicial
-    reconnect();
-    
-    // Configurar ESP-NOW
-    WiFi.mode(WIFI_STA);
-    
-    if (esp_now_init() != ESP_OK) {
-        Serial.println("Error inicializando ESP-NOW");
-        return;
-    }
-    
-    esp_now_register_recv_cb(OnDataRecv);
-    
-    // Inicializar flags
-    brazoInicializado = false;
-    antebrazoInicializado = false;
-    
-    Serial.println("ESP-NOW inicializado - Esperando datos...");
-    Serial.println("=================================\n");
+    // Iniciar en modo ESP-NOW
+    currentMode = MODE_ESPNOW_RECEIVE;
+    modeStartTime = millis();
+    iniciarModoESPNOW();
 }
 
 // ==========================================
-// LOOP
+// LOOP PRINCIPAL - ALTERNANCIA DE MODOS
 // ==========================================
 void loop() {
-    // Verificar y mantener conexión MQTT
-    verificarConexionMQTT();
-    
-    if (client.connected()) {
-        client.loop();
-    }
-    
-    // Verificar estado de los nodos cada segundo
-    static unsigned long ultimaVerificacion = 0;
     unsigned long ahora = millis();
     
-    if (ahora - ultimaVerificacion > 1000) {
-        ultimaVerificacion = ahora;
-        
-        bool brazoActivo = brazoInicializado && (ahora - tiempoUltimoBrazo) < TIMEOUT_MS;
-        bool antebrazoActivo = antebrazoInicializado && (ahora - tiempoUltimoAntebrazo) < TIMEOUT_MS;
-        
-        static bool brazoEstabaActivo = false;
-        static bool antebrazoEstabaActivo = false;
-        
-        if (brazoActivo != brazoEstabaActivo) {
-            brazoEstabaActivo = brazoActivo;
-            Serial.print("[ESTADO] BRAZO: ");
-            Serial.println(brazoActivo ? "CONECTADO" : "DESCONECTADO");
-        }
-        
-        if (antebrazoActivo != antebrazoEstabaActivo) {
-            antebrazoEstabaActivo = antebrazoActivo;
-            Serial.print("[ESTADO] ANTEBRAZO: ");
-            Serial.println(antebrazoActivo ? "CONECTADO" : "DESCONECTADO");
-        }
-        
-        // Mostrar estado MQTT periódicamente
-        if (client.connected()) {
-            Serial.print("[MQTT] Conectado - Estado: ");
-            Serial.println(client.state());
-        }
+    switch(currentMode) {
+        case MODE_ESPNOW_RECEIVE:
+            // Escuchar ESP-NOW durante el tiempo configurado
+            if (ahora - modeStartTime >= ESPNOW_RECEIVE_DURATION) {
+                // Cambiar a modo WiFi/MQTT para enviar
+                Serial.println("\n=== Cambiando a modo MQTT ===");
+                detenerModoESPNOW();
+                
+                // Conectar WiFi y MQTT
+                conectarWiFi();
+                conectarMQTT();
+                
+                // Enviar datos (siempre, aunque estén viejos)
+                Serial.println("\n[INFO] Enviando últimos datos disponibles...");
+                enviarDatosMQTT();
+                
+                // Desconectar WiFi para liberar recursos
+                desconectarWiFi();
+                
+                // Cambiar modo
+                currentMode = MODE_WIFI_SEND;
+                modeStartTime = ahora;
+            }
+            break;
+            
+        case MODE_WIFI_SEND:
+            // Esperar un momento antes de volver a ESP-NOW
+            if (ahora - modeStartTime >= WIFI_SEND_DURATION) {
+                Serial.println("\n=== Cambiando a modo ESP-NOW ===");
+                iniciarModoESPNOW();
+                
+                currentMode = MODE_ESPNOW_RECEIVE;
+                modeStartTime = ahora;
+            }
+            break;
+    }
+    
+    // Mantener el loop MQTT si estamos en ese modo
+    if (currentMode == MODE_WIFI_SEND && client.connected()) {
+        client.loop();
     }
     
     delay(10);
