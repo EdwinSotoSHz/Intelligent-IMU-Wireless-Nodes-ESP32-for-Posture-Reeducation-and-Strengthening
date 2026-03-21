@@ -30,8 +30,8 @@ public:
         // Simular un pico QRS cada 600-1000ms (60-100 BPM)
         if (currentTime - lastBeatTime > random(600, 1001)) {
             lastBeatTime = currentTime;
-            // Pico QRS (entre 3000 y 4000)
-            lastECGValue = random(3000, 4001);
+            // Pico QRS (entre 0 y 4095)
+            lastECGValue = random(0, 4096);
         } else {
             // Entre latidos, valor base con pequeñas variaciones
             // Onda T pequeña después del latido

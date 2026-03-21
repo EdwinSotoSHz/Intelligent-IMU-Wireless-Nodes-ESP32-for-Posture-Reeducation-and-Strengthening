@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <esp_now.h>
 
-#include "Sensor_MPU9250.h"
-#include "Sensor_AD8232.h"
+#include "sensor_MPU9250.h"
+#include "sensor_AD8232.h"
 
 // Dirección MAC del Master Node
 uint8_t broadcastAddress[] = {0x8C, 0x4F, 0x00, 0xAD, 0x68, 0x6C};
