@@ -44,8 +44,8 @@
         "className": "",
         "typeIsComboBox": true,
         "msgTrigger": "onChange",
-        "x": 360,
-        "y": 360,
+        "x": 660,
+        "y": 540,
         "wires": [
             [
                 "a2fb4787c3dcf362"
@@ -57,15 +57,15 @@
         "type": "function",
         "z": "e93020d1f28ab3b8",
         "name": "Generar Segmentos 6 Gauges",
-        "func": "let ejercicio = msg.payload;\nlet updates = {};\n\nif (ejercicio === \"1\") {\n    // Ejercicio 1: Configuración para todos los gauges\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"2\") {\n    // Ejercicio 2\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": -80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": -80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"3\") {\n    // Ejercicio 3\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n}\n\n// Enviar actualizaciones a cada gauge\nreturn [\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.rollA.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.pitchA.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.yawA.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.rollF.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.pitchF.segments } },\n    { ...msg, ui_update: { min: -90, max: 90, segments: updates.yawF.segments } }\n];",
+        "func": "let ejercicio = msg.payload;\nlet updates = {};\n\nif (ejercicio === \"1\") {\n    // Ejercicio 1: Configuración para todos los gauges\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"2\") {\n    // Ejercicio 2\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": -80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": -80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"3\") {\n    // Ejercicio 3\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n}\n\n// Enviar actualizaciones a cada gauge\nreturn [\n    { ui_update: { min: -90, max: 90, segments: updates.rollA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.pitchA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.yawA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.rollF.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.pitchF.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.yawF.segments } }\n];",
         "outputs": 6,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 650,
-        "y": 360,
+        "x": 950,
+        "y": 540,
         "wires": [
             [
                 "0d2e3565f0f161d6"
@@ -123,8 +123,8 @@
         "styleRounded": true,
         "styleGlow": false,
         "className": "",
-        "x": 1010,
-        "y": 280,
+        "x": 1350,
+        "y": 460,
         "wires": [
             []
         ]
@@ -165,8 +165,8 @@
         "styleRounded": true,
         "styleGlow": false,
         "className": "",
-        "x": 1010,
-        "y": 320,
+        "x": 1360,
+        "y": 500,
         "wires": [
             []
         ]
@@ -207,8 +207,8 @@
         "styleRounded": true,
         "styleGlow": false,
         "className": "",
-        "x": 1010,
-        "y": 360,
+        "x": 1360,
+        "y": 540,
         "wires": [
             []
         ]
@@ -249,8 +249,8 @@
         "styleRounded": true,
         "styleGlow": false,
         "className": "",
-        "x": 1010,
-        "y": 400,
+        "x": 1350,
+        "y": 580,
         "wires": [
             []
         ]
@@ -291,8 +291,8 @@
         "styleRounded": true,
         "styleGlow": false,
         "className": "",
-        "x": 1010,
-        "y": 440,
+        "x": 1360,
+        "y": 620,
         "wires": [
             []
         ]
@@ -333,8 +333,8 @@
         "styleRounded": true,
         "styleGlow": false,
         "className": "",
-        "x": 1010,
-        "y": 480,
+        "x": 1360,
+        "y": 660,
         "wires": [
             []
         ]
@@ -352,23 +352,24 @@
         "passthru": true,
         "topic": "rollA",
         "topicType": "str",
+        "thumbLabel": "true",
         "showTicks": "false",
         "min": -90,
         "max": 90,
-        "step": "5",
+        "step": "10",
         "className": "",
         "iconPrepend": "",
         "iconAppend": "",
-        "color": "",
-        "colorTrack": "",
-        "colorThumb": "",
+        "color": "#04dbb0",
+        "colorTrack": "#04dbb0",
+        "colorThumb": "#04dbb0",
         "showTextField": false,
-        "x": 630,
-        "y": 560,
+        "x": 850,
+        "y": 720,
         "wires": [
             [
-                "0d2e3565f0f161d6",
-                "018df4b73f31d817"
+                "018df4b73f31d817",
+                "0d2e3565f0f161d6"
             ]
         ]
     },
@@ -385,23 +386,24 @@
         "passthru": true,
         "topic": "pitchA",
         "topicType": "str",
+        "thumbLabel": "true",
         "showTicks": "false",
         "min": -90,
         "max": 90,
-        "step": "5",
+        "step": "10",
         "className": "",
         "iconPrepend": "",
         "iconAppend": "",
-        "color": "",
-        "colorTrack": "",
-        "colorThumb": "",
+        "color": "#04dbb0",
+        "colorTrack": "#04dbb0",
+        "colorThumb": "#04dbb0",
         "showTextField": false,
-        "x": 630,
-        "y": 600,
+        "x": 850,
+        "y": 760,
         "wires": [
             [
-                "634a8df5efa0f958",
-                "018df4b73f31d817"
+                "018df4b73f31d817",
+                "634a8df5efa0f958"
             ]
         ]
     },
@@ -418,23 +420,24 @@
         "passthru": true,
         "topic": "yawA",
         "topicType": "str",
+        "thumbLabel": "true",
         "showTicks": "false",
         "min": -90,
         "max": 90,
-        "step": "5",
+        "step": "10",
         "className": "",
         "iconPrepend": "",
         "iconAppend": "",
-        "color": "",
-        "colorTrack": "",
-        "colorThumb": "",
+        "color": "#04dbb0",
+        "colorTrack": "#04dbb0",
+        "colorThumb": "#04dbb0",
         "showTextField": false,
-        "x": 630,
-        "y": 640,
+        "x": 850,
+        "y": 800,
         "wires": [
             [
-                "65d9d74765f50261",
-                "018df4b73f31d817"
+                "018df4b73f31d817",
+                "65d9d74765f50261"
             ]
         ]
     },
@@ -445,29 +448,30 @@
         "group": "aa91750513b604da",
         "name": "Slider Roll F",
         "label": "Roll F",
-        "order": 7,
+        "order": 6,
         "width": 2,
         "height": 1,
         "passthru": true,
         "topic": "rollF",
         "topicType": "str",
+        "thumbLabel": "true",
         "showTicks": "false",
         "min": -90,
         "max": 90,
-        "step": "5",
+        "step": "10",
         "className": "",
         "iconPrepend": "",
         "iconAppend": "",
-        "color": "",
-        "colorTrack": "",
-        "colorThumb": "",
+        "color": "#e6b805",
+        "colorTrack": "#e6b805",
+        "colorThumb": "#e6b805",
         "showTextField": false,
-        "x": 630,
-        "y": 680,
+        "x": 850,
+        "y": 840,
         "wires": [
             [
-                "d9091491a2b78f34",
-                "018df4b73f31d817"
+                "018df4b73f31d817",
+                "d9091491a2b78f34"
             ]
         ]
     },
@@ -478,29 +482,30 @@
         "group": "aa91750513b604da",
         "name": "Slider Pitch F",
         "label": "Pitch F",
-        "order": 8,
+        "order": 7,
         "width": 2,
         "height": 1,
         "passthru": true,
         "topic": "pitchF",
         "topicType": "str",
+        "thumbLabel": "true",
         "showTicks": "false",
         "min": -90,
         "max": 90,
-        "step": "5",
+        "step": "10",
         "className": "",
         "iconPrepend": "",
         "iconAppend": "",
-        "color": "",
-        "colorTrack": "",
-        "colorThumb": "",
+        "color": "#e6b805",
+        "colorTrack": "#e6b805",
+        "colorThumb": "#e6b805",
         "showTextField": false,
-        "x": 630,
-        "y": 720,
+        "x": 850,
+        "y": 880,
         "wires": [
             [
-                "357752c049e0202a",
-                "018df4b73f31d817"
+                "018df4b73f31d817",
+                "357752c049e0202a"
             ]
         ]
     },
@@ -511,29 +516,30 @@
         "group": "aa91750513b604da",
         "name": "Slider Yaw F",
         "label": "Yaw F",
-        "order": 9,
+        "order": 8,
         "width": 2,
         "height": 1,
         "passthru": true,
         "topic": "yawF",
         "topicType": "str",
+        "thumbLabel": "true",
         "showTicks": "false",
         "min": -90,
         "max": 90,
-        "step": "5",
+        "step": "10",
         "className": "",
         "iconPrepend": "",
         "iconAppend": "",
-        "color": "",
-        "colorTrack": "",
-        "colorThumb": "",
+        "color": "#e6b805",
+        "colorTrack": "#e6b805",
+        "colorThumb": "#e6b805",
         "showTextField": false,
-        "x": 630,
-        "y": 760,
+        "x": 850,
+        "y": 920,
         "wires": [
             [
-                "2dadc672794c4120",
-                "018df4b73f31d817"
+                "018df4b73f31d817",
+                "2dadc672794c4120"
             ]
         ]
     },
@@ -545,31 +551,31 @@
         "name": "Simulador Señal",
         "label": "Señal ECG",
         "tooltip": "",
-        "order": 6,
+        "order": 2,
         "width": 6,
         "height": 0,
         "passthru": true,
         "outs": "all",
-        "topic": "emg_signal",
-        "topicType": "msg",
+        "topic": "ecg",
+        "topicType": "str",
         "thumbLabel": "true",
-        "showTicks": "always",
+        "showTicks": "false",
         "min": 0,
         "max": 4095,
-        "step": 1,
+        "step": "5",
         "className": "",
         "iconPrepend": "",
         "iconAppend": "",
-        "color": "",
-        "colorTrack": "",
-        "colorThumb": "",
+        "color": "#ff0000",
+        "colorTrack": "#ff0000",
+        "colorThumb": "#ff0000",
         "showTextField": false,
-        "x": 380,
-        "y": 920,
+        "x": 1020,
+        "y": 180,
         "wires": [
             [
-                "d76247441ec84cb9",
-                "beb758a44254f859"
+                "beb758a44254f859",
+                "d76247441ec84cb9"
             ]
         ]
     },
@@ -599,6 +605,7 @@
         "ymax": "4095",
         "bins": "",
         "stackSeries": false,
+        "pointShape": "false",
         "pointRadius": "",
         "showLegend": true,
         "removeOlder": "1",
@@ -627,8 +634,8 @@
         "height": 6,
         "className": "",
         "interpolation": "linear",
-        "x": 650,
-        "y": 880,
+        "x": 1370,
+        "y": 140,
         "wires": [
             []
         ]
@@ -702,8 +709,8 @@
         "sizeGap": "4",
         "sizeKeyThickness": "8",
         "className": "",
-        "x": 660,
-        "y": 960,
+        "x": 1380,
+        "y": 220,
         "wires": [
             []
         ]
@@ -712,7 +719,7 @@
         "id": "018df4b73f31d817",
         "type": "function",
         "z": "e93020d1f28ab3b8",
-        "name": "Build IMU Object",
+        "name": "Build IMU Object - Sliders",
         "func": "let imu = flow.get(\"imu\") || {\nrollF:0,pitchF:0,yawF:0,\nrollA:0,pitchA:0,yawA:0\n};\n\nimu[msg.topic] = msg.payload;\n\nflow.set(\"imu\",imu);\n\nmsg.payload = JSON.stringify(imu);\nreturn msg;",
         "outputs": 1,
         "timeout": "",
@@ -720,11 +727,12 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 990,
-        "y": 680,
+        "x": 1230,
+        "y": 820,
         "wires": [
             [
-                "b241c1339ff67905"
+                "b241c1339ff67905",
+                "7dad4de8b0c8c8d3"
             ]
         ]
     },
@@ -735,8 +743,8 @@
         "name": "imu websocket",
         "server": "imu_ws",
         "client": "",
-        "x": 1220,
-        "y": 680,
+        "x": 1500,
+        "y": 820,
         "wires": []
     },
     {
@@ -756,8 +764,8 @@
         "resendOnRefresh": true,
         "templateScope": "local",
         "className": "",
-        "x": 1220,
-        "y": 780,
+        "x": 1360,
+        "y": 980,
         "wires": [
             []
         ]
@@ -780,8 +788,8 @@
         "resendOnRefresh": true,
         "templateScope": "local",
         "className": "",
-        "x": 1230,
-        "y": 880,
+        "x": 1350,
+        "y": 1040,
         "wires": [
             []
         ]
@@ -806,8 +814,8 @@
         "className": "",
         "value": "payload",
         "valueType": "msg",
-        "x": 1210,
-        "y": 340,
+        "x": 1550,
+        "y": 500,
         "wires": []
     },
     {
@@ -830,9 +838,185 @@
         "className": "",
         "value": "payload",
         "valueType": "msg",
-        "x": 1210,
-        "y": 440,
+        "x": 1550,
+        "y": 620,
         "wires": []
+    },
+    {
+        "id": "e9a4a64ec8cdb433",
+        "type": "mqtt in",
+        "z": "e93020d1f28ab3b8",
+        "name": "Topic: test01",
+        "topic": "test01",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "43f8f5508c703b94",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 490,
+        "y": 340,
+        "wires": [
+            [
+                "ec7ca4265e471b2a"
+            ]
+        ]
+    },
+    {
+        "id": "ec7ca4265e471b2a",
+        "type": "json",
+        "z": "e93020d1f28ab3b8",
+        "name": "String → JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 720,
+        "y": 340,
+        "wires": [
+            [
+                "17d2f6d44b873350",
+                "f6e9272aee6b8f32"
+            ]
+        ]
+    },
+    {
+        "id": "17d2f6d44b873350",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "Separar variables",
+        "func": "// Asegurar que payload sea objeto\nlet data = msg.payload;\n\nif (typeof data === \"string\") {\n    try {\n        data = JSON.parse(data);\n    } catch (e) {\n        node.error(\"No es .json\");\n        return null;\n    }\n}\n\n// Salidas\nreturn [\n    { topic: \"ecg\", payload: data.ecg },\n    { topic: \"roll_a\", payload: data.roll_a },\n    { topic: \"pitch_a\", payload: data.pitch_a },\n    { topic: \"yaw_a\", payload: data.yaw_a },\n    { topic: \"roll_f\", payload: data.roll_f },\n    { topic: \"pitch_f\", payload: data.pitch_f },\n    { topic: \"yaw_f\", payload: data.yaw_f }\n];",
+        "outputs": 7,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 340,
+        "wires": [
+            [
+                "beb758a44254f859",
+                "d76247441ec84cb9"
+            ],
+            [
+                "0d2e3565f0f161d6"
+            ],
+            [
+                "634a8df5efa0f958"
+            ],
+            [
+                "65d9d74765f50261"
+            ],
+            [
+                "d9091491a2b78f34"
+            ],
+            [
+                "357752c049e0202a"
+            ],
+            [
+                "2dadc672794c4120"
+            ]
+        ]
+    },
+    {
+        "id": "7dad4de8b0c8c8d3",
+        "type": "debug",
+        "z": "e93020d1f28ab3b8",
+        "name": "debug 8",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1480,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "ba3b639d27365591",
+        "type": "inject",
+        "z": "e93020d1f28ab3b8",
+        "name": "Init_sliders_gauges",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 570,
+        "y": 820,
+        "wires": [
+            [
+                "7e95c8eac25028c3",
+                "f43e4247dadf0ef3",
+                "f472a1c37419f6ad",
+                "ffb98ee322c78915",
+                "6e3b17e4011a7d58",
+                "48a61e4306795e76"
+            ]
+        ]
+    },
+    {
+        "id": "b2875d6ae89844b1",
+        "type": "inject",
+        "z": "e93020d1f28ab3b8",
+        "name": "Init_dropdown",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 440,
+        "y": 540,
+        "wires": [
+            [
+                "68b8b1bbf62c581a"
+            ]
+        ]
+    },
+    {
+        "id": "f6e9272aee6b8f32",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "Build IMU Object - MQTT",
+        "func": "// 1. Recuperar estado previo\nlet imu = flow.get(\"imu\") || {\n    rollA: 0, pitchA: 0, yawA: 0,\n    rollF: 0, pitchF: 0, yawF: 0\n};\n\nlet d = msg.payload;\n\n// 2. AUTO-PARSE: Si el payload llega como String (común en MQTT), lo convertimos a Objeto\nif (typeof d === \"string\") {\n    try {\n        d = JSON.parse(d);\n    } catch (e) {\n        // Si no es un JSON válido, no hacemos nada con 'd'\n    }\n}\n\n// 3. TRADUCCIÓN: Si es un objeto y tiene los datos del sensor (con guiones bajos)\nif (typeof d === \"object\" && d !== null) {\n    if (d.hasOwnProperty('roll_a')) imu.rollA = Number(d.roll_a);\n    if (d.hasOwnProperty('pitch_a')) imu.pitchA = Number(d.pitch_a);\n    if (d.hasOwnProperty('yaw_a')) imu.yawA = Number(d.yaw_a);\n\n    if (d.hasOwnProperty('roll_f')) imu.rollF = Number(d.roll_f);\n    if (d.hasOwnProperty('pitch_f')) imu.pitchF = Number(d.pitch_f);\n    if (d.hasOwnProperty('yaw_f')) imu.yawF = Number(d.yaw_f);\n}\n\n// 4. SLIDERS: Si el mensaje tiene un topic que coincide con nuestras llaves\nif (msg.topic && imu.hasOwnProperty(msg.topic)) {\n    imu[msg.topic] = Number(msg.payload);\n}\n\n// 5. LIMPIEZA Y SALIDA: Construimos el JSON final para el WebSocket\nlet finalPayload = {\n    rollA: Number(imu.rollA || 0),\n    pitchA: Number(imu.pitchA || 0),\n    yawA: Number(imu.yawA || 0),\n    rollF: Number(imu.rollF || 0),\n    pitchF: Number(imu.pitchF || 0),\n    yawF: Number(imu.yawF || 0)\n};\n\nflow.set(\"imu\", finalPayload);\nmsg.payload = JSON.stringify(finalPayload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 440,
+        "wires": [
+            [
+                "b241c1339ff67905"
+            ]
+        ]
     },
     {
         "id": "aa91750513b604da",
@@ -911,6 +1095,38 @@
         "groupType": "default"
     },
     {
+        "id": "43f8f5508c703b94",
+        "type": "mqtt-broker",
+        "name": "EMQX",
+        "broker": "oc051111.ala.us-east-1.emqxsl.com",
+        "port": "8883",
+        "tls": "d6cdb4b933da0dd3",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
         "id": "4e53e9ffb55e26c2",
         "type": "ui-page",
         "name": "Dashboard_Integrador",
@@ -945,6 +1161,20 @@
         "className": "",
         "visible": "true",
         "disabled": "false"
+    },
+    {
+        "id": "d6cdb4b933da0dd3",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "emqxsl-ca.crt",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": ""
     },
     {
         "id": "07364cccbec2747d",
@@ -986,7 +1216,7 @@
         }
     },
     {
-        "id": "4602f928397746de",
+        "id": "22aeadeeb35b48dc",
         "type": "global-config",
         "env": [],
         "modules": {

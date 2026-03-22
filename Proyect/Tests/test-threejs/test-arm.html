@@ -56,6 +56,19 @@ import * as THREE from 'three';
 let rollF=0,pitchF=0,yawF=0;
 let rollA=0,pitchA=0,yawA=0;
 
+// ==================== NUEVO: VARIABLES PARA INTERPOLACIÓN ====================
+// Valores actuales (interpolados) que se usan en la animación
+let currentRollA = 0, currentPitchA = 0, currentYawA = 0;
+let currentRollF = 0, currentPitchF = 0, currentYawF = 0;
+
+// Valores objetivo (los que llegan por WebSocket)
+let targetRollA = 0, targetPitchA = 0, targetYawA = 0;
+let targetRollF = 0, targetPitchF = 0, targetYawF = 0;
+
+// Factor de interpolación (0.1 = suave, 0.3 = más rápido)
+// Ajusta este valor entre 0.05 y 0.3 según prefieras
+const LERP_FACTOR = 0.15;
+// ============================================================================
 
 // ============================
 // ESCENA THREEJS
@@ -151,33 +164,60 @@ const socket=new WebSocket("ws://localhost:1880/imu");
 socket.onmessage=(event)=>{
 
 const data=JSON.parse(event.data);
-rollA=data.rollA;
-pitchA=data.pitchA;
-yawA=data.yawA;
 
-rollF=data.rollF;
-pitchF=data.pitchF;
-yawF=data.yawF;
+// ==================== MODIFICADO: Actualizar valores objetivo ====================
+// En lugar de actualizar directamente los valores que usa la animación,
+// actualizamos los valores objetivo para la interpolación
+targetRollA = data.rollA;
+targetPitchA = data.pitchA;
+targetYawA = data.yawA;
+
+targetRollF = data.rollF;
+targetPitchF = data.pitchF;
+targetYawF = data.yawF;
+
+// Mantenemos las variables originales por si son necesarias en otros lugares
+rollA = data.rollA;
+pitchA = data.pitchA;
+yawA = data.yawA;
+
+rollF = data.rollF;
+pitchF = data.pitchF;
+yawF = data.yawF;
+// ================================================================================
 };
 
 
 // ============================
-// ANIMACION
+// ANIMACION CON INTERPOLACIÓN
 // ============================
 
 function animate(){
 
 requestAnimationFrame(animate);
 
+// ==================== NUEVO: Interpolación lineal (lerp) ====================
+// Suaviza la transición entre el valor actual y el valor objetivo
+// La fórmula: current = current + (target - current) * factor
+currentRollA = currentRollA + (targetRollA - currentRollA) * LERP_FACTOR;
+currentPitchA = currentPitchA + (targetPitchA - currentPitchA) * LERP_FACTOR;
+currentYawA = currentYawA + (targetYawA - currentYawA) * LERP_FACTOR;
+
+currentRollF = currentRollF + (targetRollF - currentRollF) * LERP_FACTOR;
+currentPitchF = currentPitchF + (targetPitchF - currentPitchF) * LERP_FACTOR;
+currentYawF = currentYawF + (targetYawF - currentYawF) * LERP_FACTOR;
+// ============================================================================
+
+// Usamos los valores interpolados para la rotación
 // Padre
-cube1.rotation.x=pitchA*Math.PI/180;
-cube1.rotation.y=yawA*Math.PI/180;
-cube1.rotation.z=rollA*Math.PI/180;
+cube1.rotation.x = currentPitchA * Math.PI/180;
+cube1.rotation.y = currentYawA * Math.PI/180;
+cube1.rotation.z = currentRollA * Math.PI/180;
 
 // Hijo
-cube2.rotation.x=pitchF*Math.PI/180;
-cube2.rotation.y=yawF*Math.PI/180;
-cube2.rotation.z=rollF*Math.PI/180;
+cube2.rotation.x = currentPitchF * Math.PI/180;
+cube2.rotation.y = currentYawF * Math.PI/180;
+cube2.rotation.z = currentRollF * Math.PI/180;
 
 renderer.render(scene,camera);
 

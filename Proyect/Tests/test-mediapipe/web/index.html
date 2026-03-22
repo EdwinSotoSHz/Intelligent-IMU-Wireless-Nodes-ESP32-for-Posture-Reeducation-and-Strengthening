@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>MediaPipe Pose - Colores por Extremidad</title>
-    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         /* Ajustes adicionales inline */
         .mdc-button {
             height: 30px !important;
-            min-width: 100px !important;
+            max-width: 40% !important;
             font-size: 12px !important;
             padding: 0 8px !important;
         }
@@ -21,16 +20,60 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        
+        #liveView {
+            display: flex;
+            justify-content: center;
+        }
+
+        .videoView {
+            position: relative;
+            width: 640px;
+            height: 360px;
+        }
+
+        /* VIDEO Y CANVAS */
+        video, canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        /* BOTÓN CENTRADO SOBRE EL CANVAS */
+        #webcamButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+            background-color: #0093a1;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            
+            z-index: 10;
+            transition: 0.2s ease;
+
+            width: 30%;
+        }
+
+        /* Hover opcional */
+        #webcamButton:hover {
+            background-color: #007c87;
+        }
     </style>
 </head>
 <body>
     <!-- <h1>Detección de Pose con Colores</h1> -->
     <section id="demos">
         <div id="liveView" class="videoView">
-            <button id="webcamButton" class="mdc-button mdc-button--raised">
-                <span class="mdc-button__ripple"></span>
-                <span class="mdc-button__label">WEBCAM</span> <!-- Texto más corto -->
-            </button>
+            <button id="webcamButton"><b>Iniciar Captura</b></button>
             <div style="position: relative; width: 640px; height: 360px;">
                 <video id="webcam" autoplay playsinline></video>
                 <canvas class="output_canvas" id="output_canvas"></canvas>

@@ -1,0 +1,224 @@
+[
+    {
+        "id": "fa894d3197b47420",
+        "type": "tab",
+        "label": "MQTT Split JSON",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "2c180cd60c86e233",
+        "type": "mqtt in",
+        "z": "fa894d3197b47420",
+        "name": "Topic: test01",
+        "topic": "test01",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "43f8f5508c703b94",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 90,
+        "y": 320,
+        "wires": [
+            [
+                "bc9a1457640e16ff"
+            ]
+        ]
+    },
+    {
+        "id": "bc9a1457640e16ff",
+        "type": "json",
+        "z": "fa894d3197b47420",
+        "name": "String → JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 300,
+        "y": 320,
+        "wires": [
+            [
+                "82e1f1614d1f2017",
+                "a4b3e0fd300655dd"
+            ]
+        ]
+    },
+    {
+        "id": "82e1f1614d1f2017",
+        "type": "function",
+        "z": "fa894d3197b47420",
+        "name": "Separar variables",
+        "func": "// Asegurar que payload sea objeto\nlet data = msg.payload;\n\nif (typeof data === \"string\") {\n    try {\n        data = JSON.parse(data);\n    } catch (e) {\n        node.error(\"No es .json\");\n        return null;\n    }\n}\n\n// Salidas\nreturn [\n    { payload: data.roll_f },\n    { payload: data.pitch_f },\n    { payload: data.yaw_f },\n    { payload: data.ecg },\n    { payload: data.roll_a },\n    { payload: data.pitch_a },\n    { payload: data.yaw_a }\n];",
+        "outputs": 7,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 320,
+        "wires": [
+            [
+                "026c9563aec82f56"
+            ],
+            [
+                "e8066e07cc1d28de"
+            ],
+            [
+                "4e33347a68de9f2b"
+            ],
+            [
+                "453c974156b0613d"
+            ],
+            [
+                "0e134f635d22186a"
+            ],
+            [
+                "9e5e924ed93fe457"
+            ],
+            [
+                "b463eba0c0d24d97"
+            ]
+        ]
+    },
+    {
+        "id": "026c9563aec82f56",
+        "type": "debug",
+        "z": "fa894d3197b47420",
+        "name": "roll_f",
+        "active": true,
+        "complete": "payload",
+        "x": 770,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "e8066e07cc1d28de",
+        "type": "debug",
+        "z": "fa894d3197b47420",
+        "name": "pitch_f",
+        "active": true,
+        "complete": "payload",
+        "x": 780,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "4e33347a68de9f2b",
+        "type": "debug",
+        "z": "fa894d3197b47420",
+        "name": "yaw_f",
+        "active": true,
+        "complete": "payload",
+        "x": 770,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "453c974156b0613d",
+        "type": "debug",
+        "z": "fa894d3197b47420",
+        "name": "ecg",
+        "active": true,
+        "complete": "payload",
+        "x": 760,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "0e134f635d22186a",
+        "type": "debug",
+        "z": "fa894d3197b47420",
+        "name": "roll_a",
+        "active": true,
+        "complete": "payload",
+        "x": 770,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "9e5e924ed93fe457",
+        "type": "debug",
+        "z": "fa894d3197b47420",
+        "name": "pitch_a",
+        "active": true,
+        "complete": "payload",
+        "x": 780,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "b463eba0c0d24d97",
+        "type": "debug",
+        "z": "fa894d3197b47420",
+        "name": "yaw_a",
+        "active": true,
+        "complete": "payload",
+        "x": 770,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "a4b3e0fd300655dd",
+        "type": "debug",
+        "z": "fa894d3197b47420",
+        "name": "debug 7",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "43f8f5508c703b94",
+        "type": "mqtt-broker",
+        "name": "EMQX",
+        "broker": "oc051111.ala.us-east-1.emqxsl.com",
+        "port": "8883",
+        "tls": "d6cdb4b933da0dd3",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "d6cdb4b933da0dd3",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "emqxsl-ca.crt",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": ""
+    }
+]

@@ -1,0 +1,267 @@
+[
+    {
+        "id": "069f00fbda1ce96c",
+        "type": "tab",
+        "label": "example_mqtt_websocket",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "7d31308b2892755a",
+        "type": "function",
+        "z": "069f00fbda1ce96c",
+        "name": "Build IMU Object",
+        "func": "// 1. Recuperar estado previo\nlet imu = flow.get(\"imu\") || {\n    rollA: 0, pitchA: 0, yawA: 0,\n    rollF: 0, pitchF: 0, yawF: 0\n};\n\nlet d = msg.payload;\n\n// 2. AUTO-PARSE: Si el payload llega como String (común en MQTT), lo convertimos a Objeto\nif (typeof d === \"string\") {\n    try {\n        d = JSON.parse(d);\n    } catch (e) {\n        // Si no es un JSON válido, no hacemos nada con 'd'\n    }\n}\n\n// 3. TRADUCCIÓN: Si es un objeto y tiene los datos del sensor (con guiones bajos)\nif (typeof d === \"object\" && d !== null) {\n    if (d.hasOwnProperty('roll_a')) imu.rollA = Number(d.roll_a);\n    if (d.hasOwnProperty('pitch_a')) imu.pitchA = Number(d.pitch_a);\n    if (d.hasOwnProperty('yaw_a')) imu.yawA = Number(d.yaw_a);\n\n    if (d.hasOwnProperty('roll_f')) imu.rollF = Number(d.roll_f);\n    if (d.hasOwnProperty('pitch_f')) imu.pitchF = Number(d.pitch_f);\n    if (d.hasOwnProperty('yaw_f')) imu.yawF = Number(d.yaw_f);\n}\n\n// 4. SLIDERS: Si el mensaje tiene un topic que coincide con nuestras llaves\nif (msg.topic && imu.hasOwnProperty(msg.topic)) {\n    imu[msg.topic] = Number(msg.payload);\n}\n\n// 5. LIMPIEZA Y SALIDA: Construimos el JSON final para el WebSocket\nlet finalPayload = {\n    rollA: Number(imu.rollA || 0),\n    pitchA: Number(imu.pitchA || 0),\n    yawA: Number(imu.yawA || 0),\n    rollF: Number(imu.rollF || 0),\n    pitchF: Number(imu.pitchF || 0),\n    yawF: Number(imu.yawF || 0)\n};\n\nflow.set(\"imu\", finalPayload);\nmsg.payload = JSON.stringify(finalPayload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1010,
+        "y": 700,
+        "wires": [
+            [
+                "f430caac9aac27c5",
+                "84df7c2988a4f983"
+            ]
+        ]
+    },
+    {
+        "id": "ceb1c8c7e220c7ec",
+        "type": "mqtt in",
+        "z": "069f00fbda1ce96c",
+        "name": "Topic: test01",
+        "topic": "test01",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "43f8f5508c703b94",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 530,
+        "y": 720,
+        "wires": [
+            [
+                "69235e059d8bb003"
+            ]
+        ]
+    },
+    {
+        "id": "69235e059d8bb003",
+        "type": "json",
+        "z": "069f00fbda1ce96c",
+        "name": "String → JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 740,
+        "y": 720,
+        "wires": [
+            [
+                "7d31308b2892755a"
+            ]
+        ]
+    },
+    {
+        "id": "2a9ef78e695c6c89",
+        "type": "ui-template",
+        "z": "069f00fbda1ce96c",
+        "group": "7f3784a583730b56",
+        "page": "",
+        "ui": "",
+        "name": "ThreeJS Viewer",
+        "order": 2,
+        "width": "6",
+        "height": 9,
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Tests/test-threejs/test-arm.html\" \nstyle=\"border:none\" \nheight=\"100%\" \nwidth=\"100%\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1020,
+        "y": 800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f430caac9aac27c5",
+        "type": "websocket out",
+        "z": "069f00fbda1ce96c",
+        "name": "imu websocket",
+        "server": "imu_ws",
+        "client": "",
+        "x": 1300,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "84df7c2988a4f983",
+        "type": "debug",
+        "z": "069f00fbda1ce96c",
+        "name": "debug 10",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1260,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "43f8f5508c703b94",
+        "type": "mqtt-broker",
+        "name": "EMQX",
+        "broker": "oc051111.ala.us-east-1.emqxsl.com",
+        "port": "8883",
+        "tls": "d6cdb4b933da0dd3",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "7f3784a583730b56",
+        "type": "ui-group",
+        "name": "ThreeJs",
+        "page": "4e53e9ffb55e26c2",
+        "width": "6",
+        "height": "10",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "imu_ws",
+        "type": "websocket-listener",
+        "path": "/imu",
+        "wholemsg": "false"
+    },
+    {
+        "id": "d6cdb4b933da0dd3",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "emqxsl-ca.crt",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "4e53e9ffb55e26c2",
+        "type": "ui-page",
+        "name": "Dashboard_Integrador",
+        "ui": "07364cccbec2747d",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "8c05b69b7d864577",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "12"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "07364cccbec2747d",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "8c05b69b7d864577",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "c0702e263f68911f",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+    }
+]
