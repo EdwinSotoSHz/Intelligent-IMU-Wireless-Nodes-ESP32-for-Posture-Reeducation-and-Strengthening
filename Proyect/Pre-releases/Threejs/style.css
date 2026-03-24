@@ -1,0 +1,51 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial;
+}
+
+.axis-label {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 22px;
+}
+
+.axis-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+.blue-bg {
+    background: #ff3333;
+}
+
+.green-bg {
+    background: #00cc00;
+}
+
+.red-bg {
+    background: #0066ff;
+}
+
+.roll-color {
+    color: #ff3333;
+    font-weight: bold;
+}
+
+.pitch-color {
+    color: #00cc00;
+    font-weight: bold;
+}
+
+.yaw-color {
+    color: #0066ff;
+    font-weight: bold;
+}

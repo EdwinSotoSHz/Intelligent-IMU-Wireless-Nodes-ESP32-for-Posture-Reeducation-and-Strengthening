@@ -1,0 +1,89 @@
+body, html {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    /* Cambiado de 2em a 0 */
+    padding: 0;
+    /* Añadido para eliminar padding */
+    color: #3d3d3d;
+    width: 640px;
+    /* Ancho fijo */
+    height: 360px;
+    /* Alto fijo */
+    overflow: hidden;
+    /* Evita scroll */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+h1 {
+    color: #007f8b;
+    margin: 0;
+    /* Eliminar márgenes */
+    font-size: 20px;
+    /* Ajustar tamaño si es necesario */
+}
+
+.videoView {
+    position: relative;
+    width: 640px;
+    /* Ancho fijo */
+    height: 360px;
+    /* Alto fijo */
+    max-width: 640px;
+    /* Asegurar que no crezca */
+}
+
+video, .output_canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    border-radius: 0;
+    /* Opcional: eliminar bordes redondeados */
+    /* Efecto espejo */
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+}
+
+.output_canvas {
+    pointer-events: none;
+}
+
+#webcamButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #0093a1;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 10;
+    transition: 0.2s ease;
+    width: 30%;
+}
+#webcamButton:hover {
+    background-color: #007c87;
+}
+
+#demos {
+    width: 640px;
+    height: 360px;
+    position: relative;
+}
+
+#liveView {
+    width: 640px;
+    height: 360px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Ocultar posibles scrollbars */
+::-webkit-scrollbar {
+    display: none;
+}

@@ -76,7 +76,6 @@ const setupModels = async () => {
 setupModels();
 
 let currentCameraIndex = 2; // CAM
-
 async function enableCam() {
   if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
 
@@ -137,7 +136,7 @@ async function predictWebcam() {
     const [poseResult, handResult, faceResult] = await Promise.all([
       poseLandmarker.detectForVideo(video, startTimeMs),
       handLandmarker.detectForVideo(video, startTimeMs),
-      faceLandmarker.detectForVideo(video, startTimeMs) // 🔥 NUEVO
+      faceLandmarker.detectForVideo(video, startTimeMs)
     ]);
 
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -169,7 +168,7 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
         return newPos;
       });
 
-      const filteredConnections = PoseLandmarker.POSE_CONNECTIONS.filter(conn => 
+      const filteredConnections = PoseLandmarker.POSE_CONNECTIONS.filter(conn =>
         allowedIndices.includes(conn.start) && allowedIndices.includes(conn.end)
       );
 

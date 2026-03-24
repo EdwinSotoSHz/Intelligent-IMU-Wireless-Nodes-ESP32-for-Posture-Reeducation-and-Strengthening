@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Prueba de Ángulos</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        canvas {
+            border: 2px solid #333;
+            background: white;
+            cursor: crosshair;
+        }
+        .info {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .coord {
+            font-family: monospace;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="400"></canvas>
+    
+    <div class="info">
+        <div class="coord">🔴 A: <span id="coordA">-</span></div>
+        <div class="coord">🟢 B (vértice): <span id="coordB">-</span></div>
+        <div class="coord">🔵 C: <span id="coordC">-</span></div>
+        <div>📐 Ángulo en B: <strong id="angleValue">0.0°</strong></div>
+        <button id="randomBtn">🎲 Puntos aleatorios</button>
+        <button id="resetBtn">⟳ Reset</button>
+        <div style="font-size: 12px; margin-top: 10px;">💡 Click y arrastra cualquier punto</div>
+    </div>
+
+    <script type="module">
+        import { AngleDrawer } from './script-tests-angles.js';
+        import { RandomPointGenerator } from './script-tests-canva.js';
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const drawer = new AngleDrawer(ctx);
+        const generator = new RandomPointGenerator(canvas.width, canvas.height);
+        
+        // Puntos iniciales
+        let points = {
+            A: { x: 100, y: 200 },
+            B: { x: 300, y: 150 },
+            C: { x: 500, y: 200 }
+        };
+        
+        let dragging = null;
+        
+        function updateUI() {
+            document.getElementById('coordA').textContent = `(${Math.round(points.A.x)}, ${Math.round(points.A.y)})`;
+            document.getElementById('coordB').textContent = `(${Math.round(points.B.x)}, ${Math.round(points.B.y)})`;
+            document.getElementById('coordC').textContent = `(${Math.round(points.C.x)}, ${Math.round(points.C.y)})`;
+            
+            const angle = drawer.getAngleDeg(points.A, points.B, points.C);
+            document.getElementById('angleValue').textContent = `${angle.toFixed(1)}°`;
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar líneas
+            drawer.drawLines(points.A, points.B, points.C);
+            
+            // Dibujar arco
+            drawer.drawAngleArc(points.A, points.B, points.C, 50, {
+                stroke: '#3B8BD4',
+                fill: 'rgba(59,139,212,0.2)'
+            });
+            
+            // Dibujar etiqueta del ángulo
+            drawer.drawAngleLabel(points.A, points.B, points.C, 65, {
+                color: '#185FA5',
+                font: 'bold 14px monospace'
+            });
+            
+            // Dibujar puntos
+            drawer.drawPoints(points.A, points.B, points.C);
+            
+            updateUI();
+        }
+        
+        // Eventos de arrastre
+        function getPointUnderCursor(x, y) {
+            for (let [key, point] of Object.entries(points)) {
+                if (Math.hypot(point.x - x, point.y - y) < 15) {
+                    return key;
+                }
+            }
+            return null;
+        }
+        
+        function onMouseDown(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+            
+            dragging = getPointUnderCursor(mouseX, mouseY);
+            if (dragging) {
+                canvas.style.cursor = 'grabbing';
+            }
+        }
+        
+        function onMouseMove(e) {
+            if (!dragging) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let mouseX = (e.clientX - rect.left) * scaleX;
+            let mouseY = (e.clientY - rect.top) * scaleY;
+            
+            // Limitar al canvas
+            mouseX = Math.min(Math.max(0, mouseX), canvas.width);
+            mouseY = Math.min(Math.max(0, mouseY), canvas.height);
+            
+            points[dragging] = { x: mouseX, y: mouseY };
+            draw();
+        }
+        
+        function onMouseUp() {
+            dragging = null;
+            canvas.style.cursor = 'crosshair';
+        }
+        
+        canvas.addEventListener('mousedown', onMouseDown);
+        canvas.addEventListener('mousemove', onMouseMove);
+        canvas.addEventListener('mouseup', onMouseUp);
+        
+        // Botones
+        document.getElementById('randomBtn').onclick = () => {
+            points = generator.generateThreePoints();
+            draw();
+        };
+        
+        document.getElementById('resetBtn').onclick = () => {
+            points = {
+                A: { x: 100, y: 200 },
+                B: { x: 300, y: 150 },
+                C: { x: 500, y: 200 }
+            };
+            draw();
+        };
+        
+        // Dibujar inicial
+        draw();
+    </script>
+</body>
+</html>
