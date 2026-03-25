@@ -17,7 +17,7 @@ let faceLandmarker = undefined;
 let lastVideoTime = -1;
 
 // --- CONFIGURACIÓN DE AJUSTES VISUALES ---
-const Y_OFFSET = 0.03;
+const Y_OFFSET = 0.025;
 const X_OFFSET = -0.018;
 const X_OFFSET_P = -0.012;
 
@@ -68,7 +68,7 @@ const setupModels = async () => {
     },
     runningMode: "VIDEO",
     minFaceDetectionConfidence: 0.4,
-    minTrackingConfidence: 0.8,
+    minTrackingConfidence: 0.3,
     numFaces: 1
   });
 };
