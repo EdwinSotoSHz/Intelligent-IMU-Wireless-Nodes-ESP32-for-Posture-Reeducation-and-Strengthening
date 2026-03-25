@@ -36,17 +36,19 @@ export class AngleDrawer {
         const start = Math.atan2(A.y - B.y, A.x - B.x);
         const end = Math.atan2(C.y - B.y, C.x - B.x);
         
+        // Relleno azul semitransparente
+        this.ctx.beginPath();
+        this.ctx.moveTo(B.x, B.y);
+        this.ctx.arc(B.x, B.y, radius, start, end);
+        this.ctx.closePath();
+        this.ctx.fillStyle = opts.fill || 'rgba(41, 121, 255, 0.18)';
+        this.ctx.fill();
+
+        // Contorno del arco azul
         this.ctx.beginPath();
         this.ctx.arc(B.x, B.y, radius, start, end);
-        
-        if (opts.fill) {
-            this.ctx.lineTo(B.x, B.y);
-            this.ctx.fillStyle = opts.fill;
-            this.ctx.fill();
-        }
-        
-        this.ctx.strokeStyle = opts.stroke || '#000';
-        this.ctx.lineWidth = opts.lineWidth || 1.5;
+        this.ctx.strokeStyle = opts.stroke || '#1565C0';
+        this.ctx.lineWidth = opts.lineWidth || 3;
         this.ctx.stroke();
     }
 
@@ -60,12 +62,20 @@ export class AngleDrawer {
         const label = angle.toFixed(1) + '°';
         const x = B.x + radius * Math.cos(mid);
         const y = B.y + radius * Math.sin(mid);
-        
-        this.ctx.font = opts.font || '12px monospace';
-        this.ctx.fillStyle = opts.color || '#000';
+
+        // Se espejea el texto para compensar el transform: rotateY(180deg) del canvas
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        this.ctx.scale(-1, 1);
+        this.ctx.font = opts.font || 'bold 40px monospace';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.85)';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(label, x, y);
+        this.ctx.strokeText(label, 0, 0);
+        this.ctx.fillStyle = opts.color || '#004594';
+        this.ctx.fillText(label, 0, 0);
+        this.ctx.restore();
     }
 
     // Dibujar puntos con etiquetas A, B, C
@@ -91,7 +101,7 @@ export class AngleDrawer {
             
             // Etiqueta
             this.ctx.fillStyle = '#000';
-            this.ctx.font = 'bold 12px monospace';
+            this.ctx.font = 'bold 40px monospace';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
             this.ctx.fillText(label, p.x, p.y);

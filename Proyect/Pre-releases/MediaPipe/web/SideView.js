@@ -5,6 +5,7 @@ import {
   FilesetResolver,
   DrawingUtils
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+import { AngleDrawer } from "./AngleDrawer.js";
 
 const video = document.getElementById("webcam");
 const canvasElement = document.getElementById("output_canvas");
@@ -17,7 +18,7 @@ let faceLandmarker = undefined;
 let lastVideoTime = -1;
 
 // --- CONFIGURACIÓN DE AJUSTES VISUALES ---
-const Y_OFFSET = 0.03;
+const Y_OFFSET = 0.025;
 const X_OFFSET = -0.018;
 const X_OFFSET_P = -0.012;
 
@@ -29,7 +30,7 @@ const COLORS = {
 
 const POSE_PARTS = {
   rightArm: [12, 14, 16],
-  torso: [12, 24], 
+  torso: [12, 24],
   rightLeg: [24, 26, 28]
 };
 
@@ -55,7 +56,7 @@ const setupModels = async () => {
       delegate: "GPU"
     },
     runningMode: "VIDEO",
-    numHands: 1,
+    numHands: 2,
     minHandDetectionConfidence: 0.8,
     minHandPresenceConfidence: 0.8,
     minTrackingConfidence: 0.8
@@ -69,7 +70,7 @@ const setupModels = async () => {
     },
     runningMode: "VIDEO",
     minFaceDetectionConfidence: 0.4,
-    minTrackingConfidence: 0.8,
+    minTrackingConfidence: 0.3,
     numFaces: 1
   });
 };
@@ -97,7 +98,7 @@ async function enableCam() {
     return;
   }
 
-  // 🔴 IMPORTANTE: detener cámara anterior
+  // IMPORTANTE: detener cámara anterior
   if (video.srcObject) {
     video.srcObject.getTracks().forEach(track => track.stop());
   }
@@ -150,6 +151,7 @@ async function predictWebcam() {
 function drawEverything(poseResult, handResult, faceResult, ctx) {
   const drawingUtils = new DrawingUtils(ctx);
   const allowedIndices = [].concat(...Object.values(POSE_PARTS));
+  const angleDrawer = new AngleDrawer(ctx);  // angulos
 
   // ================= POSE =================
   if (poseResult.landmarks) {
@@ -175,7 +177,7 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
 
       drawingUtils.drawConnectors(adjustedLandmarks, filteredConnections, {
         color: "#E0E0E099",
-        lineWidth: 7
+        lineWidth:7
       });
 
       for (const [partName, indices] of Object.entries(POSE_PARTS)) {
@@ -186,6 +188,29 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
           radius: 10
         });
       }
+
+      // ===== ÁNGULOS =====
+
+      const toPixel = (lm) => ({
+        x: lm.x * canvasElement.width,
+        y: lm.y * canvasElement.height
+      });
+
+      const A1 = toPixel(adjustedLandmarks[14]);
+      const B1 = toPixel(adjustedLandmarks[12]);
+      const C1 = toPixel(adjustedLandmarks[24]);
+
+      angleDrawer.drawLines(A1, B1, C1);
+      angleDrawer.drawAngleArc(A1, B1, C1, 120);
+      angleDrawer.drawAngleLabel(A1, B1, C1, 50);
+
+      const A2 = toPixel(adjustedLandmarks[12]);
+      const B2 = toPixel(adjustedLandmarks[14]);
+      const C2 = toPixel(adjustedLandmarks[16]);
+
+      angleDrawer.drawLines(A2, B2, C2);
+      angleDrawer.drawAngleArc(A2, B2, C2, 120);
+      angleDrawer.drawAngleLabel(A2, B2, C2, 50);
     }
   }
 
@@ -194,7 +219,7 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
     for (const landmarks of handResult.landmarks) {
       drawingUtils.drawConnectors(landmarks, HandLandmarker.HAND_CONNECTIONS, {
         color: COLORS.hands,
-        lineWidth: 5
+        lineWidth: 3
       });
       drawingUtils.drawLandmarks(landmarks, {
         color: "#FFFFFF",

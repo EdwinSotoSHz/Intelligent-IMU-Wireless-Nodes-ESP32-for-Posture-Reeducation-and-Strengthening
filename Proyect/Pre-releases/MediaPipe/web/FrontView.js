@@ -5,6 +5,7 @@ import {
   FilesetResolver,
   DrawingUtils
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+import { AngleDrawer } from "./AngleDrawer.js";
 
 const video = document.getElementById("webcam");
 const canvasElement = document.getElementById("output_canvas");
@@ -96,7 +97,7 @@ async function enableCam() {
     return;
   }
 
-  // 🔴 IMPORTANTE: detener cámara anterior
+  // IMPORTANTE: detener cámara anterior
   if (video.srcObject) {
     video.srcObject.getTracks().forEach(track => track.stop());
   }
@@ -149,6 +150,7 @@ async function predictWebcam() {
 function drawEverything(poseResult, handResult, faceResult, ctx) {
   const drawingUtils = new DrawingUtils(ctx);
   const allowedIndices = [].concat(...Object.values(POSE_PARTS));
+  const angleDrawer = new AngleDrawer(ctx);  // angulos
 
   // ================= POSE =================
   if (poseResult.landmarks) {
@@ -185,6 +187,29 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
           radius: 10
         });
       }
+
+      // ===== ÁNGULOS =====
+
+      const toPixel = (lm) => ({
+        x: lm.x * canvasElement.width,
+        y: lm.y * canvasElement.height
+      });
+
+      const A1 = toPixel(adjustedLandmarks[11]);
+      const B1 = toPixel(adjustedLandmarks[13]);
+      const C1 = toPixel(adjustedLandmarks[15]);
+
+      angleDrawer.drawLines(A1, B1, C1);
+      angleDrawer.drawAngleArc(A1, B1, C1, 120);
+      angleDrawer.drawAngleLabel(A1, B1, C1, 50);
+
+      const A2 = toPixel(adjustedLandmarks[16]);
+      const B2 = toPixel(adjustedLandmarks[14]);
+      const C2 = toPixel(adjustedLandmarks[12]);
+
+      angleDrawer.drawLines(A2, B2, C2);
+      angleDrawer.drawAngleArc(A2, B2, C2, 120);
+      angleDrawer.drawAngleLabel(A2, B2, C2, 50);
     }
   }
 
@@ -214,6 +239,38 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
           lineWidth: 4
         }
       );
+      const toPixel = (lm) => ({
+        x: lm.x * canvasElement.width,
+        y: lm.y * canvasElement.height
+      });
+
+      // Puntos clave para línea media
+      const midPoints = [
+        10,   // frente superior
+        151,  // frente medio
+        9,    // entrecejo
+        8,    // puente nariz
+        168,  // medio nariz
+        6,    // base nariz
+        195,  // debajo nariz
+        5,    // labio superior
+        13,   // centro labios
+        14,   // labio inferior
+        17,   // mentón superior
+        152   // mentón
+      ];
+
+      // Dibujar línea conectando todos los puntos
+      const points = midPoints.map(idx => toPixel(landmarks[idx]));
+      
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.strokeStyle = COLORS.face;
+      ctx.lineWidth = 4;
+      ctx.stroke();
     }
   }
 }
