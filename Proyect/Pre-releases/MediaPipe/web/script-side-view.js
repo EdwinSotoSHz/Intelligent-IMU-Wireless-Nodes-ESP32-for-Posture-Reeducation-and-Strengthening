@@ -175,15 +175,15 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
 
       drawingUtils.drawConnectors(adjustedLandmarks, filteredConnections, {
         color: "#E0E0E099",
-        lineWidth: 4
+        lineWidth: 7
       });
 
       for (const [partName, indices] of Object.entries(POSE_PARTS)) {
         const partLandmarks = indices.map(index => adjustedLandmarks[index]);
         drawingUtils.drawLandmarks(partLandmarks, {
           color: COLORS[partName],
-          lineWidth: 2,
-          radius: 5
+          lineWidth: 5,
+          radius: 10
         });
       }
     }
@@ -194,7 +194,7 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
     for (const landmarks of handResult.landmarks) {
       drawingUtils.drawConnectors(landmarks, HandLandmarker.HAND_CONNECTIONS, {
         color: COLORS.hands,
-        lineWidth: 3
+        lineWidth: 5
       });
       drawingUtils.drawLandmarks(landmarks, {
         color: "#FFFFFF",
@@ -212,7 +212,7 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
         FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
         {
           color: COLORS.face,
-          lineWidth: 2
+          lineWidth: 4
         }
       );
     }
