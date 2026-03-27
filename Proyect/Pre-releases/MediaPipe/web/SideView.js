@@ -77,7 +77,7 @@ const setupModels = async () => {
 
 setupModels();
 
-let currentCameraIndex = 2; // CAM
+let currentCameraIndex = 0; // CAM
 async function enableCam() {
   if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
 
@@ -124,27 +124,42 @@ async function enableCam() {
   }
 }
 
+let frameCount = 0;
+let lastPose = null;
+let lastHands = null;
+let lastFace = null;
 async function predictWebcam() {
   if (canvasElement.width !== video.videoWidth) {
     canvasElement.width = video.videoWidth;
     canvasElement.height = video.videoHeight;
   }
-
-  let startTimeMs = performance.now();
-
+  
   if (lastVideoTime !== video.currentTime) {
     lastVideoTime = video.currentTime;
+    frameCount++;
 
-    const [poseResult, handResult, faceResult] = await Promise.all([
-      poseLandmarker.detectForVideo(video, startTimeMs),
-      handLandmarker.detectForVideo(video, startTimeMs),
-      faceLandmarker.detectForVideo(video, startTimeMs)
-    ]);
+    let startTimeMs = performance.now();
 
+    // ACTUALIZAR SOLO CUANDO TOCA
+    if (frameCount % 2 === 0) {
+      lastPose = await poseLandmarker.detectForVideo(video, startTimeMs);
+    }
+
+    if (frameCount % 3 === 0) {
+      lastHands = await handLandmarker.detectForVideo(video, startTimeMs);
+    }
+
+    if (frameCount % 4 === 0) {
+      lastFace = await faceLandmarker.detectForVideo(video, startTimeMs);
+    }
+
+    // LIMPIAR SIEMPRE
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    drawEverything(poseResult, handResult, faceResult, canvasCtx);
-  }
 
+    // DIBUJAR SIEMPRE EL ÚLTIMO RESULTADO
+    drawEverything(lastPose, lastHands, lastFace, canvasCtx);
+  }
+  
   window.requestAnimationFrame(predictWebcam);
 }
 
@@ -154,7 +169,7 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
   const angleDrawer = new AngleDrawer(ctx);  // angulos
 
   // ================= POSE =================
-  if (poseResult.landmarks) {
+  if (poseResult && poseResult.landmarks) {
     for (const rawLandmarks of poseResult.landmarks) {
 
       const adjustedLandmarks = rawLandmarks.map((lm, idx) => {
@@ -215,7 +230,7 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
   }
 
   // ================= HANDS =================
-  if (handResult.landmarks) {
+  if (handResult && handResult.landmarks) {
     for (const landmarks of handResult.landmarks) {
       drawingUtils.drawConnectors(landmarks, HandLandmarker.HAND_CONNECTIONS, {
         color: COLORS.hands,
