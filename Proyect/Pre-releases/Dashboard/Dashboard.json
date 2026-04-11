@@ -56,7 +56,7 @@
         "id": "a2fb4787c3dcf362",
         "type": "function",
         "z": "e93020d1f28ab3b8",
-        "name": "Generar Segmentos 6 Gauges",
+        "name": "Generate 6 gauges",
         "func": "let ejercicio = msg.payload;\nlet updates = {};\n\nif (ejercicio === \"1\") {\n    // Ejercicio 1: Configuración para todos los gauges\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"2\") {\n    // Ejercicio 2\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": -80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": -80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"3\") {\n    // Ejercicio 3\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n}\n\n// Enviar actualizaciones a cada gauge\nreturn [\n    { ui_update: { min: -90, max: 90, segments: updates.rollA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.pitchA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.yawA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.rollF.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.pitchF.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.yawF.segments } }\n];",
         "outputs": 6,
         "timeout": "",
@@ -64,7 +64,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 950,
+        "x": 910,
         "y": 540,
         "wires": [
             [
@@ -570,12 +570,13 @@
         "colorTrack": "#ff0000",
         "colorThumb": "#ff0000",
         "showTextField": false,
-        "x": 1020,
-        "y": 180,
+        "x": 900,
+        "y": 220,
         "wires": [
             [
-                "beb758a44254f859",
-                "d76247441ec84cb9"
+                "d76247441ec84cb9",
+                "8932a8c9c6edbb67",
+                "6140627a9ee5ffcb"
             ]
         ]
     },
@@ -586,7 +587,7 @@
         "group": "a83be8181762b3bb",
         "name": "Gráfica Temporal",
         "label": "Señal en Tiempo Real",
-        "order": 1,
+        "order": 2,
         "chartType": "line",
         "category": "topic",
         "categoryType": "msg",
@@ -604,9 +605,10 @@
         "ymin": "0",
         "ymax": "4095",
         "bins": "",
+        "action": "append",
         "stackSeries": false,
-        "pointShape": "false",
-        "pointRadius": "",
+        "pointShape": "circle",
+        "pointRadius": "4",
         "showLegend": true,
         "removeOlder": "1",
         "removeOlderUnit": "3600",
@@ -630,12 +632,12 @@
             "#e5e5e5"
         ],
         "gridColorDefault": true,
-        "width": 4,
-        "height": 6,
+        "width": 10,
+        "height": 7,
         "className": "",
         "interpolation": "linear",
         "x": 1370,
-        "y": 140,
+        "y": 260,
         "wires": [
             []
         ]
@@ -644,73 +646,50 @@
         "id": "beb758a44254f859",
         "type": "ui-gauge",
         "z": "e93020d1f28ab3b8",
-        "name": "Nivel de Contraccion",
+        "d": true,
+        "name": "ecg percentage",
         "group": "a83be8181762b3bb",
-        "order": 2,
+        "order": 4,
         "value": "payload",
         "valueType": "msg",
-        "width": 2,
-        "height": 6,
-        "gtype": "gauge-34",
-        "gstyle": "rounded",
-        "title": "Valor Exacto",
+        "width": 3,
+        "height": 4,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "",
         "alwaysShowTitle": false,
-        "units": "",
+        "units": "%",
         "icon": "",
         "prefix": "",
         "suffix": "",
         "segments": [
             {
                 "from": "0",
-                "color": "#ff0000",
-                "text": "",
-                "textType": "label"
-            },
-            {
-                "from": "1500",
-                "color": "#cccccc",
-                "text": "",
-                "textType": "label"
-            },
-            {
-                "from": "1700",
                 "color": "#00ff00",
                 "text": "",
                 "textType": "label"
             },
             {
-                "from": "2000",
+                "from": "16",
                 "color": "#ffff00",
                 "text": "",
                 "textType": "label"
             },
             {
-                "from": "2400",
-                "color": "#ff9900",
-                "text": "",
-                "textType": "label"
-            },
-            {
-                "from": "3000",
+                "from": "61",
                 "color": "#ff4400",
-                "text": "",
-                "textType": "label"
-            },
-            {
-                "from": "3500",
-                "color": "#7b0000",
                 "text": "",
                 "textType": "label"
             }
         ],
         "min": 0,
-        "max": 4095,
+        "max": "100",
         "sizeThickness": "16",
         "sizeGap": "4",
         "sizeKeyThickness": "8",
         "className": "",
-        "x": 1380,
-        "y": 220,
+        "x": 1360,
+        "y": 120,
         "wires": [
             []
         ]
@@ -758,7 +737,7 @@
         "order": 1,
         "width": "6",
         "height": 9,
-        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Pre-releases/Threejs/arm.html\" \nstyle=\"border:none\" \nheight=\"100%\" \nwidth=\"100%\">\n</iframe>",
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Pre-releases/webservices/Threejs/arm.html\" \nstyle=\"border:none\" \nheight=\"100%\" \nwidth=\"100%\">\n</iframe>",
         "storeOutMessages": true,
         "passthru": true,
         "resendOnRefresh": true,
@@ -777,18 +756,18 @@
         "group": "54069716d3556b1a",
         "page": "",
         "ui": "",
-        "name": "Mediapipe",
-        "order": 1,
+        "name": "Mediapipe Front view",
+        "order": 2,
         "width": 5,
         "height": 6,
         "head": "",
-        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Pre-releases/MediaPipe/web/index.html\" \nallow=\"camera; microphone\" \nwidth=\"100%\" height=\"100%\">\n</iframe>",
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Pre-releases/webservices/MediaPipe/front-view.html\" \nallow=\"camera; microphone\" \nwidth=\"100%\" height=\"100%\">\n</iframe>",
         "storeOutMessages": true,
         "passthru": true,
         "resendOnRefresh": true,
         "templateScope": "local",
         "className": "",
-        "x": 1350,
+        "x": 1380,
         "y": 1040,
         "wires": [
             []
@@ -892,12 +871,13 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 990,
+        "x": 970,
         "y": 340,
         "wires": [
             [
-                "beb758a44254f859",
-                "d76247441ec84cb9"
+                "d76247441ec84cb9",
+                "8932a8c9c6edbb67",
+                "6140627a9ee5ffcb"
             ],
             [
                 "0d2e3565f0f161d6"
@@ -1019,6 +999,130 @@
         ]
     },
     {
+        "id": "e15da1393d436798",
+        "type": "ui-template",
+        "z": "e93020d1f28ab3b8",
+        "group": "54069716d3556b1a",
+        "page": "",
+        "ui": "",
+        "name": "Mediapipe Side view",
+        "order": 3,
+        "width": 5,
+        "height": 6,
+        "head": "",
+        "format": "<iframe src=\"http://127.0.0.1:5500/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/Proyect/Pre-releases/webservices/MediaPipe/side-view.html\" \nallow=\"camera; microphone\" \nwidth=\"100%\" height=\"100%\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1380,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7aea458fd07fde45",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "d": true,
+        "name": "Tension message",
+        "group": "a83be8181762b3bb",
+        "order": 3,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 1,
+        "gtype": "gauge-tile",
+        "gstyle": "needle",
+        "title": "Valor Exacto",
+        "alwaysShowTitle": false,
+        "units": "",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#cccccc",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1",
+                "color": "#00ff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "2",
+                "color": "#ffff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3",
+                "color": "#ff4400",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "4",
+        "sizeThickness": "16",
+        "sizeGap": "4",
+        "sizeKeyThickness": "8",
+        "className": "",
+        "x": 1370,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8932a8c9c6edbb67",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "d": true,
+        "name": "ecg to indicator",
+        "func": "let valor = msg.payload;\nlet nivel = \"\";\n\n// Clasificación basada en tus promedios\nif (valor >= 2050 && valor < 2450) {\n    msg.payload = 1;\n    nivel = \"REPOSO\";\n} else if (valor >= 1600 && valor < 3050) {\n    msg.payload = 2;\n    nivel = \"FLEXIÓN LEVE\";\n} else if (valor >= 20 && valor <= 3300) {\n    msg.payload = 3;\n    nivel = \"MOVIMIENTO FUERTE\";\n} else {\n    msg.payload = 0;\n    nivel = \"RUIDO\";\n}\n\nmsg.ui_update = {\n    title: nivel\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1160,
+        "y": 180,
+        "wires": [
+            [
+                "7aea458fd07fde45"
+            ]
+        ]
+    },
+    {
+        "id": "6140627a9ee5ffcb",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "d": true,
+        "name": "ecg to percentage",
+        "func": "// =============================================\n// CONFIGURACIÓN BASADA EN TUS CAPTURAS\n// =============================================\nconst OFFSET = 2250;      // El centro de tu señal en reposo\nconst NOISE_FLOOR = 250;  // Amplitud de ruido (Rango dinámico reposo / 2)\nconst MAX_AMP = 1600;     // Amplitud máxima (Rango dinámico fuerte / 2)\n\n// Suavizado para que el porcentaje no salte (0.05 muy suave - 0.2 más rápido)\nconst ALPHA = 0.1; \n\n// =============================================\n// 1. CÁLCULO DE LA AMPLITUD INSTANTÁNEA\n// =============================================\n// Medimos qué tan lejos está el punto actual del centro (2250)\nlet amplitudInstante = Math.abs(msg.payload - OFFSET);\n\n// =============================================\n// 2. FILTRO DE ENVOLVENTE (Smoothing)\n// =============================================\ncontext.env = context.env || 0;\ncontext.env = (ALPHA * amplitudInstante) + (1 - ALPHA) * context.env;\n\n// =============================================\n// 3. CONVERSIÓN A PORCENTAJE REAL\n// =============================================\n// Restamos el ruido base para que en reposo marque 0%\nlet señalLimpia = context.env - NOISE_FLOOR;\nif (señalLimpia < 0) señalLimpia = 0;\n\n// Calculamos el porcentaje respecto al máximo alcanzado en tus pruebas\nlet porcentaje = (señalLimpia / (MAX_AMP - NOISE_FLOOR)) * 100;\n\n// Limitar entre 0 y 100 y redondear\nmsg.payload = Math.round(Math.min(Math.max(porcentaje, 0), 100));\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1150,
+        "y": 120,
+        "wires": [
+            [
+                "beb758a44254f859"
+            ]
+        ]
+    },
+    {
         "id": "aa91750513b604da",
         "type": "ui-group",
         "name": "Controles",
@@ -1051,7 +1155,7 @@
         "type": "ui-group",
         "name": "Tension Muscular",
         "page": "4e53e9ffb55e26c2",
-        "width": 6,
+        "width": 12,
         "height": 1,
         "order": 4,
         "showTitle": true,
@@ -1085,7 +1189,7 @@
         "type": "ui-group",
         "name": "Mediapipe",
         "page": "4e53e9ffb55e26c2",
-        "width": 6,
+        "width": 12,
         "height": 1,
         "order": 5,
         "showTitle": true,
@@ -1216,7 +1320,7 @@
         }
     },
     {
-        "id": "b9a4805f9f24f04b",
+        "id": "50e5827ea012c996",
         "type": "global-config",
         "env": [],
         "modules": {
