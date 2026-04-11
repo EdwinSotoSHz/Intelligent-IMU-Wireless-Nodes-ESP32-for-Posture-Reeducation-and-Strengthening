@@ -8,7 +8,7 @@ private:
     // Pines para AD8232
     const int PIN_ECG = 2;   // Salida analógica
     const int PIN_LOP = 3;   // Leads OFF detect - (detecta desconexión)
-    const int PIN_LON = 5;   // Leads OFF detect + 
+    const int PIN_LON = 20;   // Leads OFF detect + (antes era el 5)
     
     int lastECGValue;
     int minECG;
