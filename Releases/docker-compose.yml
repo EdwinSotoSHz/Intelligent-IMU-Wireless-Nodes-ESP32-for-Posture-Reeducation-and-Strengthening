@@ -1,0 +1,43 @@
+services:
+  node-red:
+    build: ./nodered  # Se contruye a partir de un docker file (ese tiene la imagen)
+    container_name: nodered
+    ports:
+      - "1880:1880"
+    volumes:
+      - node-red-data:/data
+    restart: unless-stopped
+
+  webservices:
+    build:
+      context: ../Project/Pre-releases/webservices
+    container_name: webservices
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    
+  influxdb:
+    image: influxdb:2
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    restart: unless-stopped
+    
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - influxdb
+volumes:
+  node-red-data:
+  influxdb-data:
+  influxdb-config:
+  grafana-data:

@@ -1,0 +1,1402 @@
+[
+    {
+        "id": "e93020d1f28ab3b8",
+        "type": "tab",
+        "label": "Dashboard-Integrador",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "68b8b1bbf62c581a",
+        "type": "ui-dropdown",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Seleccionar Ejercicio",
+        "label": "Ejercicio",
+        "order": 1,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "Elevación al frente (hombro)",
+                "value": "1",
+                "type": "str"
+            },
+            {
+                "label": "Flexión de codo (desde brazo extendido al lateral)",
+                "value": "2",
+                "type": "str"
+            },
+            {
+                "label": "Pedirle a Yael que explique ese",
+                "value": "3",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 660,
+        "y": 600,
+        "wires": [
+            [
+                "a2fb4787c3dcf362"
+            ]
+        ]
+    },
+    {
+        "id": "a2fb4787c3dcf362",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "Generate 6 gauges",
+        "func": "let ejercicio = msg.payload;\nlet updates = {};\n\nif (ejercicio === \"1\") {\n    // Ejercicio 1: Configuración para todos los gauges\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"2\") {\n    // Ejercicio 2\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -10, \"color\": \"#5cd65c\" },\n                { \"from\": 10, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        }\n    };\n} else if (ejercicio === \"3\") {\n    // Ejercicio 3\n    updates = {\n        rollA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawA: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        },\n        rollF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": 80, \"color\": \"#5cd65c\" }\n            ]\n        },\n        pitchF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#ea5353\" },\n                { \"from\": -30, \"color\": \"#5cd65c\" },\n                { \"from\": 30, \"color\": \"#ea5353\" }\n            ]\n        },\n        yawF: {\n            segments: [\n                { \"from\": -90, \"color\": \"#5cd65c\" },\n                { \"from\": 80, \"color\": \"#ea5353\" }\n            ]\n        }\n    };\n}\n\n// Enviar actualizaciones a cada gauge\nreturn [\n    { ui_update: { min: -90, max: 90, segments: updates.rollA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.pitchA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.yawA.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.rollF.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.pitchF.segments } },\n    { ui_update: { min: -90, max: 90, segments: updates.yawF.segments } }\n];",
+        "outputs": 6,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 600,
+        "wires": [
+            [
+                "0d2e3565f0f161d6"
+            ],
+            [
+                "634a8df5efa0f958"
+            ],
+            [
+                "65d9d74765f50261"
+            ],
+            [
+                "d9091491a2b78f34"
+            ],
+            [
+                "357752c049e0202a"
+            ],
+            [
+                "2dadc672794c4120"
+            ]
+        ]
+    },
+    {
+        "id": "0d2e3565f0f161d6",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Roll A",
+        "group": "da56fd7b11334bd4",
+        "order": 8,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Roll A",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1350,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "634a8df5efa0f958",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Pitch A",
+        "group": "da56fd7b11334bd4",
+        "order": 7,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Pitch A",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1360,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "65d9d74765f50261",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Yaw A",
+        "group": "da56fd7b11334bd4",
+        "order": 6,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": 4,
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Yaw A",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1360,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d9091491a2b78f34",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Roll F",
+        "group": "da56fd7b11334bd4",
+        "order": 4,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Roll F",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1350,
+        "y": 640,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "357752c049e0202a",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Pitch F",
+        "group": "da56fd7b11334bd4",
+        "order": 3,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Pitch F",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1360,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2dadc672794c4120",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "name": "Gauge Yaw F",
+        "group": "da56fd7b11334bd4",
+        "order": 2,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 2,
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "Yaw F",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-90",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": -90,
+        "max": 90,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1360,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "48a61e4306795e76",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Roll A",
+        "label": "Roll A",
+        "order": 5,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "rollA",
+        "topicType": "str",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "10",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "#04dbb0",
+        "colorTrack": "#04dbb0",
+        "colorThumb": "#04dbb0",
+        "showTextField": false,
+        "x": 850,
+        "y": 780,
+        "wires": [
+            [
+                "018df4b73f31d817",
+                "0d2e3565f0f161d6"
+            ]
+        ]
+    },
+    {
+        "id": "6e3b17e4011a7d58",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Pitch A",
+        "label": "Pitch A",
+        "order": 4,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "pitchA",
+        "topicType": "str",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "10",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "#04dbb0",
+        "colorTrack": "#04dbb0",
+        "colorThumb": "#04dbb0",
+        "showTextField": false,
+        "x": 850,
+        "y": 820,
+        "wires": [
+            [
+                "018df4b73f31d817",
+                "634a8df5efa0f958"
+            ]
+        ]
+    },
+    {
+        "id": "f43e4247dadf0ef3",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Yaw A",
+        "label": "Yaw A",
+        "order": 3,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "yawA",
+        "topicType": "str",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "10",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "#04dbb0",
+        "colorTrack": "#04dbb0",
+        "colorThumb": "#04dbb0",
+        "showTextField": false,
+        "x": 850,
+        "y": 860,
+        "wires": [
+            [
+                "018df4b73f31d817",
+                "65d9d74765f50261"
+            ]
+        ]
+    },
+    {
+        "id": "f472a1c37419f6ad",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Roll F",
+        "label": "Roll F",
+        "order": 8,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "rollF",
+        "topicType": "str",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "10",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "#e6b805",
+        "colorTrack": "#e6b805",
+        "colorThumb": "#e6b805",
+        "showTextField": false,
+        "x": 850,
+        "y": 900,
+        "wires": [
+            [
+                "018df4b73f31d817",
+                "d9091491a2b78f34"
+            ]
+        ]
+    },
+    {
+        "id": "ffb98ee322c78915",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Pitch F",
+        "label": "Pitch F",
+        "order": 7,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "pitchF",
+        "topicType": "str",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "10",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "#e6b805",
+        "colorTrack": "#e6b805",
+        "colorThumb": "#e6b805",
+        "showTextField": false,
+        "x": 850,
+        "y": 940,
+        "wires": [
+            [
+                "018df4b73f31d817",
+                "357752c049e0202a"
+            ]
+        ]
+    },
+    {
+        "id": "7e95c8eac25028c3",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Slider Yaw F",
+        "label": "Yaw F",
+        "order": 6,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "topic": "yawF",
+        "topicType": "str",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": -90,
+        "max": 90,
+        "step": "10",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "#e6b805",
+        "colorTrack": "#e6b805",
+        "colorThumb": "#e6b805",
+        "showTextField": false,
+        "x": 850,
+        "y": 980,
+        "wires": [
+            [
+                "018df4b73f31d817",
+                "2dadc672794c4120"
+            ]
+        ]
+    },
+    {
+        "id": "60564a9e3bc7b651",
+        "type": "ui-slider",
+        "z": "e93020d1f28ab3b8",
+        "group": "aa91750513b604da",
+        "name": "Simulador Señal",
+        "label": "Señal ECG",
+        "tooltip": "",
+        "order": 2,
+        "width": 6,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "ecg",
+        "topicType": "str",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": 0,
+        "max": 4095,
+        "step": "5",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "#ff0000",
+        "colorTrack": "#ff0000",
+        "colorThumb": "#ff0000",
+        "showTextField": false,
+        "x": 900,
+        "y": 280,
+        "wires": [
+            [
+                "d76247441ec84cb9",
+                "8932a8c9c6edbb67",
+                "6140627a9ee5ffcb"
+            ]
+        ]
+    },
+    {
+        "id": "d76247441ec84cb9",
+        "type": "ui-chart",
+        "z": "e93020d1f28ab3b8",
+        "group": "a83be8181762b3bb",
+        "name": "Gráfica Temporal",
+        "label": "Señal en Tiempo Real",
+        "order": 3,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "",
+        "yAxisPropertyType": "property",
+        "ymin": "0",
+        "ymax": "4095",
+        "bins": "",
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": "4",
+        "showLegend": true,
+        "removeOlder": "1",
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#ff0000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 10,
+        "height": 7,
+        "className": "",
+        "interpolation": "linear",
+        "x": 1370,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "beb758a44254f859",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "d": true,
+        "name": "ecg percentage",
+        "group": "a83be8181762b3bb",
+        "order": 2,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 4,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "",
+        "alwaysShowTitle": false,
+        "units": "%",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#00ff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "16",
+                "color": "#ffff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "61",
+                "color": "#ff4400",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "100",
+        "sizeThickness": "16",
+        "sizeGap": "4",
+        "sizeKeyThickness": "8",
+        "className": "",
+        "x": 1360,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "018df4b73f31d817",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "Build IMU Object - Sliders",
+        "func": "let imu = flow.get(\"imu\") || {\nrollF:0,pitchF:0,yawF:0,\nrollA:0,pitchA:0,yawA:0\n};\n\nimu[msg.topic] = msg.payload;\n\nflow.set(\"imu\",imu);\n\nmsg.payload = JSON.stringify(imu);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1230,
+        "y": 880,
+        "wires": [
+            [
+                "b241c1339ff67905",
+                "7dad4de8b0c8c8d3"
+            ]
+        ]
+    },
+    {
+        "id": "b241c1339ff67905",
+        "type": "websocket out",
+        "z": "e93020d1f28ab3b8",
+        "name": "imu websocket",
+        "server": "imu_ws",
+        "client": "",
+        "x": 1500,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "a3fadf73bd2fdc6d",
+        "type": "ui-template",
+        "z": "e93020d1f28ab3b8",
+        "group": "7f3784a583730b56",
+        "page": "",
+        "ui": "",
+        "name": "ThreeJS Viewer",
+        "order": 1,
+        "width": "6",
+        "height": 9,
+        "format": "<iframe src=\"http://localhost:3000/Threejs/arm.html\" \nstyle=\"border:none\" \nheight=\"100%\" \nwidth=\"100%\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1360,
+        "y": 1040,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0ba6c33a7b6173c5",
+        "type": "ui-template",
+        "z": "e93020d1f28ab3b8",
+        "group": "54069716d3556b1a",
+        "page": "",
+        "ui": "",
+        "name": "Mediapipe Front view",
+        "order": 2,
+        "width": 5,
+        "height": 6,
+        "head": "",
+        "format": "<iframe src=\"http://localhost:3000/MediaPipe/front-view.html\" \nallow=\"camera; microphone\" \nwidth=\"100%\" height=\"100%\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1380,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1bed651fc4464024",
+        "type": "ui-text",
+        "z": "e93020d1f28ab3b8",
+        "group": "da56fd7b11334bd4",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Title A",
+        "label": "Sensores Antebrazo",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "Arial,Arial,Helvetica,sans-serif",
+        "fontSize": "20",
+        "color": "#000000",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1550,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "0e10bf89e7f8f786",
+        "type": "ui-text",
+        "z": "e93020d1f28ab3b8",
+        "group": "da56fd7b11334bd4",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "Title F",
+        "label": "Sensores Brazo",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "Arial,Arial,Helvetica,sans-serif",
+        "fontSize": "20",
+        "color": "#000000",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1550,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "e9a4a64ec8cdb433",
+        "type": "mqtt in",
+        "z": "e93020d1f28ab3b8",
+        "name": "Topic: test01",
+        "topic": "test01",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "43f8f5508c703b94",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 450,
+        "y": 400,
+        "wires": [
+            [
+                "ec7ca4265e471b2a"
+            ]
+        ]
+    },
+    {
+        "id": "ec7ca4265e471b2a",
+        "type": "json",
+        "z": "e93020d1f28ab3b8",
+        "name": "String → JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 680,
+        "y": 400,
+        "wires": [
+            [
+                "17d2f6d44b873350",
+                "f6e9272aee6b8f32",
+                "5e5e7adee46ddb7b"
+            ]
+        ]
+    },
+    {
+        "id": "17d2f6d44b873350",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "Separar variables",
+        "func": "// Asegurar que payload sea objeto\nlet data = msg.payload;\n\nif (typeof data === \"string\") {\n    try {\n        data = JSON.parse(data);\n    } catch (e) {\n        node.error(\"No es .json\");\n        return null;\n    }\n}\n\n// Salidas\nreturn [\n    { topic: \"ecg\", payload: data.ecg },\n    { topic: \"roll_a\", payload: data.roll_a },\n    { topic: \"pitch_a\", payload: data.pitch_a },\n    { topic: \"yaw_a\", payload: data.yaw_a },\n    { topic: \"roll_f\", payload: data.roll_f },\n    { topic: \"pitch_f\", payload: data.pitch_f },\n    { topic: \"yaw_f\", payload: data.yaw_f }\n];",
+        "outputs": 7,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 400,
+        "wires": [
+            [
+                "d76247441ec84cb9",
+                "8932a8c9c6edbb67",
+                "6140627a9ee5ffcb"
+            ],
+            [
+                "0d2e3565f0f161d6"
+            ],
+            [
+                "634a8df5efa0f958"
+            ],
+            [
+                "65d9d74765f50261"
+            ],
+            [
+                "d9091491a2b78f34"
+            ],
+            [
+                "357752c049e0202a"
+            ],
+            [
+                "2dadc672794c4120"
+            ]
+        ]
+    },
+    {
+        "id": "7dad4de8b0c8c8d3",
+        "type": "debug",
+        "z": "e93020d1f28ab3b8",
+        "name": "debug 8",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1480,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "ba3b639d27365591",
+        "type": "inject",
+        "z": "e93020d1f28ab3b8",
+        "name": "Init_sliders_gauges",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 570,
+        "y": 880,
+        "wires": [
+            [
+                "7e95c8eac25028c3",
+                "f43e4247dadf0ef3",
+                "f472a1c37419f6ad",
+                "ffb98ee322c78915",
+                "6e3b17e4011a7d58",
+                "48a61e4306795e76"
+            ]
+        ]
+    },
+    {
+        "id": "b2875d6ae89844b1",
+        "type": "inject",
+        "z": "e93020d1f28ab3b8",
+        "name": "Init_dropdown",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 440,
+        "y": 600,
+        "wires": [
+            [
+                "68b8b1bbf62c581a"
+            ]
+        ]
+    },
+    {
+        "id": "f6e9272aee6b8f32",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "Build IMU Object - MQTT",
+        "func": "// 1. Recuperar estado previo\nlet imu = flow.get(\"imu\") || {\n    rollA: 0, pitchA: 0, yawA: 0,\n    rollF: 0, pitchF: 0, yawF: 0\n};\n\nlet d = msg.payload;\n\n// 2. AUTO-PARSE: Si el payload llega como String (común en MQTT), lo convertimos a Objeto\nif (typeof d === \"string\") {\n    try {\n        d = JSON.parse(d);\n    } catch (e) {\n        // Si no es un JSON válido, no hacemos nada con 'd'\n    }\n}\n\n// 3. TRADUCCIÓN: Si es un objeto y tiene los datos del sensor (con guiones bajos)\nif (typeof d === \"object\" && d !== null) {\n    if (d.hasOwnProperty('roll_a')) imu.rollA = Number(d.roll_a);\n    if (d.hasOwnProperty('pitch_a')) imu.pitchA = Number(d.pitch_a);\n    if (d.hasOwnProperty('yaw_a')) imu.yawA = Number(d.yaw_a);\n\n    if (d.hasOwnProperty('roll_f')) imu.rollF = Number(d.roll_f);\n    if (d.hasOwnProperty('pitch_f')) imu.pitchF = Number(d.pitch_f);\n    if (d.hasOwnProperty('yaw_f')) imu.yawF = Number(d.yaw_f);\n}\n\n// 4. SLIDERS: Si el mensaje tiene un topic que coincide con nuestras llaves\nif (msg.topic && imu.hasOwnProperty(msg.topic)) {\n    imu[msg.topic] = Number(msg.payload);\n}\n\n// 5. LIMPIEZA Y SALIDA: Construimos el JSON final para el WebSocket\nlet finalPayload = {\n    rollA: Number(imu.rollA || 0),\n    pitchA: Number(imu.pitchA || 0),\n    yawA: Number(imu.yawA || 0),\n    rollF: Number(imu.rollF || 0),\n    pitchF: Number(imu.pitchF || 0),\n    yawF: Number(imu.yawF || 0)\n};\n\nflow.set(\"imu\", finalPayload);\nmsg.payload = JSON.stringify(finalPayload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 500,
+        "wires": [
+            [
+                "b241c1339ff67905"
+            ]
+        ]
+    },
+    {
+        "id": "e15da1393d436798",
+        "type": "ui-template",
+        "z": "e93020d1f28ab3b8",
+        "group": "54069716d3556b1a",
+        "page": "",
+        "ui": "",
+        "name": "Mediapipe Side view",
+        "order": 3,
+        "width": 5,
+        "height": 6,
+        "head": "",
+        "format": "<iframe src=\"http://localhost:3000/MediaPipe/side-view.html\" \nallow=\"camera; microphone\" \nwidth=\"100%\" height=\"100%\">\n</iframe>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1380,
+        "y": 1160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7aea458fd07fde45",
+        "type": "ui-gauge",
+        "z": "e93020d1f28ab3b8",
+        "d": true,
+        "name": "Tension message",
+        "group": "a83be8181762b3bb",
+        "order": 1,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 1,
+        "gtype": "gauge-tile",
+        "gstyle": "needle",
+        "title": "Valor Exacto",
+        "alwaysShowTitle": false,
+        "units": "",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#cccccc",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1",
+                "color": "#00ff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "2",
+                "color": "#ffff00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3",
+                "color": "#ff4400",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "4",
+        "sizeThickness": "16",
+        "sizeGap": "4",
+        "sizeKeyThickness": "8",
+        "className": "",
+        "x": 1370,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8932a8c9c6edbb67",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "d": true,
+        "name": "ecg to indicator",
+        "func": "let valor = msg.payload;\nlet nivel = \"\";\n\n// Clasificación basada en tus promedios\nif (valor >= 2050 && valor < 2450) {\n    msg.payload = 1;\n    nivel = \"REPOSO\";\n} else if (valor >= 1600 && valor < 3050) {\n    msg.payload = 2;\n    nivel = \"FLEXIÓN LEVE\";\n} else if (valor >= 20 && valor <= 3300) {\n    msg.payload = 3;\n    nivel = \"MOVIMIENTO FUERTE\";\n} else {\n    msg.payload = 0;\n    nivel = \"RUIDO\";\n}\n\nmsg.ui_update = {\n    title: nivel\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1160,
+        "y": 240,
+        "wires": [
+            [
+                "7aea458fd07fde45"
+            ]
+        ]
+    },
+    {
+        "id": "6140627a9ee5ffcb",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "d": true,
+        "name": "ecg to percentage",
+        "func": "// =============================================\n// CONFIGURACIÓN BASADA EN TUS CAPTURAS\n// =============================================\nconst OFFSET = 2250;      // El centro de tu señal en reposo\nconst NOISE_FLOOR = 250;  // Amplitud de ruido (Rango dinámico reposo / 2)\nconst MAX_AMP = 1600;     // Amplitud máxima (Rango dinámico fuerte / 2)\n\n// Suavizado para que el porcentaje no salte (0.05 muy suave - 0.2 más rápido)\nconst ALPHA = 0.1; \n\n// =============================================\n// 1. CÁLCULO DE LA AMPLITUD INSTANTÁNEA\n// =============================================\n// Medimos qué tan lejos está el punto actual del centro (2250)\nlet amplitudInstante = Math.abs(msg.payload - OFFSET);\n\n// =============================================\n// 2. FILTRO DE ENVOLVENTE (Smoothing)\n// =============================================\ncontext.env = context.env || 0;\ncontext.env = (ALPHA * amplitudInstante) + (1 - ALPHA) * context.env;\n\n// =============================================\n// 3. CONVERSIÓN A PORCENTAJE REAL\n// =============================================\n// Restamos el ruido base para que en reposo marque 0%\nlet señalLimpia = context.env - NOISE_FLOOR;\nif (señalLimpia < 0) señalLimpia = 0;\n\n// Calculamos el porcentaje respecto al máximo alcanzado en tus pruebas\nlet porcentaje = (señalLimpia / (MAX_AMP - NOISE_FLOOR)) * 100;\n\n// Limitar entre 0 y 100 y redondear\nmsg.payload = Math.round(Math.min(Math.max(porcentaje, 0), 100));\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1150,
+        "y": 180,
+        "wires": [
+            [
+                "beb758a44254f859"
+            ]
+        ]
+    },
+    {
+        "id": "5e5e7adee46ddb7b",
+        "type": "function",
+        "z": "e93020d1f28ab3b8",
+        "name": "InfluxDB Format",
+        "func": "let d = msg.payload;\n\nif (typeof d === \"string\") {\n    d = JSON.parse(d);\n}\n\n// 👇 IMPORTANTE: measurement fuera del payload\nmsg.measurement = \"prototype_data\";\n\n// 👇 SOLO fields en payload\nmsg.payload = {\n    rollA: parseFloat(d.roll_a),\n    pitchA: parseFloat(d.pitch_a),\n    yawA: parseFloat(d.yaw_a),\n    rollF: parseFloat(d.roll_f),\n    pitchF: parseFloat(d.pitch_f),\n    yawF: parseFloat(d.yaw_f),\n    ecg: parseFloat(d.ecg)\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 840,
+        "y": 140,
+        "wires": [
+            [
+                "d185f1d3a893a6fd",
+                "835a23034aa481cf"
+            ]
+        ]
+    },
+    {
+        "id": "d185f1d3a893a6fd",
+        "type": "influxdb out",
+        "z": "e93020d1f28ab3b8",
+        "influxdb": "2d996e2062483fa9",
+        "name": "InfluxDB Connection",
+        "measurement": "",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "itsoeh",
+        "bucket": "project",
+        "x": 1100,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "835a23034aa481cf",
+        "type": "debug",
+        "z": "e93020d1f28ab3b8",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1060,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "aa91750513b604da",
+        "type": "ui-group",
+        "name": "Controles",
+        "page": "4e53e9ffb55e26c2",
+        "width": 12,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "da56fd7b11334bd4",
+        "type": "ui-group",
+        "name": "Sensores MPU",
+        "page": "4e53e9ffb55e26c2",
+        "width": 6,
+        "height": "5",
+        "order": 2,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "a83be8181762b3bb",
+        "type": "ui-group",
+        "name": "Tension Muscular",
+        "page": "4e53e9ffb55e26c2",
+        "width": 12,
+        "height": 1,
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "imu_ws",
+        "type": "websocket-listener",
+        "path": "/imu",
+        "wholemsg": "false"
+    },
+    {
+        "id": "7f3784a583730b56",
+        "type": "ui-group",
+        "name": "ThreeJs",
+        "page": "4e53e9ffb55e26c2",
+        "width": "6",
+        "height": "10",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "54069716d3556b1a",
+        "type": "ui-group",
+        "name": "Mediapipe",
+        "page": "4e53e9ffb55e26c2",
+        "width": 12,
+        "height": 1,
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "43f8f5508c703b94",
+        "type": "mqtt-broker",
+        "name": "EMQX",
+        "broker": "oc051111.ala.us-east-1.emqxsl.com",
+        "port": "8883",
+        "tls": "d6cdb4b933da0dd3",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "2d996e2062483fa9",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "InfluxDB Connection",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "4e53e9ffb55e26c2",
+        "type": "ui-page",
+        "name": "Dashboard_Integrador",
+        "ui": "07364cccbec2747d",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "8c05b69b7d864577",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "12"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "d6cdb4b933da0dd3",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "emqxsl-ca.crt",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "07364cccbec2747d",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "8c05b69b7d864577",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "b38574d83a439c72",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2",
+            "node-red-contrib-influxdb": "0.7.0"
+        }
+    }
+]
