@@ -4,7 +4,9 @@ import {
   FaceLandmarker,
   FilesetResolver,
   DrawingUtils
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+} from "../node_modules/@mediapipe/tasks-vision/vision_bundle.mjs";
+//! Opción web CDN
+//! from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 import { AngleDrawer } from "./AngleDrawer.js";
 
 const video = document.getElementById("webcam");
@@ -34,13 +36,19 @@ const POSE_PARTS = {
 };
 
 const setupModels = async () => {
-  const vision = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
-  );
+/*
+! Opción web CDN
+!  const vision = await FilesetResolver.forVisionTasks(
+!    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+!  );
+*/
+  const vision = await FilesetResolver.forVisionTasks("../MediaPipe/wasm");
 
   poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task`,
+      //! Opción web CDN
+      //! modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task`,
+      modelAssetPath: "../MediaPipe/models/pose_landmarker_heavy.task",
       delegate: "GPU"
     },
     runningMode: "VIDEO",
@@ -51,24 +59,28 @@ const setupModels = async () => {
 
   handLandmarker = await HandLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+      //! Opción web CDN
+      //! modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+      modelAssetPath: "../MediaPipe/models/hand_landmarker.task",
       delegate: "GPU"
     },
     runningMode: "VIDEO",
     numHands: 2,
-    minHandDetectionConfidence: 0.8,
+    minHandDetectionConfidence: 0.7,
     minHandPresenceConfidence: 0.8,
-    minTrackingConfidence: 0.8
+    minTrackingConfidence: 0.65
   });
 
   // solo contorno
   faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+      //! Opción web CDN
+      //! modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+      modelAssetPath: "../MediaPipe/models/face_landmarker.task",
       delegate: "GPU"
     },
     runningMode: "VIDEO",
-    minFaceDetectionConfidence: 0.4,
+    minFaceDetectionConfidence: 0.2,
     minTrackingConfidence: 0.3,
     numFaces: 1
   });
@@ -76,12 +88,13 @@ const setupModels = async () => {
 
 setupModels();
 
-let currentCameraIndex = 1; // CAM
+let currentCameraIndex = 2; // * CAM
 async function enableCam() {
   if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
 
   webcamButton.style.display = "none";
-
+  
+  await navigator.mediaDevices.getUserMedia({ video: true });
   const devices = await navigator.mediaDevices.enumerateDevices();
   const videoDevices = devices.filter(d => d.kind === "videoinput");
 
@@ -97,7 +110,7 @@ async function enableCam() {
     return;
   }
 
-  // IMPORTANTE: detener cámara anterior
+  // * IMPORTANTE: detener cámara anterior
   if (video.srcObject) {
     video.srcObject.getTracks().forEach(track => track.stop());
   }
@@ -162,10 +175,10 @@ async function predictWebcam() {
   window.requestAnimationFrame(predictWebcam);
 }
 
+const angleDrawer = new AngleDrawer(canvasCtx);  // Angulos
+const drawingUtils = new DrawingUtils(canvasCtx); // Dependencia incluida 
 function drawEverything(poseResult, handResult, faceResult, ctx) {
-  const drawingUtils = new DrawingUtils(ctx);
   const allowedIndices = [].concat(...Object.values(POSE_PARTS));
-  const angleDrawer = new AngleDrawer(ctx);  // angulos
 
   // ================= POSE =================
   if (poseResult && poseResult.landmarks) {
@@ -230,12 +243,36 @@ function drawEverything(poseResult, handResult, faceResult, ctx) {
 
   // ================= HANDS =================
   if (handResult && handResult.landmarks) {
+
+    const EXCLUDED = [7, 11, 15, 19];
+
+    // conexiones originales filtradas
+    let filteredConnections = HandLandmarker.HAND_CONNECTIONS.filter(conn =>
+      !EXCLUDED.includes(conn.start) && !EXCLUDED.includes(conn.end)
+    );
+
+    // conexiones nuevas para cerrar los huecos
+    const extraConnections = [
+      { start: 6, end: 8 },
+      { start: 10, end: 12 },
+      { start: 14, end: 16 },
+      { start: 18, end: 20 }
+    ];
+
+    filteredConnections = filteredConnections.concat(extraConnections);
+
     for (const landmarks of handResult.landmarks) {
-      drawingUtils.drawConnectors(landmarks, HandLandmarker.HAND_CONNECTIONS, {
+
+      // dibujar conexiones
+      drawingUtils.drawConnectors(landmarks, filteredConnections, {
         color: COLORS.hands,
         lineWidth: 3
       });
-      drawingUtils.drawLandmarks(landmarks, {
+
+      // filtrar landmarks visibles
+      const filteredLandmarks = landmarks.filter((_, i) => !EXCLUDED.includes(i));
+
+      drawingUtils.drawLandmarks(filteredLandmarks, {
         color: "#FFFFFF",
         lineWidth: 1,
         radius: (data) => [4, 8, 12, 16, 20].includes(data.index) ? 4 : 2
