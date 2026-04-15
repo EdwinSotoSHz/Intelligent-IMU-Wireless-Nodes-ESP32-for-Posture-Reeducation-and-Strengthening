@@ -89,7 +89,7 @@ const setupModels = async () => {
 
 setupModels();
 
-let currentCameraIndex = 2; // * CAM
+let currentCameraIndex = 0; // * CAM
 async function enableCam() {
   if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
 
@@ -118,7 +118,7 @@ async function enableCam() {
 
   const constraints = {
     video: {
-      deviceId: { exact: selectedCamera.deviceId }, // 🔥 clave
+      deviceId: { exact: selectedCamera.deviceId }, // clave
       width: 1280,
       height: 720
     }
