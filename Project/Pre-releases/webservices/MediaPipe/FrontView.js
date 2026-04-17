@@ -88,12 +88,12 @@ const setupModels = async () => {
 
 setupModels();
 
-let currentCameraIndex = 2; // * CAM
+let currentCameraIndex = 0; // * CAM
 async function enableCam() {
   if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
 
   webcamButton.style.display = "none";
-  
+  z
   await navigator.mediaDevices.getUserMedia({ video: true });
   const devices = await navigator.mediaDevices.enumerateDevices();
   const videoDevices = devices.filter(d => d.kind === "videoinput");

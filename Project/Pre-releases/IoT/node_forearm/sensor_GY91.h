@@ -13,8 +13,8 @@ struct Orientation {
 
 class MyGY91 {
 private:
-    const int SDA_PIN = 1;
-    const int SCL_PIN = 0;
+    const int SDA_PIN = 16;
+    const int SCL_PIN = 4;
 
     const int MPU_ADDR = 0x68;
     const int BMP_ADDR = 0x76;
