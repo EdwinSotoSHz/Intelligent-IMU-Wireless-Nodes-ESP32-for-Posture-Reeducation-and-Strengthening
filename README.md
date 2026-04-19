@@ -524,13 +524,6 @@ docker-compose down             # Detener y eliminar contenedores
 docker exec -it nodered bash
 ```
 
-### Navegar en datos persistentes
-
-```bash
-cd /data
-ls
-```
-
 ---
 
 ## 💾 Backup de Volúmenes
@@ -587,14 +580,6 @@ tar xzf /backup/backup_full.tar.gz -C /
 
 ---
 
-## ▶️ Levantar el Sistema
-
-```bash
-docker-compose up -d
-```
-
----
-
 ## 🌐 Accesos
 
 | Servicio    | URL                                              |
@@ -603,42 +588,5 @@ docker-compose up -d
 | WebServices | [http://localhost:3000/](http://localhost:3000/) |
 | InfluxDB    | [http://localhost:8086/](http://localhost:8086/) |
 | Grafana     | [http://localhost:3001/](http://localhost:3001/) |
-
----
-
-## 🧠 Notas Importantes
-
-* Los volúmenes contienen:
-
-  * InfluxDB: datos + configuración
-  * Grafana: dashboards
-  * Node-RED: flows y credenciales
-
-* El backup es binario:
-
-  * rápido
-  * completo
-  * no requiere reconfiguración
-
-* Para restaurar correctamente:
-
-  * eliminar volúmenes antes
-  * luego ejecutar restore
-
----
-
-## 📁 Requisitos para replicar el entorno
-
-* `docker-compose.yml`
-* carpetas de build (`nodered`, `webservices`)
-* archivo de backup (`backup_full.tar.gz`)
-
----
-
-## ⚠️ Consideraciones
-
-* Asegurar mismas versiones de contenedores
-* No modificar volúmenes manualmente
-* Certificados TLS deben estar en rutas persistentes 
 
 ---

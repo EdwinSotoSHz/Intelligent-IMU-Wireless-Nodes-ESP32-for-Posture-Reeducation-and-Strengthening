@@ -1,5 +1,6 @@
 // three.js
-import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
+//import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
+import * as THREE from './build/three.module.js';
 
 // ============================
 // VARIABLES CONTROLADAS
@@ -43,10 +44,10 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0x606060));
+scene.add(new THREE.AmbientLight(0xffffff,1));
 
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(5, 10, 7.5);
+const light = new THREE.DirectionalLight(0xffffff, 5);
+light.position.set(2, 3, 1);
 scene.add(light);
 
 scene.add(new THREE.GridHelper(20, 40, 0x333333, 0x222222));
