@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <esp_now.h>
 
-#include "sensor_GY91.h" 
+#include "sensor_MPU9250.h"
 
 // Dirección MAC del Master Node
 uint8_t broadcastAddress[] = {0x8C, 0x4F, 0x00, 0xAD, 0x68, 0x6C};
@@ -16,7 +16,8 @@ typedef struct struct_message_forearm {
 
 struct_message_forearm myData;
 
-MyGY91 mpu;
+// Sensor MPU9250 (usa la misma librería que el nodo brazo)
+MyMPU9250 mpu;
 
 void OnDataSent(const wifi_tx_info_t *tx_info, esp_now_send_status_t status) {
     Serial.print("Estado del envío: ");
@@ -25,7 +26,7 @@ void OnDataSent(const wifi_tx_info_t *tx_info, esp_now_send_status_t status) {
 
 void setup() {
     Serial.begin(115200);
-    delay(1000);
+    delay(1000); // Esperar a que el monitor serial se conecte
     
     WiFi.mode(WIFI_STA);
 
@@ -46,25 +47,30 @@ void setup() {
         return;
     }
 
+    // Configurar ID del nodo (2 = antebrazo)
     myData.node_id = 2;
     
-    // Inicializar sensor GY-91
+    // Inicializar sensor MPU REAL
     mpu.begin();
     
-    Serial.println("Nodo ANTEBRAZO iniciado - Usando GY-91 (MPU9250 + BMP280)");
+    Serial.println("Nodo ANTEBRAZO iniciado - Usando sensor MPU9250 REAL");
     Serial.println("Enviando datos absolutos (roll_f, pitch_f, yaw_f)");
     Serial.println("=================================");
 }
 
 void loop() {
+    // Obtener datos del MPU9250 real
     Orientation mpuData = mpu.getData();
     
-    myData.roll_f  = mpuData.roll;
+    // Llenar la estructura con datos absolutos del sensor
+    myData.roll_f = mpuData.roll;
     myData.pitch_f = mpuData.pitch;
-    myData.yaw_f   = mpuData.yaw;
+    myData.yaw_f = mpuData.yaw;
 
+    // Enviar por ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
+    // Mostrar valores (incluso durante calibración)
     Serial.print("[ANTEBRAZO] ID:"); Serial.print(myData.node_id);
     Serial.print(" | Roll_f: "); Serial.print(myData.roll_f, 1);
     Serial.print("° | Pitch_f: "); Serial.print(myData.pitch_f, 1);
@@ -75,5 +81,5 @@ void loop() {
         Serial.println(" [ERROR ENVIO]");
     }
 
-    delay(100);
+    delay(100); // 100ms para ver cambios durante calibración
 }

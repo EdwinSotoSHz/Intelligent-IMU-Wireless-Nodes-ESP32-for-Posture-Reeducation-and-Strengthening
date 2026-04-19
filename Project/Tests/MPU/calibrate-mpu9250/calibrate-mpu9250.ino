@@ -9,7 +9,8 @@ long gxSum=0, gySum=0, gzSum=0;
 
 int samples = 0;
 
-void readMPU() {
+void readMPU(int16_t &ax, int16_t &ay, int16_t &az,
+             int16_t &gx, int16_t &gy, int16_t &gz) {
 
     Wire.beginTransmission(MPU_ADDR);
     Wire.write(0x3B);
@@ -17,29 +18,18 @@ void readMPU() {
 
     Wire.requestFrom(MPU_ADDR,14,true);
 
-    int16_t ax = Wire.read()<<8 | Wire.read();
-    int16_t ay = Wire.read()<<8 | Wire.read();
-    int16_t az = Wire.read()<<8 | Wire.read();
+    ax = Wire.read()<<8 | Wire.read();
+    ay = Wire.read()<<8 | Wire.read();
+    az = Wire.read()<<8 | Wire.read();
 
     Wire.read(); Wire.read();
 
-    int16_t gx = Wire.read()<<8 | Wire.read();
-    int16_t gy = Wire.read()<<8 | Wire.read();
-    int16_t gz = Wire.read()<<8 | Wire.read();
-
-    axSum += ax;
-    aySum += ay;
-    azSum += az;
-
-    gxSum += gx;
-    gySum += gy;
-    gzSum += gz;
-
-    samples++;
+    gx = Wire.read()<<8 | Wire.read();
+    gy = Wire.read()<<8 | Wire.read();
+    gz = Wire.read()<<8 | Wire.read();
 }
 
 void setup() {
-
     Serial.begin(115200);
     Wire.begin(SDA_PIN,SCL_PIN);
 
@@ -48,39 +38,56 @@ void setup() {
     Wire.write(0);
     Wire.endTransmission();
 
-    Serial.println("No mover el sensor...");
+    Serial.println("NO MOVER - calibrando...");
+    delay(1000);
 }
 
 void loop() {
 
     if(samples < 10000){
 
-        readMPU();
+        int16_t ax, ay, az, gx, gy, gz;
+        readMPU(ax, ay, az, gx, gy, gz);
+
+        axSum += ax;
+        aySum += ay;
+        azSum += az;
+
+        gxSum += gx;
+        gySum += gy;
+        gzSum += gz;
+
+        samples++;
         delay(2);
 
     } else {
 
-        Serial.println("RESULTADOS:");
+        float axAvg = axSum/(float)samples;
+        float ayAvg = aySum/(float)samples;
+        float azAvg = azSum/(float)samples;
 
-        Serial.print("ax avg = ");
-        Serial.println(axSum/(float)samples);
+        float gxAvg = gxSum/(float)samples;
+        float gyAvg = gySum/(float)samples;
+        float gzAvg = gzSum/(float)samples;
 
-        Serial.print("ay avg = ");
-        Serial.println(aySum/(float)samples);
+        // 🔑 Corrección clave: quitar gravedad en Z
+        float accBiasX = axAvg;
+        float accBiasY = ayAvg;
+        float accBiasZ = azAvg - 16384.0;
 
-        Serial.print("az avg = ");
-        Serial.println(azSum/(float)samples);
+        Serial.println("=== BIAS CALIBRADOS ===");
 
-        Serial.print("gx avg = ");
-        Serial.println(gxSum/(float)samples);
+        Serial.print("GYRO_BIAS_X = "); Serial.println(gxAvg);
+        Serial.print("GYRO_BIAS_Y = "); Serial.println(gyAvg);
+        Serial.print("GYRO_BIAS_Z = "); Serial.println(gzAvg);
 
-        Serial.print("gy avg = ");
-        Serial.println(gySum/(float)samples);
+        Serial.println();
 
-        Serial.print("gz avg = ");
-        Serial.println(gzSum/(float)samples);
+        Serial.print("ACC_BIAS_X = "); Serial.println(accBiasX);
+        Serial.print("ACC_BIAS_Y = "); Serial.println(accBiasY);
+        Serial.print("ACC_BIAS_Z = "); Serial.println(accBiasZ);
 
-        Serial.println("-----");
+        Serial.println("======================");
 
         while(1);
     }

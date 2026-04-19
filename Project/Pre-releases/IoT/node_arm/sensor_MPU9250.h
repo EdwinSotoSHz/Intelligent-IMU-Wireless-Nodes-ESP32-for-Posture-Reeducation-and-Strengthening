@@ -20,13 +20,16 @@ private:
     const float ACCEL_SCALE = 16384.0;
     const float GYRO_SCALE = 131.0;
 
-    const float GYRO_BIAS_X = -586.58;
-    const float GYRO_BIAS_Y = 503.27;
-    const float GYRO_BIAS_Z = 67.01;
+    const float GYRO_BIAS_X = -59.07;
+    const float GYRO_BIAS_Y = -98.43;
+    const float GYRO_BIAS_Z = 92.64;
 
-    const float ACC_BIAS_X = 1477.39;
-    const float ACC_BIAS_Y = 379.93;
-    const float ACC_BIAS_Z = 1670.55;
+    const float ACC_BIAS_X = 6331.23;
+    const float ACC_BIAS_Y = -1842.82;
+    const float ACC_BIAS_Z = 3214.87;
+
+    // 🔹 NUEVO: umbral de zona muerta (ajustable)
+    const float GYRO_DEADBAND = 0.1;
 
     int16_t axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw;
 
@@ -61,6 +64,12 @@ private:
         while (angle > 180) angle -= 360;
         while (angle < -180) angle += 360;
         return angle;
+    }
+
+    // 🔹 NUEVO: deadband suave (evita saltos bruscos)
+    float applyDeadband(float value, float threshold) {
+        if (abs(value) < threshold) return 0;
+        return value - (value > 0 ? threshold : -threshold);
     }
 
 public:
@@ -99,7 +108,6 @@ public:
         float dt = (now - prevTime) / 1000000.0;
         prevTime = now;
 
-        // 🔒 Limitar dt para evitar saltos grandes
         if (dt <= 0 || dt > 0.5) dt = 0.01;
 
         readMPU();
@@ -107,6 +115,11 @@ public:
         float gx = (gxRaw - GYRO_BIAS_X) / GYRO_SCALE;
         float gy = (gyRaw - GYRO_BIAS_Y) / GYRO_SCALE;
         float gz = (gzRaw - GYRO_BIAS_Z) / GYRO_SCALE;
+
+        // 🔥 APLICACIÓN DEL DEADBAND (AQUÍ ESTÁ LA CLAVE)
+        gx = applyDeadband(gx, GYRO_DEADBAND);
+        gy = applyDeadband(gy, GYRO_DEADBAND);
+        gz = applyDeadband(gz, GYRO_DEADBAND);
 
         float ax = (axRaw - ACC_BIAS_X) / ACCEL_SCALE;
         float ay = (ayRaw - ACC_BIAS_Y) / ACCEL_SCALE;
@@ -121,18 +134,17 @@ public:
             yaw = 0;
             firstRead = false;
         } else {
-            // ✅ Filtro complementario (solo roll/pitch)
+            // Filtro complementario (igual que tu versión)
             roll = normalizeAngle(0.96 * (roll + gx * dt) + 0.04 * accRoll);
             pitch = normalizeAngle(0.96 * (pitch + gy * dt) + 0.04 * accPitch);
 
-            // ✅ YAW SIEMPRE integrado
+            // Integración yaw (ahora con menos drift)
             yaw += gz * dt;
             yaw = normalizeAngle(yaw);
         }
 
         Orientation data;
 
-        // 🔧 Calibración inicial
         if (!calibrated) {
             rollSum += roll;
             pitchSum += pitch;
@@ -145,7 +157,6 @@ public:
                 yawOffset = yawSum / calibrationSamples;
 
                 calibrated = true;
-
                 Serial.println("Calibración completa");
             }
 
