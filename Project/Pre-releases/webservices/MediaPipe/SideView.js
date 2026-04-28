@@ -89,7 +89,7 @@ const setupModels = async () => {
 
 setupModels();
 
-let currentCameraIndex = 1; // * CAM
+let currentCameraIndex = 2; // * CAM
 async function enableCam() {
   if (!poseLandmarker || !handLandmarker || !faceLandmarker) return;
 

@@ -117,7 +117,7 @@ graph LR
 
     subgraph Perifericos ["Nodos Sensores"]
         A1["💪 <b>Arm Node</b><br/>ESP32-C3 + MPU9250 + AD8232"]
-        A2["💪 <b>Forearm Node</b><br/>ESP32-C3 + GY-91 (MPU9250 y BMP280)"]
+        A2["💪 <b>Forearm Node</b><br/>ESP32-C3 + MPU9250"]
     end
 
     B1["🧠 <b>Master Node</b><br/>ESP32 + LoRa SX1278"]
@@ -317,7 +317,7 @@ graph LR
       <td>Acelerómetro + giroscopio + magnetómetro</td>
     </tr>
     <tr>
-      <td><strong>GY-91</strong></td>
+      <td><strong>MPU9250</strong></td>
       <td>IMU + barómetro (antebrazo)</td>
       <td>Integra MPU9250 y BMP280 (altitud/temperatura)</td>
     </tr>

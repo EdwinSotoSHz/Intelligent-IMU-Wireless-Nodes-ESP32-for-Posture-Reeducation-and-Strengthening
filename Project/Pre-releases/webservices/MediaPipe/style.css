@@ -40,6 +40,7 @@ video, .output_canvas {
     left: 0px;
     top: 0px;
     border-radius: 0;
+    object-fit: cover;
     /* Opcional: eliminar bordes redondeados */
     /* Efecto espejo */
     transform: rotateY(180deg);
