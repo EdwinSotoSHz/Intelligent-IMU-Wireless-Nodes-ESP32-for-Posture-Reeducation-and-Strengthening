@@ -1,9 +1,7 @@
 import json
-import random
-import time
 import ssl
 import paho.mqtt.client as mqtt
-import math
+import tkinter as tk
 
 # ==========================================
 # CONFIGURACIÓN MQTT
@@ -38,23 +36,13 @@ Fdtom/DzMNU+MeKNhJ7jitralj41E6Vf8PlwUHBHQRFXGU7Aj64GxJUTFy8bJZ91
 8rGOmaFvE7FBcf6IKshPECBV1/MUReXgRPTqh5Uykw7+U0b6LJ3/iyK5S9kJRaTe
 pLiaWN0bfVKfjllDiIGknibVb63dDcY3fe0Dkhvld1927jyNxF1WW6LZZm6zNTfl
 MrY=
------END CERTIFICATE-----
-"""
+-----END CERTIFICATE-----"""
 
 with open("ca_cert.pem", "w") as f:
     f.write(CA_CERT)
 
 # ==========================================
-# CALLBACKS
-# ==========================================
-def on_connect(client, userdata, flags, rc):
-    print("✅ Conectado" if rc == 0 else f"❌ Error: {rc}")
-
-def on_publish(client, userdata, mid):
-    print(f"📤 {mid}")
-
-# ==========================================
-# CLIENTE MQTT
+# MQTT CLIENT
 # ==========================================
 client = mqtt.Client()
 client.username_pw_set(USERNAME, PASSWORD)
@@ -64,63 +52,106 @@ client.tls_set(
     tls_version=ssl.PROTOCOL_TLS_CLIENT
 )
 
-client.on_connect = on_connect
-client.on_publish = on_publish
-
 client.connect(BROKER, PORT)
 client.loop_start()
 
+print("✅ MQTT conectado")
+
+
 # ==========================================
-# LOOP
+# TKINTER
 # ==========================================
-try:
-    iteration = 0
-    t = 0
-    dt = 0.25
+root = tk.Tk()
+root.title("MQTT IMU Controller")
+root.geometry("500x700")
 
-    while True:
-        iteration += 1
+sliders = {}
 
-        if iteration <= 3:
-            data = {
-                "roll_f": 0.0, "pitch_f": 0.0, "yaw_f": 0.0,
-                "roll_a": 0.0, "pitch_a": 0.0, "yaw_a": 0.0,
-                "ecg": random.randint(0, 4095),
-            }
+def add_slider(name, minv, maxv):
+    tk.Label(root, text=name, font=("Arial", 12)).pack()
+    s = tk.Scale(
+        root,
+        from_=minv,
+        to=maxv,
+        orient="horizontal",
+        length=400,
+        resolution=1
+    )
+    s.pack()
+    sliders[name] = s
 
-        else:
-            t += dt
+# Brazo
+add_slider("roll_a", -90, 90)
+add_slider("pitch_a", -90, 90)
+add_slider("yaw_a", -90, 90)
 
-            # =========================
-            # BRAZO (más yaw y pitch)
-            # =========================
-            pitch_a = 35 * math.sin(t)
-            yaw_a   = 15 * math.sin(t * 0.7 + 0.5)
-            roll_a  = 6  * math.sin(t * 0.5)
+# Antebrazo
+add_slider("roll_f", -90, 90)
+add_slider("pitch_f", -90, 90)
+add_slider("yaw_f", -90, 90)
 
-            # =========================
-            # ANTEBRAZO (más roll)
-            # =========================
-            pitch_f = pitch_a + 35 * math.sin(t + 0.2)
-            roll_f  = 15 * math.sin(t * 1.2)       # fuerte aquí
-            yaw_f   = 8  * math.sin(t * 0.8 + 1)   # leve acompañamiento
+# ECG
+add_slider("ecg", 0, 4095)
 
-            data = {
-                "roll_f": round(roll_f, 2),
-                "pitch_f": round(pitch_f, 2),
-                "yaw_f": round(yaw_f, 2),
-                "roll_a": round(roll_a, 2),
-                "pitch_a": round(pitch_a, 2),
-                "yaw_a": round(yaw_a, 2),
-                "ecg": random.randint(0, 4095),
-            }
+# ==========================================
+# PUBLICAR
+# ==========================================
+sending = True
+def publish_data():
+
+    if sending:
+
+        data = {}
+
+        for k in sliders:
+            value = sliders[k].get()
+
+            if "roll_f" in k or "yaw_f" in k:
+                base_key = k.replace("_f", "_a")
+                value += sliders[base_key].get()
+
+            data[k] = value
 
         payload = json.dumps(data)
-        print(f"📡 Iter {iteration}:", payload)
 
         client.publish(TOPIC, payload)
-        time.sleep(1)
 
-except KeyboardInterrupt:
+        print("📡", payload)
+
+    root.after(500, publish_data)
+
+def toggle_sending():
+    global sending
+
+    sending = not sending
+
+    if sending:
+        button.config(text="⏸ Detener")
+        print("▶ Enviando datos")
+    else:
+        button.config(text="▶ Reanudar")
+        print("⏸ Envío detenido")
+
+button = tk.Button(
+    root,
+    text="⏸ Detener",
+    font=("Arial", 12),
+    command=toggle_sending
+)
+
+button.pack(pady=10)
+
+publish_data()
+
+
+# ==========================================
+# CIERRE LIMPIO
+# ==========================================
+def on_close():
     client.loop_stop()
     client.disconnect()
+    root.destroy()
+
+root.protocol("WM_DELETE_WINDOW", on_close)
+
+root.mainloop()
