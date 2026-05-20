@@ -14,6 +14,9 @@ services:
     container_name: webservices
     ports:
       - "3000:3000"
+    volumes:
+      - ../Project/Pre-releases/webservices:/app
+      - webservices-node-modules:/app/node_modules
     restart: unless-stopped
     
   influxdb:
@@ -41,3 +44,4 @@ volumes:
   influxdb-data:
   influxdb-config:
   grafana-data:
+  webservices-node-modules:

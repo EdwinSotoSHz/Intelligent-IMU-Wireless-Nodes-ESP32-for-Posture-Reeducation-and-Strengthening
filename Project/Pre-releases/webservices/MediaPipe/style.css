@@ -5,9 +5,9 @@ body, html {
     padding: 0;
     /* Añadido para eliminar padding */
     color: #3d3d3d;
-    width: 920px;
+    width: 700px;
     /* Ancho fijo */
-    height: 445px;
+    height: 405px;
     /* Alto fijo */
     overflow: hidden;
     /* Evita scroll */
@@ -25,11 +25,11 @@ h1 {
 
 .videoView {
     position: relative;
-    width: 920px;
+    width: 700px;
     /* Ancho fijo */
-    height: 445px;
+    height: 405px;
     /* Alto fijo */
-    max-width: 920px;
+    max-width: 700px;
     /* Asegurar que no crezca */
 }
 
@@ -72,14 +72,14 @@ video, .output_canvas {
 }
 
 #demos {
-    width: 920px;
-    height: 445px;
+    width: 700px;
+    height: 405px;
     position: relative;
 }
 
 #liveView {
-    width: 920px;
-    height: 445px;
+    width: 700px;
+    height: 405px;
     display: flex;
     justify-content: center;
 }
