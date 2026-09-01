@@ -37,12 +37,12 @@ const POSE_PARTS = {
 };
 
 const setupModels = async () => {
-/*
-! Opción web CDN
-!  const vision = await FilesetResolver.forVisionTasks(
-!    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
-!  );
-*/
+  /*
+  ! Opción web CDN
+  !  const vision = await FilesetResolver.forVisionTasks(
+  !    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+  !  );
+  */
   const vision = await FilesetResolver.forVisionTasks("../MediaPipe/wasm");
 
   poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
@@ -146,7 +146,7 @@ async function predictWebcam() {
     canvasElement.width = video.videoWidth;
     canvasElement.height = video.videoHeight;
   }
-  
+
   if (lastVideoTime !== video.currentTime) {
     lastVideoTime = video.currentTime;
     frameCount++;
@@ -172,7 +172,7 @@ async function predictWebcam() {
     // DIBUJAR SIEMPRE EL ÚLTIMO RESULTADO
     drawEverything(lastPose, lastHands, lastFace, canvasCtx);
   }
-  
+
   window.requestAnimationFrame(predictWebcam);
 }
 
@@ -205,7 +205,7 @@ function drawEverything(poseResult, handResult, faceResult) {
 
       drawingUtils.drawConnectors(adjustedLandmarks, filteredConnections, {
         color: "#E0E0E099",
-        lineWidth:7
+        lineWidth: 7
       });
 
       for (const [partName, indices] of Object.entries(POSE_PARTS)) {
