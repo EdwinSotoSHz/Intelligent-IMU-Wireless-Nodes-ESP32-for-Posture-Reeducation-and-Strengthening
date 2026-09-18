@@ -37,7 +37,7 @@ let partNameMap = new Map();
 
 const loader = new GLTFLoader();
 loader.load(
-    "./assets/PrototypeView.glb",
+    "/Intelligent-IMU-Wireless-Nodes-ESP32-for-Posture-Reeducation-and-Strengthening/assets/PrototypeView.glb",
     (gltf) => {
         const model = gltf.scene;
         scene.add(model);
