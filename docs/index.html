@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor 3D · Hover + Notas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #111;
+            font-family: system-ui, sans-serif;
+            color: #eee;
+        }
+
+        #viewer {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        #toolbar {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            background: #1e1e1e;
+            padding: 8px 14px;
+            border-radius: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+            pointer-events: auto;
+            max-width: 92vw;
+        }
+
+        #toolbar span {
+            font-size: 13px;
+            opacity: 0.7;
+            letter-spacing: 0.3px;
+        }
+
+        .tag {
+            cursor: pointer;
+            padding: 4px 12px;
+            background: #2c2c2c;
+            border-radius: 40px;
+            font-size: 13px;
+            transition: background 0.15s;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .tag:hover {
+            background: #3a3a3a;
+        }
+
+        .tag.active-tag {
+            background: #4a6a8a;
+            color: white;
+        }
+
+        #status {
+            font-size: 12px;
+            color: #999;
+            margin-left: 4px;
+        }
+
+        #note-popup {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #fff;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s;
+            border: 1px solid #444;
+            max-width: 80%;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+
+        #note-popup.visible {
+            opacity: 1;
+        }
+
+        #parts-list {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="viewer"></div>
+    <div id="note-popup"></div>
+    <div id="toolbar">
+        <div id="tag-container" style="display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center;"></div>
+        <div id="status"></div>
+    </div>
+    <div id="parts-list"></div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+        }
+    }
+    </script>
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>

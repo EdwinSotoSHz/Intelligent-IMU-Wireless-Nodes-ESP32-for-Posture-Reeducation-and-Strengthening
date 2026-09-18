@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exploded View - GSAP</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background: #0a0e14;
+            color: #e0e0e0;
+            font-family: system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ===== CONTENIDO IZQUIERDA ===== */
+        #content {
+            position: relative;
+            width: 50%;
+            min-height: 100vh;
+            padding: 40px 30px;
+            background: #0f151c;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #content * {
+            pointer-events: auto;
+        }
+
+        /* Secciones con altura para scroll prolongado */
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            min-height: 50vh;
+        }
+
+        .section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            color: #38bdf8;
+            margin-bottom: 1.5rem;
+        }
+
+        .section p {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            line-height: 1.8;
+            max-width: 400px;
+        }
+
+        .scroll-hint {
+            font-size: 2.5rem;
+            margin-top: 2rem;
+            animation: bounce 2s infinite;
+            display: inline-block;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(10px);
+            }
+        }
+
+        #partsList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #partsList li {
+            padding: 12px 16px;
+            margin: 6px 0;
+            background: rgba(56, 189, 248, 0.06);
+            border-left: 3px solid #38bdf8;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: #c8d0dc;
+            transition: all 0.3s;
+        }
+
+        #partsList li.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-left-color: #8b5cf6;
+            padding-left: 24px;
+        }
+
+        #statusDisplay {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        #currentPart {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #38bdf8;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #progressFill {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #8b5cf6);
+            transition: width 0.1s ease;
+            border-radius: 2px;
+        }
+
+        /* ===== VISOR 3D DERECHA (FIJO) ===== */
+        #viewer {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 50%;
+            height: 100vh;
+            background: #0a0e14;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        #exvCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .exv-label {
+            position: absolute;
+            left: 24px;
+            bottom: 24px;
+            font-size: 13px;
+            letter-spacing: .14em;
+            color: #38bdf8;
+            text-transform: uppercase;
+            opacity: .9;
+            font-weight: 500;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .exv-intro {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+            pointer-events: none;
+            z-index: 5;
+            color: #7c8ba1;
+            font-size: 15px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            transition: opacity .6s ease;
+        }
+
+        .exv-controls {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            z-index: 10;
+        }
+
+        .exv-controls button {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .exv-controls button:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            transform: scale(1.05);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            #content {
+                width: 100%;
+                padding: 20px;
+                min-height: auto;
+            }
+
+            #viewer {
+                width: 100%;
+                height: 60vh;
+                position: relative;
+                opacity: 0.85;
+            }
+
+            .section {
+                min-height: 60vh;
+                padding: 30px 0;
+            }
+
+            .section h1 {
+                font-size: 2rem;
+            }
+
+            .section h2 {
+                font-size: 1.4rem;
+            }
+
+            #partsList li {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0e14;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b5cf6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- CONTENIDO IZQUIERDA -->
+    <div id="content">
+        <div class="section" id="section1">
+            <h1>Vista Explosionada</h1>
+            <p>Desplázate para desarmar el dispositivo</p>
+            <span class="scroll-hint">↓</span>
+        </div>
+
+        <div class="section" id="section2">
+            <h2>Piezas</h2>
+            <ul id="partsList">
+                <li>ESP32_C3</li>
+                <li>Shield_ESP32_C3</li>
+                <li>AD8232</li>
+                <li>MPU9250</li>
+                <li>LiPo_Battery</li>
+                <li>PCB</li>
+                <li>Case_Lid</li>
+                <li>Case_Body</li>
+            </ul>
+        </div>
+
+        <div class="section" id="section3">
+            <h2>Estado</h2>
+            <div id="statusDisplay">
+                <span id="currentPart">ENSAMBLADO</span>
+                <div class="progress-bar">
+                    <div id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="section4">
+            <p>Desplázate más para ver el efecto completo</p>
+        </div>
+
+        <!-- Secciones extra para scroll prolongado -->
+        <div class="section" id="section5">
+            <p>⬇️ Continúa scrolleando</p>
+        </div>
+
+        <div class="section" id="section6">
+            <p>✨ Vista explosionada completada</p>
+        </div>
+    </div>
+
+    <!-- VISOR 3D DERECHA -->
+    <div id="viewer">
+        <canvas id="exvCanvas"></canvas>
+        <div class="exv-intro">
+            <p>↓ Scroll para desarmar</p>
+        </div>
+        <div class="exv-label" id="exvLabel">ENSAMBLADO</div>
+        <div class="exv-controls">
+            <button id="resetView">⟲</button>
+        </div>
+    </div>
+
+    <!-- Dependencias -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module" src="script1.js"></script>
+</body>
+
+</html>
