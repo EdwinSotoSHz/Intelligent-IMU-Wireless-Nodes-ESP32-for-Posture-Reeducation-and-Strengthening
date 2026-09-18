@@ -60,7 +60,7 @@ const size = (object) => box(object).getSize(new THREE.Vector3());
 // --- Cargar GLB ---
 const loader = new GLTFLoader();
 loader.load(
-    '../assets/PrototypeView.glb',
+    './assets/PrototypeView.glb',
 
     (gltf) => {
         const model = gltf.scene;

@@ -37,7 +37,7 @@ let partNameMap = new Map();
 
 const loader = new GLTFLoader();
 loader.load(
-    "../assets/PrototypeView.glb",
+    "./assets/PrototypeView.glb",
     (gltf) => {
         const model = gltf.scene;
         scene.add(model);
