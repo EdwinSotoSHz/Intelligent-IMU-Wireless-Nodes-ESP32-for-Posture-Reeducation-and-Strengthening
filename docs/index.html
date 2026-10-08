@@ -4,125 +4,494 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 3D · Hover + Notas</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-        }
+    <title>RehabiNodes – Telemetría IoT para Rehabilitación Física</title>
+    <meta name="description"
+        content="Sistema portátil e inalámbrico de monitoreo para rehabilitación física domiciliaria. Basado en ESP32, IMUs, ECG y tecnologías open source.">
+    <meta name="theme-color" content="#0b1624">
 
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: #111;
-            font-family: system-ui, sans-serif;
-            color: #eee;
-        }
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
 
-        #viewer {
-            width: 100vw;
-            height: 100vh;
-            display: block;
-        }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap">
 
-        #toolbar {
-            position: fixed;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 20;
-            background: #1e1e1e;
-            padding: 8px 14px;
-            border-radius: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px 20px;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
-            pointer-events: auto;
-            max-width: 92vw;
-        }
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        #toolbar span {
-            font-size: 13px;
-            opacity: 0.7;
-            letter-spacing: 0.3px;
-        }
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-        .tag {
-            cursor: pointer;
-            padding: 4px 12px;
-            background: #2c2c2c;
-            border-radius: 40px;
-            font-size: 13px;
-            transition: background 0.15s;
-            white-space: nowrap;
-            user-select: none;
-        }
-
-        .tag:hover {
-            background: #3a3a3a;
-        }
-
-        .tag.active-tag {
-            background: #4a6a8a;
-            color: white;
-        }
-
-        #status {
-            font-size: 12px;
-            color: #999;
-            margin-left: 4px;
-        }
-
-        #note-popup {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 30;
-            background: rgba(0, 0, 0, 0.85);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            color: #fff;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.25s;
-            border: 1px solid #444;
-            max-width: 80%;
-            text-align: center;
-            backdrop-filter: blur(4px);
-        }
-
-        #note-popup.visible {
-            opacity: 1;
-        }
-
-        #parts-list {
-            display: none;
-        }
-    </style>
+    <!-- Hoja de estilos personalizada (incluye estilos del visor 3D) -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <div id="viewer"></div>
-    <div id="note-popup"></div>
-    <div id="toolbar">
-        <div id="tag-container" style="display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center;"></div>
-        <div id="status"></div>
-    </div>
-    <div id="parts-list"></div>
 
+    <!-- Barra de progreso de scroll -->
+    <div id="scroll-progress" aria-hidden="true"></div>
+
+    <!-- ============================== Menú de Navegación ============================== -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#inicio">
+                <img src="assets/img/logo.png" alt="RehabiNodes logo" class="brand-logo">
+                RehabiNodes
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#inicio">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#objetivo">Objetivo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#hardware">Hardware</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#arquitectura">Arquitectura</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#dashboards">Dashboards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#diagramas-carcasa">Diagramas 3D</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tecnologias">Tecnologías</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+
+        <!-- ============================== Hero Section ============================== -->
+        <header id="inicio" class="text-white text-center">
+            <span class="hero-blob hero-blob-red" aria-hidden="true"></span>
+            <span class="hero-blob hero-blob-blue" aria-hidden="true"></span>
+
+            <div class="container hero-content">
+                <span class="hero-pill">
+                    <i class="bi bi-broadcast" aria-hidden="true"></i>
+                    Telemetría IoT · Rehabilitación física
+                </span>
+                <h1>Rehabi<span class="hero-accent">Nodes</span></h1>
+                <p class="lead">Sistema de monitoreo inalámbrico basado en sensores y tecnologías open source para
+                    optimizar procesos de rehabilitación física domiciliaria.</p>
+
+                <div class="hero-actions">
+                    <a href="#arquitectura" class="btn btn-light btn-lg">
+                        Ver Arquitectura <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://github.com/EduardoGomezTics/RehabiNodes.git" class="btn btn-outline-light btn-lg"
+                        target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-github me-1" aria-hidden="true"></i> Repositorio en GitHub
+                    </a>
+                </div>
+
+                <ul class="hero-stats">
+                    <li>
+                        <strong>ESP-NOW</strong>
+                        <span>2.4 GHz · Nodos → Maestro</span>
+                    </li>
+                    <li>
+                        <strong>LoRa</strong>
+                        <span>915 MHz · Maestro → Gateway</span>
+                    </li>
+                    <li>
+                        <strong>MQTT</strong>
+                        <span>EMQX · Gateway → Servicios</span>
+                    </li>
+                </ul>
+            </div>
+
+            <a href="#objetivo" class="scroll-hint" aria-label="Ir a la siguiente sección">
+                <i class="bi bi-chevron-double-down" aria-hidden="true"></i>
+            </a>
+        </header>
+
+        <!-- ============================== Sección: Objetivo ============================== -->
+        <section id="objetivo" class="py-6">
+            <div class="container">
+                <div class="section-head" data-reveal>
+                    <span class="eyebrow">Propósito</span>
+                    <h2>Objetivo del Proyecto</h2>
+                    <p>Diseñar e implementar un sistema portátil e inalámbrico para la medición y análisis del
+                        movimiento, con el fin de guiar al paciente durante ejercicios de movilidad motora y apoyar la
+                        readaptación progresiva y segura.</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-4" data-reveal style="--d: 0ms">
+                        <article class="feature-card h-100">
+                            <span class="feature-icon"><i class="bi bi-activity" aria-hidden="true"></i></span>
+                            <h3>Medición de Movimiento</h3>
+                            <p>Uso de IMUs en 3 ejes para evaluar el rango articular y la calidad de ejecución de cada
+                                ejercicio.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-4" data-reveal style="--d: 120ms">
+                        <article class="feature-card h-100">
+                            <span class="feature-icon feature-icon-red"><i class="bi bi-lightning-charge"
+                                    aria-hidden="true"></i></span>
+                            <h3>Señal Muscular</h3>
+                            <p>Captura de la señal eléctrica muscular para detectar compensaciones y fatiga durante la
+                                sesión.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-4" data-reveal style="--d: 240ms">
+                        <article class="feature-card h-100">
+                            <span class="feature-icon"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></span>
+                            <h3>Métricas Clínicas</h3>
+                            <p>Proporcionar métricas de seguimiento terapéutico como rango de movimiento y simetría al
+                                clínico.</p>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================== Sección: Hardware ============================== -->
+        <section id="hardware" class="py-6">
+            <div class="container">
+                <div class="section-head" data-reveal>
+                    <span class="eyebrow">Dispositivos</span>
+                    <h2>Hardware Sensorial</h2>
+                    <p>Dos nodos portátiles que cubren el mapeo articular completo del brazo.</p>
+                </div>
+
+                <div class="row g-4 justify-content-center">
+                    <div class="col-lg-6" data-reveal>
+                        <article class="node-card h-100">
+                            <header class="node-card-head">
+                                <span class="node-badge">Nodo 01</span>
+                                <h3>Arm Node <small>Nodo de Brazo</small></h3>
+                            </header>
+                            <p>Captura la orientación y el movimiento en los 3 ejes, junto con la actividad eléctrica
+                                muscular.</p>
+                            <ul class="spec-list">
+                                <li><span class="spec-label"><i class="bi bi-cpu" aria-hidden="true"></i>
+                                        Microcontrolador</span><span class="spec-value">ESP32-C3 Super Mini</span></li>
+                                <li><span class="spec-label"><i class="bi bi-compass" aria-hidden="true"></i>
+                                        IMU</span><span class="spec-value">MPU9250</span></li>
+                                <li><span class="spec-label"><i class="bi bi-heart-pulse" aria-hidden="true"></i>
+                                        Sensor ECG/EMG</span><span class="spec-value">AD8232</span></li>
+                            </ul>
+                        </article>
+                    </div>
+                    <div class="col-lg-6" data-reveal style="--d: 150ms">
+                        <article class="node-card h-100">
+                            <header class="node-card-head">
+                                <span class="node-badge node-badge-red">Nodo 02</span>
+                                <h3>Forearm Node <small>Nodo de Antebrazo</small></h3>
+                            </header>
+                            <p>Mide la cinemática complementaria para lograr el mapeo articular completo del brazo.</p>
+                            <ul class="spec-list">
+                                <li><span class="spec-label"><i class="bi bi-cpu" aria-hidden="true"></i>
+                                        Microcontrolador</span><span class="spec-value">ESP32-C3 Super Mini</span></li>
+                                <li><span class="spec-label"><i class="bi bi-compass" aria-hidden="true"></i>
+                                        IMU</span><span class="spec-value">MPU9250</span></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================== Sección: Arquitectura ============================== -->
+        <section id="arquitectura" class="py-6">
+            <div class="container">
+                <div class="section-head" data-reveal>
+                    <span class="eyebrow">Flujo de datos</span>
+                    <h2>Arquitectura y Flujo de Datos</h2>
+                    <p>Los datos se transmiten a través de ESP-NOW hacia un nodo maestro, el cual utiliza LoRa para
+                        llegar a un Gateway celular (LILYGO) que publica en un broker MQTT.</p>
+                </div>
+
+                <ol class="pipeline" data-reveal>
+                    <li class="pipe-step">
+                        <span class="pipe-icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+                        <h3>Nodos de Brazo y Antebrazo</h3>
+                        <p>ESP32-C3 · IMU · ECG/EMG</p>
+                        <span class="pipe-proto"><i class="bi bi-arrow-right" aria-hidden="true"></i> ESP-NOW · 2.4
+                            GHz</span>
+                    </li>
+                    <li class="pipe-step">
+                        <span class="pipe-icon"><i class="bi bi-broadcast" aria-hidden="true"></i></span>
+                        <h3>Nodo Maestro</h3>
+                        <p>ESP32 · LoRa SX1278</p>
+                        <span class="pipe-proto"><i class="bi bi-arrow-right" aria-hidden="true"></i> LoRa · 915
+                            MHz</span>
+                    </li>
+                    <li class="pipe-step">
+                        <span class="pipe-icon"><i class="bi bi-router" aria-hidden="true"></i></span>
+                        <h3>Gateway Celular</h3>
+                        <p>LILYGO T-SIM7070G</p>
+                        <span class="pipe-proto"><i class="bi bi-arrow-right" aria-hidden="true"></i> TCP/IP · red
+                            celular</span>
+                    </li>
+                    <li class="pipe-step">
+                        <span class="pipe-icon"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i></span>
+                        <h3>Broker MQTT</h3>
+                        <p>EMQX</p>
+                        <span class="pipe-proto"><i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            Microservicios</span>
+                    </li>
+                    <li class="pipe-step">
+                        <span class="pipe-icon"><i class="bi bi-database" aria-hidden="true"></i></span>
+                        <h3>Servicios en Docker</h3>
+                        <p>InfluxDB · Grafana · MediaPipe</p>
+                    </li>
+                </ol>
+
+                <div class="row justify-content-center mt-5">
+                    <div class="col-lg-10" data-reveal>
+                        <figure class="arch-figure">
+                            <img src="assets/img/RehabiNodes_Arquitectura.png"
+                                alt="Diagrama visual de la arquitectura de RehabiNodes" class="img-fluid" loading="lazy"
+                                decoding="async">
+                        </figure>
+                    </div>
+                </div>
+
+                <div class="row mt-4 justify-content-center">
+                    <div class="col-lg-10" data-reveal>
+                        <p class="callout">El diagrama ilustra el flujo de los datos desde la captura anatómica hasta
+                            su visualización: los nodos de brazo y antebrazo transmiten por ESP-NOW (2.4 GHz) al nodo
+                            maestro; este retransmite por LoRa (915 MHz) al Gateway celular, el cual publica en un
+                            broker MQTT (EMQX) a través de TCP/IP sobre red celular. Finalmente, los microservicios en
+                            Docker consumen los datos para su almacenamiento en InfluxDB y visualización tanto en
+                            MediaPipe como en dashboards clínicos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================== Sección: Dashboards ============================== -->
+        <section id="dashboards" class="py-6">
+            <div class="container">
+                <div class="section-head" data-reveal>
+                    <span class="eyebrow">Visualización</span>
+                    <h2>Interfaz y Visualización de Datos</h2>
+                    <p>Paneles para el monitoreo en tiempo real y el análisis histórico de cada sesión.</p>
+                </div>
+
+                <div id="dashboardCarousel" class="carousel slide" data-bs-ride="carousel" data-reveal>
+
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#dashboardCarousel" data-bs-slide-to="0" class="active"
+                            aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#dashboardCarousel" data-bs-slide-to="1"
+                            aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#dashboardCarousel" data-bs-slide-to="2"
+                            aria-label="Slide 3"></button>
+                    </div>
+
+                    <div class="carousel-inner">
+                        <!-- Slide 1: Grafana -->
+                        <div class="carousel-item active">
+                            <img src="assets/img/grafana_dashboard.png" class="d-block w-100"
+                                alt="Dashboard clínico en Grafana">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Dashboard Clínico (Grafana)</h5>
+                                <p>Análisis histórico de métricas: rangos de movimiento, actividad muscular y simetría.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 2: Node-RED -->
+                        <div class="carousel-item">
+                            <img src="assets/img/nodered_panel.png" class="d-block w-100"
+                                alt="Panel de control en Node-RED" loading="lazy">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Panel de Control (Node-RED)</h5>
+                                <p>Centro de integración y monitoreo en tiempo real de los datos recibidos vía MQTT.</p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 3: MediaPipe -->
+                        <div class="carousel-item">
+                            <img src="assets/img/mediapipe_view.png" class="d-block w-100"
+                                alt="Estimación de postura en MediaPipe" loading="lazy">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Estimación Articular (MediaPipe)</h5>
+                                <p>Detección de compensaciones motoras mediante visión por computadora.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="carousel-control-prev" type="button" data-bs-target="#dashboardCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Anterior</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#dashboardCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Siguiente</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================== Sección: Diagramas y Carcasa 3D ============================== -->
+        <section id="diagramas-carcasa" class="py-6">
+            <div class="container">
+                <div class="section-head" data-reveal>
+                    <span class="eyebrow">Ingeniería</span>
+                    <h2>Diagramas y Carcasa 3D</h2>
+                    <p>Esquemas de conexión de cada módulo y un modelo 3D interactivo del prototipo.</p>
+                </div>
+
+                <!-- Subsección: Esquemas Eléctricos -->
+                <h3 class="section-subtitle mb-4" data-reveal>Diagramas de Conexión Física</h3>
+                <div class="row g-4 mb-6">
+                    <!-- Nodo de Brazo -->
+                    <div class="col-md-4" data-reveal>
+                        <div class="card diagram-card h-100">
+                            <div class="diagram-img-wrapper">
+                                <img src="assets/img/Connections-ESP32C3-MPU9250-AD8232.fzz.svg"
+                                    class="card-img-top p-3" alt="Conexión Nodo de Brazo" loading="lazy">
+                            </div>
+                            <div class="card-body text-center">
+                                <h4 class="card-title">Nodo de Brazo (Arm Node)</h4>
+                                <p class="card-text">ESP32-C3 Super Mini + MPU9250 (IMU) + AD8232 (ECG/EMG)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nodo Maestro -->
+                    <div class="col-md-4" data-reveal style="--d: 120ms">
+                        <div class="card diagram-card h-100">
+                            <div class="diagram-img-wrapper">
+                                <img src="assets/img/Connections-ESP32-LoRaSX1278.svg" class="card-img-top p-3"
+                                    alt="Conexión Nodo Maestro" loading="lazy">
+                            </div>
+                            <div class="card-body text-center">
+                                <h4 class="card-title">Nodo Maestro</h4>
+                                <p class="card-text">ESP32 + Módulo LoRa Ra-02 SX1278</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gateway -->
+                    <div class="col-md-4" data-reveal style="--d: 240ms">
+                        <div class="card diagram-card h-100">
+                            <div class="diagram-img-wrapper">
+                                <img src="assets/img/Connections-Lilygo7070g-LoRaSX1278.svg" class="card-img-top p-3"
+                                    alt="Conexión Gateway" loading="lazy">
+                            </div>
+                            <div class="card-body text-center">
+                                <h4 class="card-title">Gateway Celular</h4>
+                                <p class="card-text">LILYGO T-SIM7070G + Módulo LoRa Ra-02 SX1278</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================================
+                     Subsección: Visor 3D interactivo del prototipo
+                     ========================================================== -->
+                <h3 class="section-subtitle mb-3" data-reveal>Modelo 3D Interactivo del Prototipo</h3>
+                <p class="text-muted mb-4" data-reveal>
+                    Explora el ensamblado del prototipo. Pasa el cursor sobre el modelo o usa los botones superiores
+                    para aislar cada componente y conocer su función.
+                </p>
+
+                <div id="visor-3d-wrapper" data-reveal>
+                    <div id="viewer"></div>
+
+                    <div id="visor-toolbar">
+                        <div id="tag-container"></div>
+                        <div id="status"></div>
+                    </div>
+
+                    <div id="visor-note-popup"></div>
+                </div>
+
+                <p class="viewer-hint">
+                    <i class="bi bi-hand-index-thumb" aria-hidden="true"></i> Arrastra para rotar
+                    <span aria-hidden="true">·</span>
+                    <i class="bi bi-mouse" aria-hidden="true"></i> Scroll para zoom
+                </p>
+            </div>
+        </section>
+        <!-- fin #diagramas-carcasa -->
+
+        <!-- ============================== Sección: Tecnologías ============================== -->
+        <section id="tecnologias" class="py-6">
+            <div class="container">
+                <div class="section-head" data-reveal>
+                    <span class="eyebrow">Stack</span>
+                    <h2>Tecnologías Open Source</h2>
+                </div>
+                <div class="row g-3 justify-content-center">
+                    <div class="col-md-3 col-6" data-reveal style="--d: 0ms">
+                        <div class="tech-tile">
+                            <i class="bi bi-diagram-3" aria-hidden="true"></i>
+                            <h3>Node-RED</h3>
+                            <p>Dashboard de integración.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6" data-reveal style="--d: 100ms">
+                        <div class="tech-tile">
+                            <i class="bi bi-box" aria-hidden="true"></i>
+                            <h3>Three.js</h3>
+                            <p>Visualización 3D en tiempo real.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6" data-reveal style="--d: 200ms">
+                        <div class="tech-tile">
+                            <i class="bi bi-bar-chart-line" aria-hidden="true"></i>
+                            <h3>Grafana &amp; InfluxDB</h3>
+                            <p>Análisis histórico de datos.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6" data-reveal style="--d: 300ms">
+                        <div class="tech-tile">
+                            <i class="bi bi-boxes" aria-hidden="true"></i>
+                            <h3>Docker</h3>
+                            <p>Contenerización de servicios.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ============================== Footer ============================== -->
+    <footer class="text-white text-center py-5">
+        <div class="container">
+            <a class="footer-brand" href="#inicio">
+                <img src="assets/img/logo.png" alt="" class="brand-logo" aria-hidden="true">
+                RehabiNodes
+            </a>
+            <p class="fw-bold mt-3">Ingeniería en Tecnologías de la Información y Comunicaciones (ITICS)</p>
+            <p>Instituto Tecnológico Superior del Occidente del Estado de Hidalgo</p>
+            <a class="footer-link" href="https://github.com/EduardoGomezTics/RehabiNodes.git" target="_blank"
+                rel="noopener noreferrer"><i class="bi bi-github" aria-hidden="true"></i> Código en GitHub</a>
+            <p class="footer-copy">&copy; 2026 RehabiNodes. Desarrollado para la mejora continua en telemetría y
+                salud.</p>
+        </div>
+    </footer>
+
+    <!-- ============================== Scripts ============================== -->
+
+    <!-- Bootstrap 5 JS (Bundle con Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Importmap para Three.js (DEBE ir antes de cualquier módulo) -->
     <script type="importmap">
     {
         "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
         }
     }
     </script>
-    <script type="module" src="script.js"></script>
+
+    <!-- Visor 3D (módulo ES) -->
+    <script type="module" src="js/script.js"></script>
+
+    <!-- Script Personalizado (navbar, scrollspy, animaciones de entrada) -->
+    <script src="js/app.js"></script>
+
 </body>
 
 </html>
